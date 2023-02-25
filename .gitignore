@@ -40,3 +40,6 @@ Thumbs.db
 
 # Next.js
 .next
+apps/server/.env
+apps/server/prisma/.env
+apps/web/.env

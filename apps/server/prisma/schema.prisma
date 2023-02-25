@@ -1,0 +1,106 @@
+generator client {
+    provider      = "prisma-client-js"
+    binaryTargets = ["native", "rhel-openssl-1.0.x"]
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DB_URL")
+}
+
+model User {
+    id       String  @id @default(cuid())
+    ccid     String  @unique
+    username String  @unique
+    email    String  @unique
+    password String
+    avatar   String?
+    role     Role    @default(MEMBER)
+    // clubs    ClubUser[]
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+// model ClubUser {
+//     id        String   @id @default(cuid())
+//     user      User     @relation(fields: [userId], references: [id])
+//     userId    String
+//     club      Club     @relation(fields: [clubId], references: [id])
+//     clubId    String
+//     clubRole  ClubRole @default(MEMBER)
+//     createdAt DateTime @default(now())
+//     updatedAt DateTime @updatedAt
+// }
+
+// model ClubMember {
+//     id   String   @id @default(cuid())
+//     name String
+//     role ClubRole @default(MEMBER)
+
+//     clubId String
+//     club   Club   @relation(fields: [clubId], references: [id])
+// }
+
+model Club {
+    id   String @id @default(cuid())
+    slug String @unique
+
+    // General
+    name            String       @unique
+    description     String
+    availability    Availability @default(OPEN)
+    applicationLink String?
+    tags            Tag[]
+
+    // Meeting Information
+    meetingFrequency String
+    meetingTime      String
+    meetingDays      String
+    meetingLocation  String
+
+    // Contact Information
+    contactEmail String
+    instagram    String?
+    facebook     String?
+    twitter      String?
+    website      String?
+
+    // Members
+    // members ClubUser[] // v2
+    president     String
+    vicePresident String
+    secretary     String
+    treasurer     String
+    advisor       String
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    // ClubMember ClubMember[]
+}
+
+model Tag {
+    id    String @id @default(cuid())
+    name  String @unique
+    clubs Club[]
+}
+
+enum Availability {
+    OPEN
+    CLOSED
+    APPLICATION
+}
+
+enum Role {
+    ADMIN
+    MEMBER
+}
+
+enum ClubRole {
+    PRESIDENT
+    VICE_PRESIDENT
+    SECRETARY
+    TREASURER
+    ADVISOR
+    MEMBER
+}
