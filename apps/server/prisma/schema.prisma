@@ -83,6 +83,9 @@ model Tag {
     id    String @id @default(cuid())
     name  String @unique
     clubs Club[]
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
 }
 
 enum Availability {

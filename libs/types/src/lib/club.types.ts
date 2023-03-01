@@ -1,5 +1,7 @@
 import type { Club, Tag } from '@prisma/client';
 
+type ClubIdentifierMethods = 'slug' | 'id' | 'name';
+
 /* -------------------------------- GET CLUBS ------------------------------- */
 
 export type GetClubs = {
@@ -7,11 +9,13 @@ export type GetClubs = {
     query: {
       limit?: number;
       offset?: number;
+      filter?: { tags: string[]; tagMethod: string };
+      sort?: 'new' | 'old' | 'name-desc' | 'name-asc';
     };
   };
   payload: Array<
     Pick<Club, 'id' | 'name' | 'slug' | 'description' | 'availability'> & {
-      tags: Tag['name'][];
+      tags: (Tag & { active: boolean })[];
     }
   >;
 };
@@ -21,7 +25,7 @@ export type GetClubs = {
 export type GetClub = {
   args: {
     query: {
-      method: 'slug' | 'id' | 'name';
+      method: ClubIdentifierMethods;
     };
     params: {
       identifier: string;
@@ -34,31 +38,7 @@ export type GetClub = {
 
 export type NewClub = {
   args: {
-    body: {
-      general: Pick<
-        Club,
-        'name' | 'description' | 'availability' | 'applicationLink'
-      > & { tags: Array<Tag['name']> };
-      meetingInformation: Pick<
-        Club,
-        'meetingFrequency' | 'meetingTime' | 'meetingDays' | 'meetingLocation'
-      >;
-      contactInformation: Pick<Club, 'contactEmail'> & {
-        media: {
-          instagram?: string;
-          facebook?: string;
-          twitter?: string;
-          website?: string;
-        };
-      };
-      members: {
-        president: string;
-        vicePresident: string;
-        secretary: string;
-        treasurer: string;
-        advisor: string;
-      };
-    };
+    body: Omit<Club, 'id' | 'slug' | 'createdAt' | 'updatedAt'> & { tags: Array<Tag['name']> };
   };
   payload: { id: string };
 };
@@ -67,43 +47,19 @@ export type NewClub = {
 
 export type EditClub = {
   args: {
-    query: {
-      method: 'slug' | 'id' | 'name';
-    };
-    params: {
-      identifier: string;
-    };
-    body: {
-      general?: Partial<
-        Pick<
-          Club,
-          'name' | 'description' | 'availability' | 'applicationLink'
-        > & { tags: Array<Tag['name']> }
-      >;
-      meetingInformation?: Partial<
-        Pick<
-          Club,
-          'meetingFrequency' | 'meetingTime' | 'meetingDays' | 'meetingLocation'
-        >
-      >;
-      contactInformation?: Partial<
-        Pick<Club, 'contactEmail'> & {
-          media?: {
-            instagram?: string;
-            facebook?: string;
-            twitter?: string;
-            website?: string;
-          };
-        }
-      >;
-      members?: {
-        president?: string;
-        vicePresident?: string;
-        secretary?: string;
-        treasurer?: string;
-        advisor?: string;
-      };
-    };
+    query: { method: ClubIdentifierMethods };
+    params: { identifier: string };
+    body: Partial<Omit<Club, 'id' | 'slug' | 'createdAt' | 'updatedAt'> & { tags: Array<Tag['name']> }>;
+  };
+  payload: { id: string };
+};
+
+/* ------------------------------- DELETE CLUB ------------------------------ */
+
+export type DeleteClub = {
+  args: {
+    query: { method: ClubIdentifierMethods };
+    params: { identifier: string };
   };
   payload: { id: string };
 };

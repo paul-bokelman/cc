@@ -1,11 +1,11 @@
-import type { IconType } from "react-icons";
-import NextLink from "next/link";
-import cn from "classnames";
-import { TbLoader } from "react-icons/tb";
+import type { IconType } from 'react-icons';
+import NextLink from 'next/link';
+import cn from 'classnames';
+import { TbLoader } from 'react-icons/tb';
 
-type Variants = "primary" | "secondary" | "danger" | "ghost";
-type Sizes = "small" | "medium" | "large";
-type State = "default" | "loading" | "disabled";
+type Variants = 'primary' | 'secondary' | 'danger' | 'ghost';
+type Sizes = 'small' | 'medium' | 'large';
+type State = 'default' | 'loading' | 'disabled';
 
 type BaseButtonProps = {
   variant?: Variants;
@@ -20,6 +20,7 @@ export type ButtonProps = (
   | ({
       link: true;
       href: string;
+      external?: boolean;
     } & React.ButtonHTMLAttributes<HTMLAnchorElement>)
   | ({
       link?: false;
@@ -29,44 +30,44 @@ export type ButtonProps = (
   BaseButtonProps;
 
 const variantStyles: { [key in Variants]: string } = {
-  primary: "bg-blue-70 text-white hover:bg-blue-50",
+  primary: 'bg-blue-70 text-white hover:bg-blue-50',
   secondary:
-    "border border-black-20 bg-white text-black-70 shadow-sm hover:bg-black-10/40",
-  danger: "bg-red-50 text-white hover:bg-red-70",
-  ghost: "bg-transparent text-black hover:text-black-60",
+    'border border-black-20 bg-white text-black-70 shadow-sm hover:bg-black-10/40',
+  danger: 'bg-red-50 text-white hover:bg-red-70',
+  ghost: 'bg-transparent text-black hover:text-black-60',
 };
 const sizeStyles: { [key in Sizes]: string } = {
-  small: "h-[36px] px-5 text-xs",
-  medium: "h-[40px] px-6 text-sm",
-  large: "h-[48px] px-6 text-sm",
+  small: 'h-[36px] px-5 text-xs',
+  medium: 'h-[40px] px-6 text-sm',
+  large: 'h-[48px] px-6 text-sm',
 };
 const stateStyles: { [key in State]: string } = {
-  default: "",
-  disabled: "pointer-events-none opacity-50",
-  loading: "pointer-events-none opacity-50",
+  default: '',
+  disabled: 'pointer-events-none opacity-50',
+  loading: 'pointer-events-none opacity-50',
 };
 
 //! CLEAN UP THIS FILE
 
 export const Button: React.FC<ButtonProps & BaseButtonProps> = ({
-  variant = "secondary",
-  size = "medium",
+  variant = 'secondary',
+  size = 'medium',
   children: text,
   iconLeft: IconLeft,
   iconRight: IconRight,
   ...props
 }) => {
   const state = props.loading
-    ? "loading"
+    ? 'loading'
     : props.disabled
-    ? "disabled"
-    : "default";
+    ? 'disabled'
+    : 'default';
 
   const classes = cn(
     variantStyles[variant],
     stateStyles[state],
     sizeStyles[size],
-    "flex items-center justify-center rounded-md transition-colors"
+    'flex items-center justify-center rounded-md transition-colors'
   );
 
   const children = (
@@ -83,11 +84,21 @@ export const Button: React.FC<ButtonProps & BaseButtonProps> = ({
   );
 
   if (props.link) {
-    const { href, ...rest } = props;
-    return (
+    const { href, external, ...rest } = props;
+    return !external ? (
       <NextLink href={href} className={classes} {...rest}>
         {children}
       </NextLink>
+    ) : (
+      <a
+        href={href}
+        className={classes}
+        {...rest}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        {children}
+      </a>
     );
   }
 

@@ -1,4 +1,4 @@
-import type { UserSession, AuthenticatedUser } from 'types';
+import type { UserSession, AuthenticatedUser } from '@/cc';
 import { client, prisma } from 'config';
 import { destroySession } from '.';
 

@@ -1,5 +1,4 @@
-import type { Controller } from 'types';
-import type { Logout } from '@/cc';
+import type { Controller, Logout } from '@/cc';
 import axios from 'axios';
 import { StatusCodes } from 'http-status-codes';
 import { env } from '~/lib/env';
@@ -22,10 +21,7 @@ export const logoutHandler: Controller<Logout> = async (req, res) => {
   try {
     await destroySession(sid);
   } catch (e) {
-    return error(
-      StatusCodes.INTERNAL_SERVER_ERROR,
-      'Failed to destroy session'
-    );
+    return error(StatusCodes.INTERNAL_SERVER_ERROR, 'Failed to destroy session');
   }
 
   try {

@@ -1,5 +1,4 @@
-import type { Controller } from 'types';
-import type { GetTags } from '@/cc';
+import type { Controller, GetTags } from '@/cc';
 import { StatusCodes } from 'http-status-codes';
 import { prisma } from '~/config';
 import { formatResponse, handleControllerError } from '~/lib/utils';

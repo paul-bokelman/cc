@@ -1,6 +1,9 @@
 import type { NextPageWithConfig } from '~/shared/types';
 import type { IconType } from 'react-icons';
+import type { GetClub } from '@/cc';
 import { useRouter } from 'next/router';
+import { useQuery } from 'react-query';
+import { toast } from 'react-hot-toast';
 import {
   TbUserCheck,
   TbFileText,
@@ -10,14 +13,11 @@ import {
   TbBrandInstagram,
   TbMail,
   TbShare,
+  TbBrandFacebook,
+  TbBrandTwitter,
 } from 'react-icons/tb';
-import {
-  type TagNames,
-  type ClubCardProps,
-  Tag,
-  ClubCard,
-  Button,
-} from '~/shared/components';
+import { type Error, api } from '~/lib/api';
+import { type TagNames, Tag, Button } from '~/shared/components';
 
 export type Club = {
   //base club
@@ -41,64 +41,31 @@ export type Club = {
     website: { label: string; url: string };
   };
 
-  similarClubs: ClubCardProps[];
+  // similarClubs: ClubCardProps[];
 };
 
 const Club: NextPageWithConfig = () => {
   const router = useRouter();
 
-  const club: Club = {
-    name: 'Engineering',
-    tags: ['sports', 'science'],
-    applicationRequired: true,
-    availability: 'open',
-    description:
-      'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
-    members: {
-      leadership: [
-        { name: 'Paul Bokelman', role: 'President' },
-        { name: 'Sam Mahjouri', role: 'Vice President' },
-        { name: 'Andrew Hale', role: 'Secretary' },
-        { name: 'Abhinav Palaharla', role: 'Treasurer' },
-        { name: 'John Mortensen', role: 'Advisor' },
-      ],
-      total: 32,
-    },
-    meetingInformation: {
-      frequency: 'Weekly',
-      time: '4:00-7:30 PM',
-      day: 'Monday',
-      location: 'Room 123',
-    },
-    contactInformation: {
-      email: 'dhns.engineering@gmail.com',
-      instagram: '@dnhs.engineering',
-      website: {
-        label: 'DNHS Engineering',
-        url: 'https://www.dnhs-engineering.com',
-      },
-    },
-    similarClubs: [
-      {
-        title: 'Engineering',
-        description:
-          'To identify a real-world problem and develop a solution to it. Equips students to become tech entrepreneurs and leaders.',
-        tags: ['sports', 'science'],
-      },
-      {
-        title: 'Engineering',
-        description:
-          'To identify a real-world problem and develop a solution to it. Equips students to become tech entrepreneurs and leaders.',
-        tags: ['sports', 'science'],
-      },
-      {
-        title: 'Engineering',
-        description:
-          'To identify a real-world problem and develop a solution to it. Equips students to become tech entrepreneurs and leaders.',
-        tags: ['sports', 'science'],
-      },
-    ],
-  };
+  const clubQuery = useQuery<GetClub['payload'], Error>(
+    ['club', { slug: router.query.slug }],
+    async () =>
+      await api.clubs.get({
+        query: { method: 'slug' },
+        params: { identifier: router.query.slug as string },
+      }),
+    {
+      retry: 0,
+      onError: (e) => console.log(e),
+      enabled: !!router.query.slug,
+    }
+  );
+
+  if (clubQuery.status !== 'success') {
+    return <>loading or smtn</>;
+  }
+
+  const club = clubQuery.data;
 
   const TextWithIcon: React.FC<{
     element: string | React.ReactNode;
@@ -114,6 +81,14 @@ const Club: NextPageWithConfig = () => {
     </div>
   );
 
+  const leadership = {
+    president: club.president,
+    'vice president': club.vicePresident,
+    secretary: club.secretary,
+    treasurer: club.treasurer,
+    advisor: club.advisor,
+  };
+
   return (
     <div className="mt-12 flex w-full flex-col items-start justify-center gap-8">
       {/* HEADER */}
@@ -121,18 +96,19 @@ const Club: NextPageWithConfig = () => {
         <div className="flex w-full flex-col items-center gap-4 md:items-start ">
           <h1 className="text-4xl font-semibold">{club.name}</h1>
           <div className="flex items-center gap-2">
-            {club.tags.map((name) => (
+            {club.tags?.map(({ name }) => (
               <Tag key={name} variant="inline" name={name} active={false} />
             ))}
           </div>
           <div className="flex items-center gap-3">
-            {club.availability === 'open' ? (
+            {club.availability === 'OPEN' ||
+            club.availability === 'APPLICATION' ? (
               <div className="flex items-center gap-1">
                 <TbUserCheck className="text-xl text-black" />
                 <span className="text-sm text-black-70">Accepting Members</span>
               </div>
             ) : null}
-            {club.applicationRequired ? (
+            {club.availability === 'APPLICATION' ? (
               <div className="flex items-center gap-1">
                 <TbFileText className="text-xl text-black" />
                 <span className="text-sm text-black-70">
@@ -143,17 +119,26 @@ const Club: NextPageWithConfig = () => {
           </div>
         </div>
         <div className="mt-6 flex items-center gap-2 md:mt-0">
-          <Button variant="secondary" iconLeft={TbShare}>
+          <Button
+            variant="secondary"
+            iconLeft={TbShare}
+            onClick={() => {
+              navigator.clipboard.writeText(window.location.href);
+              toast.success('Link copied to clipboard!');
+            }}
+          >
             Share
           </Button>
           {/* students can't join clubs yet so they can only apply */}
-          {club.applicationRequired ? (
-            <Button variant="primary">Apply</Button>
+          {club.availability === 'APPLICATION' ? (
+            <Button variant="primary" link external href={club.applicationLink}>
+              Apply
+            </Button>
           ) : null}
         </div>
       </div>
       {/* DESCRIPTION AND MEMBERS */}
-      <div className="grid w-full grid-cols-1 items-center border-t border-b border-black-20 py-10 md:grid-cols-2">
+      <div className="grid w-full grid-cols-1 items-start border-t border-b border-black-20 py-10 md:grid-cols-2 ">
         <div className="flex w-full flex-col items-center justify-center gap-6 md:w-3/4 md:items-start md:justify-start">
           <h2 className="text-xl font-semibold">Description</h2>
           <p className="w-3/4 text-sm text-black-70 md:w-full">
@@ -161,57 +146,85 @@ const Club: NextPageWithConfig = () => {
           </p>
         </div>
         <div className="mt-8 flex w-full flex-col items-center justify-center gap-6 md:mt-0 md:w-3/4 md:items-start md:justify-start">
-          <h2 className="text-xl font-semibold">Members</h2>
-          <div className="grid grid-cols-2 grid-rows-3 gap-3">
-            {club.members.leadership.map((member) => (
-              <div key={member.name} className="flex flex-col gap-1">
-                <span className="text-black-70">{member.name}</span>
-                <span className="text-xs italic text-black-50">
-                  {member.role}
-                </span>
+          <h2 className="text-xl font-semibold">Leadership</h2>
+          <div className="grid grid-cols-2 grid-rows-3 gap-3 w-3/4 grid-flow-col">
+            {Object.entries(leadership).map(([role, name], i) => (
+              <div key={name} className="flex">
+                <div className="flex flex-col gap-1">
+                  <span className="text-black-70">{name}</span>
+                  <span className="text-xs italic text-black-50 capitalize">
+                    {role}
+                  </span>
+                </div>
               </div>
             ))}
-            {club.members.total > club.members.leadership.length ? (
+            {/* {club.members.total > club.members.leadership.length ? (
               <span className="my-auto text-sm font-medium text-black-60">
                 + {club.members.total - club.members.leadership.length} more
               </span>
-            ) : null}
+            ) : null} */}
           </div>
         </div>
       </div>
       {/* MEETING AND CONTACT INFO */}
-      <div className="grid w-full grid-cols-1 border-b border-black-20 pb-10 md:grid-cols-2">
+      <div className="grid w-full grid-cols-1 items-start border-b border-black-20 pb-10 md:grid-cols-2">
         <div className="flex w-full flex-col items-center justify-center gap-6 md:w-3/4 md:items-start md:justify-start">
           <h2 className="text-xl font-semibold">Meeting Information</h2>
           <div className="flex flex-col gap-2">
             <TextWithIcon
-              element={`${club.meetingInformation.day}, ${club.meetingInformation.time}, ${club.meetingInformation.frequency}`}
+              element={`${club.meetingDays}, ${club.meetingTime}, ${club.meetingFrequency}`}
               icon={TbCalendarTime}
             />
-            <TextWithIcon
-              element={club.meetingInformation.location}
-              icon={TbLocation}
-            />
+            <TextWithIcon element={club.meetingLocation} icon={TbLocation} />
           </div>
         </div>
         <div className="mt-8 flex w-full flex-col items-center justify-center gap-6 md:mt-0 md:w-3/4 md:items-start md:justify-start">
           <h2 className="text-xl font-semibold">Contact Information</h2>
           <div className="flex flex-col gap-2">
-            <TextWithIcon
-              element={club.contactInformation.email}
-              icon={TbMail}
-            />
-            <TextWithIcon
-              element={club.contactInformation.instagram}
-              icon={TbBrandInstagram}
-            />
+            <TextWithIcon element={club.contactEmail} icon={TbMail} />
+            {club.instagram ? (
+              <TextWithIcon
+                element={
+                  <a
+                    href={`https://www.instagram.com/${club.instagram}`}
+                    className="text-blue-60 underline"
+                  >
+                    @{club.instagram}
+                  </a>
+                }
+                icon={TbBrandInstagram}
+              />
+            ) : null}
+            {club.facebook ? (
+              <TextWithIcon
+                element={
+                  <a
+                    href={`https://www.facebook.com/${club.facebook}`}
+                    className="text-blue-60 underline"
+                  >
+                    @{club.facebook}
+                  </a>
+                }
+                icon={TbBrandFacebook}
+              />
+            ) : null}
+            {club.twitter ? (
+              <TextWithIcon
+                element={
+                  <a
+                    href={`https://www.twitter.com/${club.twitter}`}
+                    className="text-blue-60 underline"
+                  >
+                    @{club.twitter}
+                  </a>
+                }
+                icon={TbBrandTwitter}
+              />
+            ) : null}
             <TextWithIcon
               element={
-                <a
-                  href={club.contactInformation.website.url}
-                  className="text-blue-60 underline"
-                >
-                  {club.contactInformation.website.label}
+                <a href={club.website} className="text-blue-60 underline">
+                  Website
                 </a>
               }
               icon={TbLink}
@@ -219,15 +232,15 @@ const Club: NextPageWithConfig = () => {
           </div>
         </div>
       </div>
-      {/* MEETING AND CONTACT INFO */}
-      <div className="flex w-full flex-col items-center justify-center gap-6 md:items-start md:justify-start">
+      {/* SIMILAR CLUBS */}
+      {/* <div className="flex w-full flex-col items-center justify-center gap-6 md:items-start md:justify-start">
         <h2 className="text-xl font-semibold">Similar Clubs</h2>
         <div className="grid grid-cols-1 gap-2 md:grid-cols-2 lg:grid-cols-3">
           {club.similarClubs.map((club) => (
             <ClubCard key={club.title} {...club} />
           ))}
         </div>
-      </div>
+      </div> */}
     </div>
   );
 };

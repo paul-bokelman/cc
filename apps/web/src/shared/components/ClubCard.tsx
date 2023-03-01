@@ -1,10 +1,12 @@
 import type { GetClubs } from '@/cc';
 import { Button } from '~/shared/components';
 import Link from 'next/link';
-import { TbUserCheck, TbFileText } from 'react-icons/tb';
-import { type TagNames, Tag } from '~/shared/components';
+import { TbUserCheck, TbFileText, TbUserX } from 'react-icons/tb';
+import { Tag } from '~/shared/components';
 
-export type ClubCardProps = GetClubs['payload'][number];
+export type ClubCardProps = Omit<GetClubs['payload'][number], 'tags'> & {
+  tags: { name: string; active: boolean }[];
+};
 
 // AVALIABLITY!!!!!
 
@@ -14,8 +16,8 @@ export const ClubCard: React.FC<ClubCardProps> = (club) => {
       <div className="flex flex-col gap-2">
         <h2 className="text-lg font-semibold">{club.name}</h2>
         <div className="flex items-center gap-1">
-          {club.tags.map((name) => (
-            <Tag key={name} name={name} variant="inline" active={false} />
+          {club.tags.map(({ name, active }) => (
+            <Tag key={name} name={name} variant="inline" active={active} />
           ))}
         </div>
         {/* truncating to 140 characters (should find another solution) */}
@@ -29,8 +31,16 @@ export const ClubCard: React.FC<ClubCardProps> = (club) => {
         <div className="mt-3 mb-2 h-[1px] w-full bg-black-20" />
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <TbFileText className="text-xl text-black-60" />
-            <TbUserCheck className="text-xl text-black-60" />
+            {club.availability === 'OPEN' ||
+            club.availability === 'APPLICATION' ? (
+              <TbUserCheck className="text-xl text-black-60" />
+            ) : null}
+            {club.availability === 'APPLICATION' ? (
+              <TbFileText className="text-xl text-black-60" />
+            ) : null}
+            {club.availability === 'CLOSED' ? (
+              <TbUserX className="text-xl text-black-60" />
+            ) : null}
           </div>
           <Link href={`/clubs/${club.slug}`}>
             <Button

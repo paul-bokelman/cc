@@ -4,6 +4,8 @@ import type { Role } from '@prisma/client';
 /*                               AUTHENTICATION                               */
 /* -------------------------------------------------------------------------- */
 
+//! OUTDATED
+
 export interface Authorization {
   args: {
     body: {

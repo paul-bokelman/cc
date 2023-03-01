@@ -41,9 +41,9 @@ export const clubs = Array.from({ length: 10 }).map((_, i) => {
     meetingTime: '6:00-7:30 PM', //! UPDATE
     meetingLocation: faker.address.streetAddress(),
     contactEmail: faker.internet.email(),
-    facebook: faker.internet.url(),
-    instagram: faker.internet.url(),
-    twitter: faker.internet.url(),
-    website: faker.internet.url(),
+    facebook: generateSlug(name),
+    instagram: generateSlug(name),
+    twitter: generateSlug(name),
+    website: generateSlug(name),
   });
 });

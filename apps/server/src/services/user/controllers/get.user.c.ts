@@ -1,5 +1,4 @@
-import type { Controller } from 'types';
-import type { GetUser } from '@/cc';
+import type { Controller, GetUser } from '@/cc';
 import { StatusCodes } from 'http-status-codes';
 
 export const getUser: Controller<GetUser> = async (req, res) => {

@@ -1,12 +1,9 @@
-import type { Controller } from 'types';
-// import type { Club, Tag } from '@prisma/client';
-import type { GetClub } from '@/cc';
+import type { Controller, GetClub } from '@/cc';
 import { StatusCodes } from 'http-status-codes';
 import { z } from 'zod';
 import { prisma } from '~/config';
 import { formatResponse, handleControllerError } from '~/lib/utils';
 
-// type GetClub = {
 //   args: {
 //     query: {
 //       method: 'slug' | 'id' | 'name';
@@ -19,12 +16,8 @@ import { formatResponse, handleControllerError } from '~/lib/utils';
 // };
 
 export const getClubValidation = z.object({
-  query: z.object({
-    method: z.enum(['slug', 'id', 'name']),
-  }),
-  params: z.object({
-    identifier: z.string(),
-  }),
+  query: z.object({ method: z.enum(['slug', 'id', 'name']) }),
+  params: z.object({ identifier: z.string() }),
 });
 
 export const getClubHandler: Controller<GetClub> = async (req, res) => {

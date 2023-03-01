@@ -1,18 +1,8 @@
-import type { Controller } from 'types';
-import type { Tag } from '@prisma/client';
+import type { Controller, GetTag } from '@/cc';
 import { StatusCodes } from 'http-status-codes';
 import { z } from 'zod';
 import { prisma } from '~/config';
 import { formatResponse, handleControllerError } from '~/lib/utils';
-
-type GetTag = {
-  args: {
-    params: {
-      id: string;
-    };
-  };
-  payload: Tag;
-};
 
 export const getTagValidation = z.object({
   params: z.object({

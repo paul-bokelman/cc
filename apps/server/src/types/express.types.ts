@@ -1,5 +1,4 @@
-import type { RequestHandler } from 'express';
-import type { ControllerConfig, ServerError, AuthenticatedUser } from '.';
+import type { AuthenticatedUser } from '@/cc';
 
 interface AuthenticatedRequestPayload {
   sid: string;
@@ -12,15 +11,3 @@ declare global {
     export interface Request extends AuthenticatedRequestPayload {}
   }
 }
-
-export type Controller<C extends ControllerConfig> = RequestHandler<
-  PossiblyUndefined<C['args'], 'params'>,
-  C['payload'] | ServerError,
-  PossiblyUndefined<C['args'], 'body'>,
-  PossiblyUndefined<C['args'], 'query'>
->;
-
-type PossiblyUndefined<
-  A extends ControllerConfig['args'],
-  K
-> = A extends undefined ? unknown : K extends keyof A ? A[K] : unknown;

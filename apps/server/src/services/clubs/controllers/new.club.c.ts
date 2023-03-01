@@ -1,5 +1,4 @@
-import type { Controller } from 'types';
-import type { NewClub } from '@/cc';
+import type { Controller, NewClub } from '@/cc';
 import { Availability } from '@prisma/client';
 import { StatusCodes } from 'http-status-codes';
 import { z } from 'zod';
@@ -39,117 +38,76 @@ import { formatResponse, handleControllerError, generate } from '~/lib/utils';
 // };
 
 export const newClubValidation = z.object({
-  body: z.object({
-    general: z
-      .object({
-        name: z
-          .string()
-          .max(50, 'Club name cannot be longer than 50 characters')
-          .min(3, 'Club name must be at least 3 characters')
-          .refine(async (input) => {
-            const club = await prisma.club.findFirst({
-              where: {
-                name: input,
-              },
-            });
-            return !club;
-          }, 'Club name already exists'),
-        description: z
-          .string()
-          .min(10, 'Club description must be at least 10 characters'),
-        availability: z.nativeEnum(Availability),
-        applicationLink: z.string().optional(),
-        tags: z
-          .array(z.string()) // should get all tags and check if they exist (names)
-          .max(3, 'You can only select up to 3 tags')
-          .min(1, 'You must select at least 1 tag')
-          .refine(async (input) => {
-            const tags = await prisma.tag.findMany({
-              where: { name: { in: input } },
-            });
-            return tags.length === input.length;
-          }, 'One or more tags do not exist'),
-      })
-      .superRefine((input, ctx) => {
-        console.log(input.applicationLink);
-        if (input.availability === 'APPLICATION' && !input.applicationLink) {
-          ctx.addIssue({
-            path: ['applicationLink'],
-            code: z.ZodIssueCode.custom,
-            message: 'Required if the club requires an application',
-          });
-        }
-      }),
+  body: z
+    .object({
+      name: z
+        .string()
+        .max(50, 'Club name cannot be longer than 50 characters')
+        .min(3, 'Club name must be at least 3 characters')
+        .refine(async (input) => {
+          const club = await prisma.club.findFirst({ where: { name: input } });
+          return !club;
+        }, 'Club name already exists'),
+      description: z.string().min(10, 'Club description must be at least 10 characters'),
+      availability: z.nativeEnum(Availability),
+      applicationLink: z.string().optional().nullable(),
+      tags: z
+        .string()
+        .array() // should get all tags and check if they exist (names)
+        .max(3, 'You can only select up to 3 tags')
+        .min(1, 'You must select at least 1 tag')
+        .refine(async (input) => {
+          const tags = await prisma.tag.findMany({ where: { name: { in: input } } });
+          return tags.length === input.length;
+        }, 'One or more tags do not exist'),
 
-    meetingInformation: z.object({
       meetingFrequency: z.string(),
       meetingTime: z.string(),
       meetingDays: z.string(),
       meetingLocation: z.string(),
-    }),
 
-    contactInformation: z.object({
       contactEmail: z.string().email(),
-      media: z
-        .object({
-          instagram: z.string().optional(),
-          facebook: z.string().optional(),
-          twitter: z.string().optional(),
-          website: z.string().optional(),
-        })
-        .superRefine((input, ctx) => {
-          ['instagram', 'twitter', 'facebook', 'website'].map((platform) => {
-            //! clean this shit up
-            if (
-              ['instagram', 'twitter', 'facebook', 'website'].includes(
-                platform
-              ) &&
-              !input[platform as keyof typeof input]
-            ) {
-              ctx.addIssue({
-                path: [`${platform}`],
-                message: 'A value is required to include this platform',
-                code: z.ZodIssueCode.custom,
-              });
-            }
-          });
-        }),
-    }),
+      instagram: z.string().optional().nullable(),
+      facebook: z.string().optional().nullable(),
+      twitter: z.string().optional().nullable(),
+      website: z.string().optional().nullable(),
 
-    members: z.object({
       president: z.string(),
       vicePresident: z.string(),
       secretary: z.string(),
       treasurer: z.string(),
       advisor: z.string(),
+    })
+    .superRefine((input, ctx) => {
+      console.log(input.applicationLink);
+      if (input.availability === 'APPLICATION' && !input.applicationLink) {
+        ctx.addIssue({
+          path: ['applicationLink'],
+          code: z.ZodIssueCode.custom,
+          message: 'Required if the club requires an application',
+        });
+      }
     }),
-  }),
 });
 
 export const newClubHandler: Controller<NewClub> = async (req, res) => {
   const { success } = formatResponse<NewClub>(res);
   const club = req.body;
 
+  const { tags, ...rest } = club;
+
   try {
     const { id } = await prisma.club.create({
       data: {
-        slug: generate.slug(club.general.name),
-        ...club.general,
-        ...club.meetingInformation,
-        ...club.contactInformation,
-        tags: {
-          connect: club.general.tags.map((name) => ({ name })),
-        },
-        president: club.members.president,
-        vicePresident: club.members.vicePresident,
-        secretary: club.members.secretary,
-        treasurer: club.members.treasurer,
-        advisor: club.members.advisor,
+        slug: generate.slug(rest.name),
+        tags: { connect: tags.map((name) => ({ name })) },
+        ...rest,
       },
     });
 
     return success(StatusCodes.OK, { id });
   } catch (e) {
+    console.log(e);
     return handleControllerError(e, res);
   }
 };

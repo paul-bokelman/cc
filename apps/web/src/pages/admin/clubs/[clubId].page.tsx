@@ -1,197 +1,178 @@
 import type { NextPageWithConfig } from '~/shared/types';
 import type { IconType } from 'react-icons';
+import { GetClub, EditClub, DeleteClub, GetTags } from '@/cc';
 import { useState } from 'react';
+import { useRouter } from 'next/router';
+import { useMutation, useQuery } from 'react-query';
 import { type FormikHelpers, Formik, Field, Form } from 'formik';
 import { z } from 'zod';
 import cn from 'classnames';
 import { toFormikValidationSchema } from 'zod-formik-adapter';
-import {
-  TbBrandFacebook,
-  TbBrandInstagram,
-  TbBrandTwitter,
-  TbCheck,
-  TbLink,
-} from 'react-icons/tb';
-import {
-  tagNames,
-  DashboardContainer as Page,
-  TextInput,
-  InputLabel,
-  FieldError,
-  Tag,
-  Button,
-} from '~/shared/components';
-
-// type NewClubValues = {
-//   general: {
-//     name: string;
-//     description: string;
-//     availability: "open" | "application" | "closed";
-//     applicationLink?: string;
-//     tags: Array<typeof tagNames[number]>; // could use TagNames but lets be honest that's another import
-//   };
-
-//   meetingInformation: {
-//     frequency: string;
-//     time: string;
-//     days: string;
-//     location: string;
-//   };
-
-//   contactInformation: {
-//     email: string;
-//     media: { [key in SupportedPlatforms]: string };
-//   };
-
-//   members: {
-//     president: string;
-//     vicePresident: string;
-//     secretary: string;
-//     treasurer: string;
-//     advisor: string;
-//   };
-// };
+import { toast } from 'react-hot-toast';
+import { TbBrandFacebook, TbBrandInstagram, TbBrandTwitter, TbCheck, TbLink } from 'react-icons/tb';
+import { type Error, queryClient, api } from '~/lib/api';
+import { handleServerValidationErrors, isValidationError } from '~/shared/utils';
+import { DashboardContainer as Page, TextInput, InputLabel, FieldError, Tag, Button } from '~/shared/components';
 
 type SupportedPlatforms = (typeof supportedPlatforms)[number];
 
-const supportedPlatforms = [
-  'instagram',
-  'facebook',
-  'twitter',
-  'website',
-] as const;
+const supportedPlatforms = ['instagram', 'facebook', 'twitter', 'website'] as const;
 
 const AdminDashboardClub: NextPageWithConfig = () => {
-  type EditClubValues = z.infer<typeof editClubValidation>;
+  const router = useRouter();
 
-  const club: EditClubValues = {
+  const clubQuery = useQuery<GetClub['payload'], Error>(
+    ['club', { id: router.query.clubId }],
+    async () =>
+      await api.clubs.get({
+        query: { method: 'id' },
+        params: { identifier: router.query.clubId as string },
+      }),
+    {
+      onError: (e) => console.log(e),
+      enabled: !!router.query.clubId,
+    }
+  );
+
+  const tagsQuery = useQuery<GetTags['payload'], Error>('tags', async () => api.tags.all());
+
+  const editClubMutation = useMutation<EditClub['payload'], Error, EditClub['args']>(api.clubs.edit, {
+    onSuccess: async ({ id }) => {
+      await queryClient.refetchQueries(['club', { id }]);
+      toast.success('Club updated successfully');
+    },
+    onError: (e) => {
+      if (!isValidationError(e)) {
+        console.log(e);
+        toast.error('Failed to update club');
+      }
+    },
+  });
+
+  const deleteClubMutation = useMutation<DeleteClub['payload'], Error, DeleteClub['args']>(api.clubs.delete, {
+    onSuccess: async (d) => {
+      await router.push('/admin/clubs');
+      toast.success('Club deleted successfully');
+    },
+    onError: (e) => {
+      toast.error('Failed to delete club');
+    },
+  });
+
+  const [selectedPlatforms, setSelectedPlatforms] = useState<Array<SupportedPlatforms>>([
+    'website',
+    'instagram',
+    'facebook',
+    'twitter',
+  ] as Array<SupportedPlatforms>);
+
+  const club = clubQuery.data;
+
+  const initialValues: EditClub['args']['body'] = {
     // type will be club
-    general: {
-      name: 'Engineering',
-      tags: ['sports', 'science'],
-      availability: 'application',
-      applicationLink: 'https://docs.google.com/forms/...',
-      description:
-        'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
-    },
-    members: {
-      president: 'Paul Bokelman',
-      vicePresident: 'Sam Mahjouri',
-      secretary: 'Andrew Hale',
-      treasurer: 'Abhinav Palacharla',
-      advisor: 'John Mortensen',
-    },
-    meetingInformation: {
-      frequency: 'Weekly',
-      time: '4:00-7:30 PM',
-      days: 'Monday',
-      location: 'A101',
-    },
-    contactInformation: {
-      email: 'dhns.engineering@gmail.com',
-      media: {
-        website: 'https://www.dnhs-engineering.com',
-        instagram: '@dnhs.engineering',
-      },
-    },
+    name: club?.name,
+    tags: club?.tags.map((tag) => tag.name),
+    availability: club?.availability,
+    applicationLink: club?.applicationLink,
+    description: club?.description,
+
+    president: club?.president,
+    vicePresident: club?.vicePresident,
+    secretary: club?.secretary,
+    treasurer: club?.treasurer,
+    advisor: club?.advisor,
+
+    meetingFrequency: club?.meetingFrequency,
+    meetingTime: club?.meetingTime,
+    meetingDays: club?.meetingDays,
+    meetingLocation: club?.meetingLocation,
+
+    contactEmail: club?.contactEmail,
+    website: club?.website ?? undefined,
+    instagram: club?.instagram ?? undefined,
+    facebook: club?.facebook ?? undefined,
+    twitter: club?.twitter ?? undefined,
   };
 
-  // don't like putting this here...
-  const [selectedPlatforms, setSelectedPlatforms] = useState<
-    Array<SupportedPlatforms>
-  >(Object.keys(club.contactInformation.media) as Array<SupportedPlatforms>);
-
   const handleSubmit = async (
-    values: EditClubValues,
-    { resetForm, setFieldError }: FormikHelpers<EditClubValues>
+    values: EditClub['args']['body'],
+    { setFieldError }: FormikHelpers<EditClub['args']['body']>
   ): Promise<void> => {
     try {
-      // event
-    } catch (error) {
+      const filteredValues = Object.entries(values).reduce((acc, [key, value]) => {
+        const hasChanged = initialValues[key] !== value;
+        if (hasChanged) acc[key] = value;
+        return acc;
+      }, {} as Partial<typeof initialValues>);
+
+      await editClubMutation.mutateAsync({
+        params: { identifier: club?.id },
+        query: { method: 'id' },
+        body: filteredValues,
+      });
+    } catch (e) {
+      handleServerValidationErrors(e, setFieldError);
       // server side validation
     }
   };
 
-  const editClubValidation = z.object({
-    general: z
-      .object({
-        name: z
-          .string()
-          .max(50, 'Club name cannot be longer than 50 characters')
-          .min(3, 'Club name must be at least 3 characters'),
-        description: z
-          .string()
-          .min(10, 'Club description must be at least 10 characters'),
-        availability: z.enum(['open', 'application', 'closed']),
-        applicationLink: z.string().optional(),
-        tags: z
-          .enum(tagNames)
-          .array()
-          .max(3, 'You can only select up to 3 tags')
-          .min(1, 'You must select at least 1 tag'),
-      })
-      .superRefine((input, ctx) => {
-        console.log(input.applicationLink);
-        if (input.availability === 'application' && !input.applicationLink) {
-          ctx.addIssue({
-            path: ['applicationLink'],
-            code: z.ZodIssueCode.custom,
-            message: 'Required if the club requires an application',
-          });
-        }
-      }),
+  const handleDeleteClub = async () => {
+    if (!club?.id) return; // shouldn't happen (toast)
+    //! confirmation modal (modal provider)
+    await deleteClubMutation.mutateAsync({ query: { method: 'id' }, params: { identifier: club?.id } });
+  };
 
-    meetingInformation: z.object({
-      frequency: z.string(),
-      time: z.string(),
-      days: z.string(), // should be array of days
-      location: z.string(),
-    }),
+  const editClubValidation = z
+    .object({
+      name: z
+        .string()
+        .max(50, 'Club name cannot be longer than 50 characters')
+        .min(3, 'Club name must be at least 3 characters'),
+      description: z.string().min(10, 'Club description must be at least 10 characters'),
+      availability: z.enum(['OPEN', 'APPLICATION', 'CLOSED']),
+      applicationLink: z.string().optional().nullable(),
+      tags: z.string().array().max(3, 'You can only select up to 3 tags').min(1, 'You must select at least 1 tag'),
 
-    contactInformation: z.object({
-      email: z.string().email(),
-      media: z
-        .object({
-          instagram: z.string().optional(),
-          facebook: z.string().optional(),
-          twitter: z.string().optional(),
-          website: z.string().optional(),
-        })
-        .superRefine((input, ctx) => {
-          supportedPlatforms.map((platform) => {
-            if (selectedPlatforms.includes(platform) && !input[platform]) {
-              ctx.addIssue({
-                path: [`${platform}`],
-                message: 'A value is required to include this platform',
-                code: z.ZodIssueCode.custom,
-              });
-            }
-          });
-        }),
-    }),
+      meetingFrequency: z.string(),
+      meetingTime: z.string(),
+      meetingDays: z.string(), // should be array of days
+      meetingLocation: z.string(),
 
-    members: z.object({
+      contactEmail: z.string().email(),
+      instagram: z.string().optional().nullable(),
+      facebook: z.string().optional().nullable(),
+      twitter: z.string().optional().nullable(),
+      website: z.string().optional().nullable(),
+
       president: z.string(),
       vicePresident: z.string(),
       secretary: z.string(),
       treasurer: z.string(),
       advisor: z.string(),
-    }),
-  });
+    })
+    .superRefine((input, ctx) => {
+      if (input.availability === 'APPLICATION' && !input.applicationLink) {
+        ctx.addIssue({
+          path: ['applicationLink'],
+          code: z.ZodIssueCode.custom,
+          message: 'Required if the club requires an application',
+        });
+      }
+    });
 
   const availabilityOptions = [
     {
-      value: 'open',
+      value: 'OPEN',
       description:
         'An open availability for a club means that the club is open to anyone who wants to join. There are no requirements or restrictions on who can join.',
     },
     {
-      value: 'application',
+      value: 'APPLICATION',
       description:
         'An application availability for a club means interested users must fill out an application then be invited by the club president through their ccid.',
     },
     {
-      value: 'closed',
+      value: 'CLOSED',
       description:
         'A closed availability for a club means that the club is not currently accepting new members. This could be because the club is full, or because it is not currently active.',
     },
@@ -207,10 +188,10 @@ const AdminDashboardClub: NextPageWithConfig = () => {
   };
 
   return (
-    <Page state="success">
+    <Page state={clubQuery.status}>
       <Page.Header
-        title="Manage Engineering" // conditional name
-        description="Edit and get an overview of the Engineering club"
+        title={`Manage ${club?.name}`} // conditional name
+        description={`Edit and get an overview of the ${club?.name} club`}
       />
       <Page.Navigation
         links={[
@@ -218,13 +199,14 @@ const AdminDashboardClub: NextPageWithConfig = () => {
           { label: 'Metrics', query: 'metrics', disabled: true },
         ]}
       />
-      <Formik<EditClubValues>
-        initialValues={club} // track type state through formik?
+      <Formik<EditClub['args']['body']>
+        initialValues={initialValues}
         onSubmit={handleSubmit}
         validationSchema={toFormikValidationSchema(editClubValidation)}
         enableReinitialize
       >
         {({
+          // change to f? this is verbose
           values,
           initialValues,
           touched,
@@ -242,133 +224,85 @@ const AdminDashboardClub: NextPageWithConfig = () => {
               description="Basic and required information for the club"
               childClass="flex flex-col gap-4"
             >
-              <InputLabel
-                value="Club Name"
-                edited={initialValues.general.name !== values.general.name}
-              >
-                <Field
-                  name="general.name"
-                  component={TextInput}
-                  placeholder="Engineering"
-                />
+              <InputLabel value="Club Name" edited={initialValues.name !== values.name}>
+                <Field name="name" component={TextInput} placeholder="Engineering" />
               </InputLabel>
-              <InputLabel
-                value="Description"
-                edited={
-                  initialValues.general.description !==
-                  values.general.description
-                }
-              >
+              <InputLabel value="Description" edited={initialValues.description !== values.description}>
                 <Field
-                  name="general.description"
+                  name="description"
                   textArea
                   component={TextInput}
                   placeholder="To identify a real-world problem and develop a solution to it. Equips students to become tech entrepreneurs and leaders."
                 />
               </InputLabel>
-              <InputLabel
-                value="Availability"
-                edited={
-                  initialValues.general.availability !==
-                  values.general.availability
-                }
-              >
+              <InputLabel value="Availability" edited={initialValues.availability !== values.availability}>
                 {availabilityOptions.map(({ value: option, description }) => {
-                  const isActive = values.general.availability === option;
+                  const isActive = values.availability === option;
                   return (
                     <div
                       key={option}
-                      className={cn(
-                        'box-border flex cursor-pointer flex-col gap-4 rounded-lg p-6 pr-24',
-                        {
-                          'border border-black-20': !isActive,
-                          'border-[2px] border-blue-70': isActive,
-                        }
-                      )}
+                      className={cn('box-border flex cursor-pointer flex-col gap-4 rounded-lg p-6 pr-24', {
+                        'border border-black-20': !isActive,
+                        'border-[2px] border-blue-70': isActive,
+                      })}
                       onClick={() => {
-                        if (!touched.general?.availability) {
-                          setFieldTouched('general.availability', true);
+                        if (!touched?.availability) {
+                          setFieldTouched('availability', true);
                         }
-                        setFieldValue('general.availability', option);
+
+                        setFieldValue('availability', option);
+                        // if (option !== 'APPLICATION') setFieldValue('applicationLink', null); //! NO REASON THIS SHOULDNT WORK
                       }}
                     >
                       <div className="flex items-center gap-2">
                         <div
-                          className={cn(
-                            'flex h-6 w-6 items-center justify-center rounded-md',
-                            { 'bg-black-20': !isActive, 'bg-blue-70': isActive }
-                          )}
+                          className={cn('flex h-6 w-6 items-center justify-center rounded-md', {
+                            'bg-black-20': !isActive,
+                            'bg-blue-70': isActive,
+                          })}
                         >
-                          {isActive ? (
-                            <TbCheck className="stroke-[3px] text-sm text-white" />
-                          ) : null}
+                          {isActive ? <TbCheck className="stroke-[3px] text-sm text-white" /> : null}
                         </div>
-                        <div className="font-medium capitalize">{option}</div>
+                        <div className="font-medium capitalize">{option.toLowerCase()}</div>
                       </div>
                       <p className="text-sm text-black-70">{description}</p>
                     </div>
                   );
                 })}
-                <FieldError
-                  touched={touched.general?.availability}
-                  error={errors.general?.availability}
-                />
+                <FieldError touched={touched?.availability} error={errors?.availability} />
               </InputLabel>
-              {values.general.availability === 'application' ? (
-                <InputLabel
-                  value="Application Link"
-                  edited={
-                    initialValues.general.applicationLink !==
-                    values.general.applicationLink
-                  }
-                >
-                  <Field
-                    name="general.applicationLink"
-                    component={TextInput}
-                    placeholder="https://docs.google.com/forms/..."
-                  />
+              {values.availability === 'APPLICATION' ? (
+                <InputLabel value="Application Link" edited={initialValues.applicationLink !== values.applicationLink}>
+                  <Field name="applicationLink" component={TextInput} placeholder="https://docs.google.com/forms/..." />
                 </InputLabel>
               ) : null}
-              <InputLabel
-                value={`Tags (${values.general.tags.length}/3`}
-                edited={initialValues.general.tags !== values.general.tags}
-              >
+              <InputLabel value={`Tags (${values.tags.length}/3`} edited={initialValues.tags !== values.tags}>
                 <div className="flex w-full flex-wrap items-center gap-2">
-                  {tagNames.map((tag) => (
+                  {tagsQuery.data?.map(({ name: tag }) => (
                     <Tag
                       key={tag}
                       name={tag}
-                      active={values.general.tags.includes(tag)}
+                      active={values.tags.includes(tag)}
                       variant="inline"
                       size="lg"
                       onClick={() => {
-                        if (!touched.general?.tags) {
-                          setFieldTouched('general.tags', true);
+                        if (!touched?.tags) {
+                          setFieldTouched('tags', true);
                         }
-                        if (
-                          values.general.tags.length >= 3 &&
-                          !values.general.tags.includes(tag)
-                        )
-                          return;
-                        if (values.general.tags.includes(tag)) {
+                        if (values.tags.length >= 3 && !values.tags.includes(tag)) return;
+                        if (values.tags.includes(tag)) {
                           setFieldValue(
-                            'general.tags',
-                            values.general.tags.filter((t) => t !== tag)
+                            'tags',
+                            values.tags.filter((t) => t !== tag)
                           );
                         } else {
-                          setFieldValue('general.tags', [
-                            ...values.general.tags,
-                            tag,
-                          ]);
+                          setFieldValue('tags', [...values.tags, tag]);
                         }
                       }}
                     />
                   ))}
                 </div>
-                <FieldError
-                  touched={touched.general?.tags}
-                  error={errors.general?.tags}
-                />
+                <FieldError touched={touched?.tags} error={errors?.tags} />
               </InputLabel>
             </Page.Section>
             <div className="flex flex-col">
@@ -378,80 +312,32 @@ const AdminDashboardClub: NextPageWithConfig = () => {
                 childClass="flex flex-col gap-4"
               >
                 {/* MEETING DATE AND INFORMATION */}
-                <InputLabel
-                  value="Meeting Location"
-                  edited={
-                    initialValues.meetingInformation.location !==
-                    values.meetingInformation.location
-                  }
-                >
-                  <Field
-                    name="meetingInformation.location"
-                    component={TextInput}
-                    placeholder="A101"
-                  />
+                <InputLabel value="Meeting Location" edited={initialValues.meetingLocation !== values.meetingLocation}>
+                  <Field name="meetingLocation" component={TextInput} placeholder="A101" />
                 </InputLabel>
                 <InputLabel value="Meeting Date and Time">
                   <div className="flex items-start gap-2">
-                    <InputLabel
-                      value="Days"
-                      edited={
-                        initialValues.meetingInformation.days !==
-                        values.meetingInformation.days
-                      }
-                    >
-                      <Field
-                        name="meetingInformation.days"
-                        component={TextInput}
-                        placeholder="Tuesday, Thursday"
-                      />
+                    <InputLabel value="Days" edited={initialValues.meetingDays !== values.meetingDays}>
+                      <Field name="meetingDays" component={TextInput} placeholder="Tuesday, Thursday" />
                     </InputLabel>
-                    <InputLabel
-                      value="Frequency"
-                      edited={
-                        initialValues.meetingInformation.frequency !==
-                        values.meetingInformation.frequency
-                      }
-                    >
-                      <Field
-                        name="meetingInformation.frequency"
-                        component={TextInput}
-                        placeholder="Weekly"
-                      />
+                    <InputLabel value="Frequency" edited={initialValues.meetingFrequency !== values.meetingFrequency}>
+                      <Field name="meetingFrequency" component={TextInput} placeholder="Weekly" />
                     </InputLabel>
-                    <InputLabel
-                      value="Time"
-                      edited={
-                        initialValues.meetingInformation.time !==
-                        values.meetingInformation.time
-                      }
-                    >
-                      <Field
-                        name="meetingInformation.time"
-                        component={TextInput}
-                        placeholder="7-8:30 PM"
-                      />
+                    <InputLabel value="Time" edited={initialValues.meetingTime !== values.meetingTime}>
+                      <Field name="meetingTime" component={TextInput} placeholder="7-8:30 PM" />
                     </InputLabel>
                   </div>
                 </InputLabel>
-                <InputLabel
-                  value="Contact Email"
-                  edited={
-                    initialValues.contactInformation.email !==
-                    values.contactInformation.email
-                  }
-                >
-                  <Field
-                    name="contactInformation.email"
-                    component={TextInput}
-                    placeholder="dhns.engineering@gmail.com"
-                  />
+                <InputLabel value="Contact Email" edited={initialValues.contactEmail !== values.contactEmail}>
+                  <Field name="contactEmail" component={TextInput} placeholder="dhns.engineering@gmail.com" />
                 </InputLabel>
                 <InputLabel
                   value="Social Media Links"
                   edited={
-                    initialValues.contactInformation.media !==
-                    values.contactInformation.media
+                    initialValues.instagram !== values.instagram ||
+                    initialValues.facebook !== values.facebook ||
+                    initialValues.twitter !== values.twitter ||
+                    initialValues.website !== values.website
                   }
                 >
                   <div className="flex flex-col gap-2">
@@ -471,25 +357,14 @@ const AdminDashboardClub: NextPageWithConfig = () => {
                             )}
                             onClick={() => {
                               if (isActive) {
-                                setSelectedPlatforms(
-                                  selectedPlatforms.filter(
-                                    (p) => p !== platform
-                                  )
-                                );
+                                setSelectedPlatforms(selectedPlatforms.filter((p) => p !== platform));
+                                setFieldValue(`media.${platform}`, null);
                               } else {
-                                setSelectedPlatforms([
-                                  ...selectedPlatforms,
-                                  platform,
-                                ]);
+                                setSelectedPlatforms([...selectedPlatforms, platform]);
                               }
                             }}
                           >
-                            <Icon
-                              className={cn(
-                                { 'text-blue-70': isActive },
-                                'text-lg'
-                              )}
-                            />
+                            <Icon className={cn({ 'text-blue-70': isActive }, 'text-lg')} />
                           </div>
                         );
                       })}
@@ -498,12 +373,10 @@ const AdminDashboardClub: NextPageWithConfig = () => {
                       selectedPlatforms.map((platform) => (
                         <Field
                           key={platform}
-                          name={`contactInformation.media.${platform}`}
+                          name={platform}
                           component={TextInput}
                           placeholder={`${
-                            platform === 'website'
-                              ? 'https://www.dnhsengineering.com/'
-                              : '@dnhsengineering'
+                            platform === 'website' ? 'https://www.dnhsengineering.com/' : 'dnhsengineering'
                           }`}
                           accessory={socialMediaOptions[platform].icon}
                         />
@@ -521,38 +394,24 @@ const AdminDashboardClub: NextPageWithConfig = () => {
               >
                 <InputLabel
                   value="Leadership"
-                  edited={initialValues.members !== values.members}
+                  edited={
+                    initialValues.president !== values.president ||
+                    initialValues.vicePresident !== values.vicePresident ||
+                    initialValues.secretary !== values.secretary ||
+                    initialValues.treasurer !== values.treasurer ||
+                    initialValues.advisor !== values.advisor
+                  }
                 >
+                  <Field name="president" component={TextInput} placeholder="First Last" accessory="President" />
                   <Field
-                    name="members.president"
-                    component={TextInput}
-                    placeholder="First Last"
-                    accessory="President"
-                  />
-                  <Field
-                    name="members.vicePresident"
+                    name="vicePresident"
                     component={TextInput}
                     placeholder="First Last"
                     accessory="Vice President"
                   />
-                  <Field
-                    name="members.secretary"
-                    component={TextInput}
-                    placeholder="First Last"
-                    accessory="Secretary"
-                  />
-                  <Field
-                    name="members.treasurer"
-                    component={TextInput}
-                    placeholder="First Last"
-                    accessory="Treasurer"
-                  />
-                  <Field
-                    name="members.advisor"
-                    component={TextInput}
-                    placeholder="First Last"
-                    accessory="Advisor"
-                  />
+                  <Field name="secretary" component={TextInput} placeholder="First Last" accessory="Secretary" />
+                  <Field name="treasurer" component={TextInput} placeholder="First Last" accessory="Treasurer" />
+                  <Field name="advisor" component={TextInput} placeholder="First Last" accessory="Advisor" />
                 </InputLabel>
               </Page.Section>
             </div>
@@ -560,28 +419,19 @@ const AdminDashboardClub: NextPageWithConfig = () => {
               <div className="mb-8 h-[1px] w-full bg-black-20" />
               <div className="flex w-full items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    onClick={() => resetForm()}
-                  >
+                  <Button type="button" variant="secondary" onClick={() => router.push('/admin/clubs')}>
                     Cancel
                   </Button>
                   <Button
                     type="submit"
                     loading={isSubmitting}
-                    disabled={
-                      !dirty ||
-                      !isValid ||
-                      initialValues === values ||
-                      isSubmitting
-                    }
+                    disabled={!dirty || !isValid || initialValues === values || isSubmitting}
                     variant="primary"
                   >
                     {isSubmitting ? 'Saving Changes...' : 'Save Changes'}
                   </Button>
                 </div>
-                <Button type="button" variant="danger">
+                <Button type="button" variant="danger" onClick={handleDeleteClub}>
                   Delete Club
                 </Button>
               </div>

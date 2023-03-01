@@ -10,7 +10,12 @@ export type GetAdminClubs = {
     };
   };
   payload: {
-    clubs: Array<Pick<Club & { tags: Array<Tag> }, 'id' | 'name'>>;
+    clubs: Array<
+      Pick<
+        Club,
+        'id' | 'name' | 'advisor' | 'president' | 'availability' | 'slug'
+      > & { tags: Array<Tag> }
+    >;
     overview: {
       totalClubs: number;
       totalMembersInClubs: number;

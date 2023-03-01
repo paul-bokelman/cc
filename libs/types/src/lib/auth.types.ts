@@ -9,10 +9,7 @@ export type Login = {
       password: string;
     };
   };
-  payload: {
-    user: AuthenticatedUser;
-    signedCookie: string;
-  };
+  payload: AuthenticatedUser;
 };
 
 /* -------------------------------- REGISTER -------------------------------- */

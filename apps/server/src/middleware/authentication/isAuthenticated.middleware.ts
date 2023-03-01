@@ -1,38 +1,33 @@
-import type { Request, Response, NextFunction } from 'express';
+import type { AuthenticatedUser, Controller } from '@/cc';
 import { StatusCodes, ReasonPhrases } from 'http-status-codes';
 import { Role } from '@prisma/client';
 import { getSession } from 'lib/session';
 import { unsignCookie } from 'lib/session/utils';
-import { AuthenticatedUser } from 'types';
+import { formatResponse } from '~/lib/utils';
 
-type isAuthenticatedOptions = {
-  role: Role;
+type Authorization = {
+  args: {
+    body: AuthorizationOptions;
+  };
+  payload: undefined;
+};
+
+type AuthorizationOptions = {
+  role?: Role;
 };
 
 const roleHierarchy = ['MEMBER', 'SCHOLAR', 'MANAGER', 'ADMIN'];
 
-//! Role should be string or array of strings
-//TODO: Refactor (rename to isAuthorized)
-//? client route authentication can pass through here to avoid duplicate code
+type IsAuthorized = (options: AuthorizationOptions) => Controller<Authorization>;
 
-export const isAuthenticated = (options: isAuthenticatedOptions) => {
-  return async (req: Request, res: Response, next: NextFunction) => {
+export const isAuthorized: IsAuthorized = (options) => {
+  return async (req, res, next) => {
+    const { error } = formatResponse<Authorization>(res);
     const cookie: string = req.cookies?.['cc.sid'] ?? '';
 
-    const unauthorized = (message?: string) => {
-      return res.status(StatusCodes.UNAUTHORIZED).json({
-        authorized: false,
-        message: message ?? ReasonPhrases.UNAUTHORIZED,
-      });
-    };
+    console.log('cookie from isAuthenticated', cookie);
 
-    const authorized = ({
-      user,
-      sid,
-    }: {
-      user: AuthenticatedUser;
-      sid: string;
-    }) => {
+    const authorized = ({ user, sid }: { user: AuthenticatedUser; sid: string }) => {
       req.user = user;
       req.sid = sid;
       return next();
@@ -41,23 +36,21 @@ export const isAuthenticated = (options: isAuthenticatedOptions) => {
     (req.user as unknown) = null;
     (req.sid as unknown) = null;
 
-    if (!cookie) return unauthorized('No account session');
+    if (!cookie) return error(StatusCodes.UNAUTHORIZED, 'No session');
 
-    const { role } = options ?? {};
+    const { role = 'MEMBER' } = options ?? req.body.role ?? {}; // check options if not options then use body
 
     try {
       const sid = unsignCookie(cookie);
       const user = await getSession(sid);
 
       if (!(roleHierarchy.indexOf(user.role) >= roleHierarchy.indexOf(role)))
-        return unauthorized('Insufficient role');
+        return error(StatusCodes.UNAUTHORIZED, 'Insufficient role');
 
       return authorized({ user, sid });
-    } catch (error) {
-      if (error instanceof Error) return unauthorized(error.message);
-      return res
-        .status(StatusCodes.INTERNAL_SERVER_ERROR)
-        .json({ message: 'Internal Server Error' });
+    } catch (e) {
+      if (e instanceof Error) return error(StatusCodes.UNAUTHORIZED, e.message);
+      return error(StatusCodes.INTERNAL_SERVER_ERROR);
     }
   };
 };

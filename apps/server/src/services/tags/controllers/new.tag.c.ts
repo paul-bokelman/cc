@@ -1,5 +1,4 @@
-import type { Controller } from 'types';
-import type { NewTag } from '@/cc';
+import type { Controller, NewTag } from '@/cc';
 import { StatusCodes } from 'http-status-codes';
 import { z } from 'zod';
 import { prisma } from '~/config';

@@ -16,9 +16,13 @@ const Tab = ({
       <Layout layout={layout}>
         <Component {...pageProps} />
         <Toaster
-          position="bottom-center"
+          position="bottom-right"
           toastOptions={{
-            style: { backgroundColor: '#171717', color: 'white' },
+            style: {
+              border: '1px solid #E5E5E5',
+              fontSize: '15px',
+              color: '#4A4A4A',
+            },
           }}
         />
       </Layout>

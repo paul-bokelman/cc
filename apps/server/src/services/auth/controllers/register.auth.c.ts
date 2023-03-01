@@ -1,5 +1,4 @@
-import type { Controller } from '~/types';
-import type { Register } from '@/cc';
+import type { Controller, Register } from '@/cc';
 import bcrypt from 'bcryptjs';
 import { StatusCodes } from 'http-status-codes';
 import { z } from 'zod';

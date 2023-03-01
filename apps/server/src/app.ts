@@ -25,16 +25,12 @@ export const app: Express = express();
 
 app.use(bodyParser.json());
 app.use(cookies());
-app.use(cors({ origin: env('CLIENT_URL'), credentials: true }));
+app.use(cors({ origin: true, credentials: true }));
+
+// origin: env('CLIENT_URL') ?
 
 app.use(isProduction ? '/' : '/api', services);
 
 const port = env('PORT') || 8000;
 
-app.listen(port, () =>
-  console.log(
-    isProduction
-      ? `\n${env('SERVER_URL')}`
-      : `\nServer: http://localhost:${port} 🚀`
-  )
-);
+app.listen(port, () => console.log(isProduction ? `\n${env('SERVER_URL')}` : `\nServer: http://localhost:${port} 🚀`));

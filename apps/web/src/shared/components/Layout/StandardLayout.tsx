@@ -86,8 +86,12 @@ export const StandardLayout: React.FC<Props> = ({ config, children }) => {
             </div>
             {/* USER */}
             <div className="hidden items-center gap-2 md:flex">
-              <Button variant="ghost">Login</Button>
-              <Button variant="primary">Signup</Button>
+              <Button variant="ghost" link href="/login">
+                Login
+              </Button>
+              <Button disabled variant="primary">
+                Signup
+              </Button>
             </div>
             <div className="flex md:hidden">
               <TbMenu2

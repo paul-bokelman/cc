@@ -1,5 +1,4 @@
-import type { Controller } from 'types';
-import type { GetAdminClubs } from '@/cc';
+import type { Controller, GetAdminClubs } from '@/cc';
 import { StatusCodes } from 'http-status-codes';
 import { z } from 'zod';
 import { prisma } from '~/config';
@@ -12,10 +11,7 @@ export const getAdminClubsValidation = z.object({
   }),
 });
 
-export const getAdminClubsHandler: Controller<GetAdminClubs> = async (
-  req,
-  res
-) => {
+export const getAdminClubsHandler: Controller<GetAdminClubs> = async (req, res) => {
   const { success } = formatResponse<GetAdminClubs>(res);
   const { limit, offset } = req.query;
 
@@ -32,6 +28,7 @@ export const getAdminClubsHandler: Controller<GetAdminClubs> = async (
         availability: true,
         tags: true,
       },
+      orderBy: { updatedAt: 'desc' },
     });
 
     const totalClubs = await prisma.club.count();

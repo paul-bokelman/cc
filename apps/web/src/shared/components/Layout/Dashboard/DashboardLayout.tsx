@@ -33,9 +33,10 @@ type DashboardLink = {
 
 export const DashboardLayout: React.FC<Props> = ({ config, children }) => {
   const router = useRouter();
+
   // different routes based on role
   const links: Array<DashboardLink> = [
-    { icon: TbHome, label: 'Home', dest: '/admin' },
+    { icon: TbHome, label: 'Home', dest: '/admin', disabled: true },
     { icon: TbFolder, label: 'Clubs', dest: '/admin/clubs' },
     { icon: TbUsers, label: 'Users', dest: '/admin/users', disabled: true },
   ];
