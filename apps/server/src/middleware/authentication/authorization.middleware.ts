@@ -1,4 +1,5 @@
 import type { AuthenticatedUser, Controller } from '@/cc';
+import type { Request, Response, NextFunction } from 'express';
 import { StatusCodes, ReasonPhrases } from 'http-status-codes';
 import { Role } from '@prisma/client';
 import { getSession } from 'lib/session';
@@ -13,19 +14,17 @@ type Authorization = {
 };
 
 type AuthorizationOptions = {
-  role?: Role;
+  role?: Role; //defaults to member
 };
 
 const roleHierarchy = ['MEMBER', 'SCHOLAR', 'MANAGER', 'ADMIN'];
 
-type IsAuthorized = (options: AuthorizationOptions) => Controller<Authorization>;
-
-export const isAuthorized: IsAuthorized = (options) => {
-  return async (req, res, next) => {
-    const { error } = formatResponse<Authorization>(res);
+export const isAuthorized = (options: AuthorizationOptions) => {
+  return async (req: Request, res: Response, next: NextFunction) => {
+    const { error } = formatResponse(res);
     const cookie: string = req.cookies?.['cc.sid'] ?? '';
 
-    console.log('cookie from isAuthenticated', cookie);
+    console.log('cookie from isAuthorized', cookie);
 
     const authorized = ({ user, sid }: { user: AuthenticatedUser; sid: string }) => {
       req.user = user;
@@ -38,7 +37,7 @@ export const isAuthorized: IsAuthorized = (options) => {
 
     if (!cookie) return error(StatusCodes.UNAUTHORIZED, 'No session');
 
-    const { role = 'MEMBER' } = options ?? req.body.role ?? {}; // check options if not options then use body
+    const { role = 'MEMBER' } = options ?? {}; // check options if not options then use body
 
     try {
       const sid = unsignCookie(cookie);

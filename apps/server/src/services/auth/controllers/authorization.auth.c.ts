@@ -1,5 +1,5 @@
 import type { AuthenticatedUser, Controller } from '@/cc';
-import { StatusCodes, ReasonPhrases } from 'http-status-codes';
+import { StatusCodes } from 'http-status-codes';
 import { z } from 'zod';
 import { Role } from '@prisma/client';
 import { getSession } from 'lib/session';
@@ -19,19 +19,15 @@ type AuthorizationOptions = {
 
 const roleHierarchy = ['MEMBER', 'SCHOLAR', 'MANAGER', 'ADMIN'];
 
-const authorizationValidation = z.object();
+const authorizationValidation = z.object({
+  role: z.nativeEnum(Role),
+});
 
 const authorizeHandler: Controller<Authorization> = async (req, res, next) => {
   const { error } = formatResponse<Authorization>(res);
   const cookie: string = req.cookies?.['cc.sid'] ?? '';
 
-  console.log('cookie from isAuthenticated', cookie);
-
-  const authorized = ({ user, sid }: { user: AuthenticatedUser; sid: string }) => {
-    req.user = user;
-    req.sid = sid;
-    return next();
-  };
+  console.log('cookie from isAuthorized', cookie);
 
   (req.user as unknown) = null;
   (req.sid as unknown) = null;
@@ -47,11 +43,14 @@ const authorizeHandler: Controller<Authorization> = async (req, res, next) => {
     if (!(roleHierarchy.indexOf(user.role) >= roleHierarchy.indexOf(role)))
       return error(StatusCodes.UNAUTHORIZED, 'Insufficient role');
 
-    return authorized({ user, sid });
+    // authorized
+
+    req.user = user;
+    req.sid = sid;
+    return next();
   } catch (e) {
     if (e instanceof Error) return error(StatusCodes.UNAUTHORIZED, e.message);
     return error(StatusCodes.INTERNAL_SERVER_ERROR);
   }
 };
-
-const authorize = { schema: '', handler: authorizeHandler };
+export const authorize = { schema: authorizationValidation, handler: authorizeHandler };
