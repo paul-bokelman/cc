@@ -4,14 +4,9 @@ import type { View } from '..';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import cn from 'classnames';
-import {
-  TbHome,
-  TbFolder,
-  TbUsers,
-  TbSettings,
-  TbLifebuoy,
-} from 'react-icons/tb';
-import { Logo, ConditionalWrapper } from '~/shared/components';
+import { TbHome, TbFolder, TbUsers, TbSettings, TbLifebuoy } from 'react-icons/tb';
+import { useAuthContext } from '~/shared/context';
+import { Logo, ConditionalWrapper, Avatar } from '~/shared/components';
 
 export type DashboardLayout = {
   view: View.DASHBOARD | 'dashboard';
@@ -33,6 +28,7 @@ type DashboardLink = {
 
 export const DashboardLayout: React.FC<Props> = ({ config, children }) => {
   const router = useRouter();
+  const { user, logout } = useAuthContext();
 
   // different routes based on role
   const links: Array<DashboardLink> = [
@@ -68,32 +64,23 @@ export const DashboardLayout: React.FC<Props> = ({ config, children }) => {
                 <SidebarItem
                   key={link.label}
                   {...link}
-                  active={
-                    link.label === 'Home'
-                      ? router.pathname === '/admin'
-                      : router.pathname.includes(link.dest)
-                  }
+                  active={link.label === 'Home' ? router.pathname === '/admin' : router.pathname.includes(link.dest)}
                 />
               ))}
             </div>
             <div className="flex flex-col gap-1">
               {standardLinks.map((link, i) => (
-                <SidebarItem
-                  key={link.label}
-                  {...link}
-                  active={router.pathname.includes(link.dest)}
-                />
+                <SidebarItem key={link.label} {...link} active={router.pathname.includes(link.dest)} />
               ))}
             </div>
           </div>
           <div className="my-2 h-[1px] bg-black-20" />
           <div className="flex items-center gap-4">
-            <div className="h-12 w-12 rounded-full bg-black-40" />
+            <Avatar user={user} className="h-12 w-12" />
             <div className="flex flex-col items-start gap-1">
-              <span className="text-lg font-semibold text-black">
-                ASB Admin
-              </span>
-              <button className="text-sm font-medium text-red-50 hover:underline">
+              {/* Should cap? */}
+              <span className="text-lg font-semibold text-black capitalize">{user?.username}</span>
+              <button className="text-sm font-medium text-red-50 hover:underline" onClick={async () => await logout()}>
                 Logout
               </button>
             </div>
@@ -105,27 +92,18 @@ export const DashboardLayout: React.FC<Props> = ({ config, children }) => {
   );
 };
 
-const SidebarItem: React.FC<DashboardLink & { active: boolean }> = ({
-  icon: Icon,
-  label,
-  dest,
-  disabled,
-  active,
-}) => {
+const SidebarItem: React.FC<DashboardLink & { active: boolean }> = ({ icon: Icon, label, dest, disabled, active }) => {
   return (
     <ConditionalWrapper
       condition={typeof disabled === 'undefined' || !disabled}
       wrapper={(children) => <Link href={dest}>{children}</Link>}
     >
       <div
-        className={cn(
-          '-ml-4 flex items-center gap-4 rounded-md py-3 pr-3 pl-4 transition-colors',
-          {
-            'bg-black-10/60': active,
-            'cursor-not-allowed': disabled,
-            'cursor-pointer': !disabled,
-          }
-        )}
+        className={cn('-ml-4 flex items-center gap-4 rounded-md py-3 pr-3 pl-4 transition-colors', {
+          'bg-black-10/60': active,
+          'cursor-not-allowed': disabled,
+          'cursor-pointer': !disabled,
+        })}
       >
         <Icon
           className={cn('stroke-[2.5] text-xl', {

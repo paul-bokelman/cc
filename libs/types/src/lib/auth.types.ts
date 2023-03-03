@@ -1,3 +1,4 @@
+import type { Role } from '@prisma/client';
 import type { AuthenticatedUser } from '.';
 
 /* ---------------------------------- LOGIN --------------------------------- */
@@ -34,4 +35,18 @@ export type Logout = {
   payload: {
     success: boolean;
   };
+};
+
+/* ------------------------------ AUTHORIZATION ----------------------------- */
+
+export type Authorization = {
+  args: {
+    body: AuthorizationOptions & { signedCookie: string };
+  };
+  payload: { authorized: true };
+};
+
+export type AuthorizationOptions = {
+  // applies to isAuthorized
+  role?: Role;
 };

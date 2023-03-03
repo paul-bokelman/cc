@@ -1,21 +1,9 @@
-import type { AuthenticatedUser, Controller } from '@/cc';
+import type { AuthenticatedUser, AuthorizationOptions } from '@/cc';
 import type { Request, Response, NextFunction } from 'express';
-import { StatusCodes, ReasonPhrases } from 'http-status-codes';
-import { Role } from '@prisma/client';
+import { StatusCodes } from 'http-status-codes';
 import { getSession } from 'lib/session';
 import { unsignCookie } from 'lib/session/utils';
 import { formatResponse } from '~/lib/utils';
-
-type Authorization = {
-  args: {
-    body: AuthorizationOptions;
-  };
-  payload: undefined;
-};
-
-type AuthorizationOptions = {
-  role?: Role; //defaults to member
-};
 
 const roleHierarchy = ['MEMBER', 'SCHOLAR', 'MANAGER', 'ADMIN'];
 
@@ -23,8 +11,6 @@ export const isAuthorized = (options: AuthorizationOptions) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     const { error } = formatResponse(res);
     const cookie: string = req.cookies?.['cc.sid'] ?? '';
-
-    console.log('cookie from isAuthorized', cookie);
 
     const authorized = ({ user, sid }: { user: AuthenticatedUser; sid: string }) => {
       req.user = user;

@@ -14,6 +14,8 @@ export type APIMutation<C extends ControllerConfig> = MutationFunction<C['payloa
 
 export type Error = AxiosError<ServerError>;
 
+axios.defaults.withCredentials = true;
+
 export const client = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
   withCredentials: true,
@@ -42,6 +44,7 @@ const pathFromArgs = (
 
   //! Clean up
 
+  // check params fist
   tokens.forEach((token) => {
     if (args.params) {
       if (token.includes('[')) {
@@ -82,7 +85,7 @@ export const mutation = <C extends ControllerConfig>(
 ): ((args?: C['args']) => Promise<C['payload']>) => {
   const executionClient = next ? nextClient : client;
   return async (args?: C['args']): Promise<C['payload']> => {
-    const { body, ...rest } = args;
+    const { body, ...rest } = args ?? {};
     const formattedPath = pathFromArgs(path, rest);
     const { data } = await executionClient.post<C['payload']>(formattedPath, body ?? undefined);
     return data;

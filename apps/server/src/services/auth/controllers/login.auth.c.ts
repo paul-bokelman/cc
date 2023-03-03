@@ -19,7 +19,7 @@ const loginHandler: Controller<Login> = async (req, res) => {
 
   try {
     const user = await prisma.user.findUnique({ where: { username } });
-    if (!user) return error(StatusCodes.UNAUTHORIZED, 'Invalid username or password');
+    if (!user) return error(StatusCodes.UNAUTHORIZED, 'Invalid username or password'); // is this the right code?
 
     const match = await bcrypt.compare(password, user.password);
     if (!match) return error(StatusCodes.UNAUTHORIZED, 'Invalid username or password');

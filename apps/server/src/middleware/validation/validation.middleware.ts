@@ -12,12 +12,7 @@ export const validate = (schema: AnyZodObject): RequestHandler => {
   return async (req, res, next) => {
     const { error } = formatResponse(res);
     try {
-      await schema.parseAsync({
-        body: req.body,
-        query: req.query,
-        params: req.params,
-      });
-
+      await schema.parseAsync({ body: req.body, query: req.query, params: req.params });
       return next();
     } catch (e) {
       if (e instanceof ZodError) {

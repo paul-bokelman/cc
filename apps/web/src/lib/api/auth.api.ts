@@ -1,11 +1,14 @@
-import type { Login, Register } from '@/cc';
-import { query, mutation } from './api';
+import { Login, Register, Authorization, Logout } from '@/cc';
+import { mutation } from './api';
 
 const login = mutation<Login>('/auth/login');
 const register = mutation<Register>('/auth/register');
-// const authorize = query<GetClub>('/clubs/[identifier]');
+const authorize = mutation<Authorization>('/auth/authorize');
+const logout = mutation<Logout>('/auth/logout');
 
 export const auth = {
   login,
   register,
+  authorize,
+  logout,
 };

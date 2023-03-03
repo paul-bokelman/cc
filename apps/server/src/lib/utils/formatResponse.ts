@@ -4,8 +4,18 @@ import { getReasonPhrase } from 'http-status-codes';
 
 export const formatResponse = <C extends ControllerConfig>(res: Response) => {
   return {
-    success: (status: number, payload: C['payload'], cookie?: string) => {
-      return cookie ? res.status(status).cookie('cc.sid', cookie).json(payload) : res.status(status).json(payload);
+    success: (status: number, payload: C['payload'], cookie?: string | { clear: true }) => {
+      if (cookie) {
+        if (typeof cookie === 'string') {
+          return res.status(status).cookie('cc.sid', cookie).json(payload);
+        }
+        return res
+          .status(status)
+          .cookie('cc.sid', '', { expires: new Date(0) })
+          .json(payload);
+      }
+
+      return res.status(status).json(payload);
     },
     error: (status: number, message?: string, errors?: unknown): Response<ServerError> => {
       return res.status(status).json({

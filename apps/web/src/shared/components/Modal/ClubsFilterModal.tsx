@@ -1,23 +1,26 @@
 import type { BaseModalProps } from '.'; // should be on base modal
+import type { Children } from '~/shared/types';
 import type { GetTags } from '@/cc';
-import { useState, Fragment, useEffect } from 'react';
-import { useRouter } from 'next/router';
+import type { GetClubs } from '@/cc';
+import { Availability } from '@prisma/client'; // technically type
+import { useState, Fragment } from 'react';
 import { useQuery } from 'react-query';
-import qs from 'qs';
+import cn from 'classnames';
 import { Dialog, Transition } from '@headlessui/react';
 import { TbX } from 'react-icons/tb';
 import { api } from '~/lib/api';
-import { parseQ } from '~/lib/utils';
 import { Button, Switch, Tag } from '~/shared/components';
-import { Children } from '~/shared/types';
+import { useQ } from '~/shared/hooks';
 
 type ClubsFilterModalProps = BaseModalProps;
 
 export const ClubsFilterModal: React.FC<ClubsFilterModalProps> = ({ isOpen, closeModal }) => {
-  const router = useRouter();
-  const q = parseQ(router.asPath)?.filter as { tags: string[]; tagMethod: 'exclusive' | 'inclusive' } | undefined;
-  const [selectedTags, setSelectedTags] = useState<string[]>(q?.tags ?? []);
-  const [tagFilteringMethod, setTagFilteringMethod] = useState<'exclusive' | 'inclusive'>(q?.tagMethod ?? 'inclusive');
+  const { query, append: appendToQuery } = useQ<GetClubs['args']['query']>();
+  const [selectedAvailabilities, setSelectedAvailabilities] = useState<Availability[]>([]);
+  const [selectedTags, setSelectedTags] = useState<string[]>(query?.filter?.tags ?? []);
+  const [tagFilteringMethod, setTagFilteringMethod] = useState<'exclusive' | 'inclusive'>(
+    query?.filter?.tagMethod ?? 'inclusive'
+  );
 
   const { data: tags = [] } = useQuery<GetTags['payload'], Error>('tags', async () => await api.tags.all(), {
     onError: (e) => console.log(e),
@@ -25,24 +28,32 @@ export const ClubsFilterModal: React.FC<ClubsFilterModalProps> = ({ isOpen, clos
 
   const handleSelectTag = (name: string) => {
     if (selectedTags.includes(name)) {
-      setSelectedTags(selectedTags.filter((p) => p !== name));
+      setSelectedTags((prev) => prev.filter((curr) => curr !== name));
     } else {
-      setSelectedTags((curr) => [...curr, name]);
+      setSelectedTags((prev) => [...prev, name]);
+    }
+  };
+
+  const handleSelectAvailability = (availability: Availability) => {
+    if (!selectedAvailabilities.includes(availability) && selectedAvailabilities.length !== 2) {
+      setSelectedAvailabilities((prev) => [...prev, availability]);
+    } else {
+      setSelectedAvailabilities((prev) => prev.filter((curr) => curr !== availability));
     }
   };
 
   const handleApplyFilter = () => {
-    const sort = parseQ(router.asPath)?.sort;
-    const q = { sort, filter: { tags: selectedTags, tagMethod: tagFilteringMethod } };
-    router.push({ query: qs.stringify(q) }, undefined, { shallow: true });
+    appendToQuery({
+      filter: { tags: selectedTags, tagMethod: tagFilteringMethod, availability: selectedAvailabilities },
+    });
     closeModal();
   };
 
   const clearFilter = () => {
-    const sort = parseQ(router.asPath)?.sort;
     setSelectedTags([]);
     setTagFilteringMethod('inclusive');
-    router.push({ query: sort ? qs.stringify({ sort }) : {} }, undefined, { shallow: true });
+    setSelectedAvailabilities([]);
+    appendToQuery({ filter: null });
   };
 
   //! Loading state
@@ -111,6 +122,26 @@ export const ClubsFilterModal: React.FC<ClubsFilterModalProps> = ({ isOpen, clos
                           },
                         ]}
                       />
+                    </div>
+                  </FilterSection>
+                  <FilterSection title="Availability" description="Filter by 1-2 of the 3 availability options">
+                    <div className="w-full grid grid-cols-3 gap-4">
+                      {Object.keys(Availability).map((availability: Availability) => (
+                        <div
+                          className={cn(
+                            {
+                              'bg-blue-10 border-blue-60 text-blue-60 hover:bg-blue-10':
+                                selectedAvailabilities.includes(availability),
+                              'opacity-50 pointer-events-none':
+                                !selectedAvailabilities.includes(availability) && selectedAvailabilities.length === 2,
+                            },
+                            'flex capitalize justify-center border p-2 rounded-md border-black-20 hover:bg-black-10 cursor-pointer'
+                          )}
+                          onClick={() => handleSelectAvailability(availability)}
+                        >
+                          <span>{availability.toLowerCase()}</span>
+                        </div>
+                      ))}
                     </div>
                   </FilterSection>
                 </div>

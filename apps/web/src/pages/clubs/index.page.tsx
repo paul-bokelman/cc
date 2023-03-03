@@ -3,51 +3,38 @@ import type { GetClubs } from '@/cc';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useQuery } from 'react-query';
-import qs from 'qs';
-import { TbChevronDown, TbFilter } from 'react-icons/tb';
+import { TbChevronDown, TbFilter, TbSearchOff } from 'react-icons/tb';
 import { type Error, api } from '~/lib/api';
-import { parseQ } from '~/lib/utils';
-import { ClubCard, Button, DropdownMenu, ClubsFilterModal } from '~/shared/components';
+import { ClubCard, ClubCardSkeleton, Button, DropdownMenu, ClubsFilterModal } from '~/shared/components';
+import { useQ } from '~/shared/hooks';
 
 const Clubs: NextPageWithConfig = () => {
   const router = useRouter();
+  const { query, append: appendToQuery, parse: parseQ } = useQ<GetClubs['args']['query']>();
 
-  const clubsQuery = useQuery<GetClubs['payload'], Error>(
+  const [activeSortIndex, setActiveSortIndex] = useState<number>(0);
+  const [showFilterModal, setShowFilterModal] = useState<boolean>(false);
+
+  const { data: clubs } = useQuery<GetClubs['payload'], Error>(
     ['clubs', router.query],
-    async () => await api.clubs.all({ query: parseQ(router.asPath) }),
-    {
-      onError: (e) => console.log(e),
-    }
+    async () => await api.clubs.all({ query: parseQ(router.asPath) }), // stupid asf
+    { onError: (e) => console.log(e), keepPreviousData: true }
   );
 
-  const sortMenuItems = [
+  const sortMenuItems: { label: string; value: GetClubs['args']['query']['sort'] }[] = [
     { label: 'Newest', value: 'new' },
     { label: 'Oldest', value: 'old' },
     { label: 'A-Z', value: 'name-asc' },
     { label: 'Z-A', value: 'name-desc' },
   ];
 
-  const [activeSortIndex, setActiveSortIndex] = useState<number>(0);
-  const [showFilterModal, setShowFilterModal] = useState<boolean>(false);
-
-  // if (clubsQuery.status !== 'success') { //! handle state properly
-  //   return <>loading or smtn</>;
-  // }
-
-  const clubs = clubsQuery?.data ?? [];
-
-  console.log(clubsQuery);
-
   const handleApplySort = (i: number) => {
     setActiveSortIndex(i);
-    const filter = parseQ(router.asPath)?.filter;
-    const q = { filter, sort: sortMenuItems[i].value };
-    router.push({ query: qs.stringify(q) }, undefined, { shallow: true });
+    appendToQuery({ sort: sortMenuItems[i].value });
   };
 
   useEffect(() => {
-    const q = parseQ(router.asPath)?.sort as 'new' | 'old' | 'name-asc' | 'name-desc' | undefined;
-    setActiveSortIndex(q ? sortMenuItems.findIndex((item) => item.value === q) : 0);
+    setActiveSortIndex(query.sort ? sortMenuItems.findIndex((item) => item.value === query.sort) : 0);
   }, []);
 
   return (
@@ -59,10 +46,7 @@ const Clubs: NextPageWithConfig = () => {
           <Button
             variant="secondary"
             iconLeft={TbFilter}
-            style={{
-              width: 'fit-content',
-              height: '3rem',
-            }}
+            style={{ width: 'fit-content', height: '3rem' }}
             onClick={() => setShowFilterModal(true)}
           >
             Filters
@@ -90,13 +74,21 @@ const Clubs: NextPageWithConfig = () => {
           </DropdownMenu>
         </div>
       </div>
-      <div className="mt-2 grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-        {clubs.length !== 0 ? (
-          clubs?.map((club, i) => (
-            <ClubCard key={i} {...club} tags={club.tags.map(({ name, active }) => ({ name, active }))} />
-          ))
+      <div className="mt-2 grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 w-full">
+        {clubs ? (
+          clubs.length !== 0 ? (
+            clubs.map((club, i) => <ClubCard key={i} {...club} />)
+          ) : (
+            <div className="flex w-full border border-black-20 h-60 col-span-3 rounded-md">
+              <div className="flex flex-col items-center justify-center w-full">
+                <TbSearchOff className="text-black-30 w-8 h-8 mb-3" />
+                <h1 className="text-2xl font-bold">No clubs found</h1>
+                <p className="text-black-60 text-sm">Try changing your filters or sorting.</p>
+              </div>
+            </div>
+          )
         ) : (
-          <p>No clubs matching current filter.</p>
+          Array.from({ length: 9 }).map((_) => <ClubCardSkeleton />)
         )}
       </div>
     </div>

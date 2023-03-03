@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useQuery } from 'react-query';
 import { TbPlus, TbFileText, TbUserCheck, TbUserX, TbUser } from 'react-icons/tb';
 import { type Error, api } from '~/lib/api';
+import { withUser } from '~/shared/utils';
 import { tags as tagList, DashboardContainer as Page, Button } from '~/shared/components';
 
 const AdminDashboardClubs: NextPageWithConfig = () => {
@@ -52,7 +53,7 @@ const AdminDashboardClubs: NextPageWithConfig = () => {
         <Page.Section
           title="Overview"
           description="Del Norte club analytics"
-          containerClass="col-span-2 lg:col-span-1 "
+          containerClass="col-span-2 lg:col-span-1 order-first lg:order-none"
         >
           <div className="flex flex-col gap-4 rounded-md border border-black-20 p-8">
             {Object.entries(overviewAnalytics).map(([label, value]) => (
@@ -146,5 +147,7 @@ AdminDashboardClubs.layout = {
   view: 'dashboard',
   config: {},
 };
+
+export const getServerSideProps = withUser({ role: 'ADMIN' });
 
 export default AdminDashboardClubs;

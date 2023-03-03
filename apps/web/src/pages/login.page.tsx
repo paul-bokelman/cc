@@ -1,25 +1,28 @@
 import type { NextPageWithConfig } from '~/shared/types';
 import type { Login } from '@/cc';
 import { useRouter } from 'next/router';
-import { useMutation } from 'react-query';
+import { useMutation, useQueryClient } from 'react-query';
 import { type FormikHelpers, Formik, Form, Field } from 'formik';
 import { z } from 'zod';
 import { toast } from 'react-hot-toast';
 import { toFormikValidationSchema } from 'zod-formik-adapter';
 import { type Error, api } from '~/lib/api';
 import { handleServerValidationErrors, isValidationError } from '~/shared/utils';
-import { Button, InputLabel, TextInput } from '~/shared/components';
+import { Button, FieldError, InputLabel, TextInput } from '~/shared/components';
 
 const LoginPage: NextPageWithConfig = () => {
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   const loginMutation = useMutation<Login['payload'], Error, Login['args']>(api.auth.login, {
-    onSuccess: (d) => {
+    onSuccess: async (d) => {
       // set cookie on browser >:(
+      await queryClient.invalidateQueries(['user']);
+      await router.push('/admin/clubs'); // pushing to clubs instead of index bc it doesn't exist
       toast.success('Successfully logged in');
     },
     onError: (e) => {
-      if (!isValidationError(e)) toast.error('Failed to login');
+      // if (!isValidationError(e)) toast.error('Failed to login');
     },
   });
 
@@ -29,9 +32,6 @@ const LoginPage: NextPageWithConfig = () => {
   ): Promise<void> => {
     try {
       await loginMutation.mutateAsync({ body: values });
-
-      // destination depends on role
-      await router.push('/admin/clubs'); // pushing to clubs instead of index bc it doesn't exist
     } catch (e) {
       handleServerValidationErrors(e, setFieldError);
     }
@@ -63,6 +63,9 @@ const LoginPage: NextPageWithConfig = () => {
               <InputLabel value="Password">
                 <Field type="password" name="password" component={TextInput} placeholder="••••••••••••••" />
               </InputLabel>
+              {loginMutation.error?.response.data.code === 401 ? (
+                <FieldError touched error={loginMutation.error?.response.data.message} />
+              ) : null}
               <Button
                 type="submit"
                 loading={isSubmitting}

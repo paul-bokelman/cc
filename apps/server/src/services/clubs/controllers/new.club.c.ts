@@ -79,7 +79,6 @@ export const newClubValidation = z.object({
       advisor: z.string(),
     })
     .superRefine((input, ctx) => {
-      console.log(input.applicationLink);
       if (input.availability === 'APPLICATION' && !input.applicationLink) {
         ctx.addIssue({
           path: ['applicationLink'],
@@ -107,7 +106,6 @@ export const newClubHandler: Controller<NewClub> = async (req, res) => {
 
     return success(StatusCodes.OK, { id });
   } catch (e) {
-    console.log(e);
     return handleControllerError(e, res);
   }
 };

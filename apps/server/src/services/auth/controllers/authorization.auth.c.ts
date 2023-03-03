@@ -1,4 +1,4 @@
-import type { AuthenticatedUser, Controller } from '@/cc';
+import type { Authorization, Controller } from '@/cc';
 import { StatusCodes } from 'http-status-codes';
 import { z } from 'zod';
 import { Role } from '@prisma/client';
@@ -6,48 +6,38 @@ import { getSession } from 'lib/session';
 import { unsignCookie } from 'lib/session/utils';
 import { formatResponse } from '~/lib/utils';
 
-type Authorization = {
-  args: {
-    body: AuthorizationOptions;
-  };
-  payload: undefined;
-};
-
-type AuthorizationOptions = {
-  role?: Role;
-};
-
 const roleHierarchy = ['MEMBER', 'SCHOLAR', 'MANAGER', 'ADMIN'];
 
 const authorizationValidation = z.object({
-  role: z.nativeEnum(Role),
+  body: z.object({
+    role: z.nativeEnum(Role),
+    signedCookie: z.string(),
+  }),
 });
 
-const authorizeHandler: Controller<Authorization> = async (req, res, next) => {
-  const { error } = formatResponse<Authorization>(res);
-  const cookie: string = req.cookies?.['cc.sid'] ?? '';
+//! why the fuck won't axios send the cookie????
 
-  console.log('cookie from isAuthorized', cookie);
+const authorizeHandler: Controller<Authorization> = async (req, res) => {
+  const { success, error } = formatResponse<Authorization>(res);
+  const signedCookie = req.body.signedCookie ?? ''; // wish I could get this from cookies...
 
   (req.user as unknown) = null;
   (req.sid as unknown) = null;
 
-  if (!cookie) return error(StatusCodes.UNAUTHORIZED, 'No session');
+  if (!signedCookie) return error(StatusCodes.UNAUTHORIZED, 'No session');
 
-  const { role = 'MEMBER' } = req.body ?? {}; // check options if not options then use body
+  const { role = 'MEMBER' } = req.body ?? {};
 
   try {
-    const sid = unsignCookie(cookie);
+    const sid = unsignCookie(signedCookie);
     const user = await getSession(sid);
 
     if (!(roleHierarchy.indexOf(user.role) >= roleHierarchy.indexOf(role)))
       return error(StatusCodes.UNAUTHORIZED, 'Insufficient role');
 
-    // authorized
-
-    req.user = user;
-    req.sid = sid;
-    return next();
+    // req.user = user; // irrelevant in this file
+    // req.sid = sid; // irrelevant in this file
+    return success(StatusCodes.OK, { authorized: true });
   } catch (e) {
     if (e instanceof Error) return error(StatusCodes.UNAUTHORIZED, e.message);
     return error(StatusCodes.INTERNAL_SERVER_ERROR);

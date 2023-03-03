@@ -1,4 +1,5 @@
 import type { Controller, GetClubs } from '@/cc';
+import { Availability } from '@prisma/client';
 import { StatusCodes } from 'http-status-codes';
 import { z } from 'zod';
 import { prisma } from '~/config';
@@ -21,8 +22,9 @@ export const getClubsValidation = z.object({
     offset: z.preprocess(Number, z.number()).optional(),
     filter: z
       .object({
-        tags: z.string().array().optional(),
-        tagMethod: z.enum(['inclusive', 'exclusive']).optional(), // depends on tags (default to exclusive?)
+        tags: z.array(z.string()).optional(),
+        tagMethod: z.enum(['inclusive', 'exclusive']).optional(),
+        availability: z.array(z.nativeEnum(Availability)).optional(),
       })
       .optional(),
     sort: z.enum(['new', 'old', 'name-desc', 'name-asc']).optional(),
@@ -34,11 +36,17 @@ export const getClubsHandler: Controller<GetClubs> = async (req, res) => {
   const { limit, offset, filter, sort = 'new' } = req.query;
 
   const method = filter?.tagMethod === 'exclusive' ? 'every' : 'some';
+  // exclusive is flawed, because it will return clubs that include all tags, but not necessarily all tags
 
   try {
     const clubs = await prisma.club.findMany({
       where: {
-        tags: filter?.tags ? { [method]: { name: { in: filter?.tags ?? undefined } } } : undefined,
+        AND: filter
+          ? {
+              tags: filter.tags ? { [method]: { name: { in: filter.tags } } } : undefined,
+              availability: filter.availability ? { in: filter.availability } : undefined,
+            }
+          : undefined,
       },
       take: int(limit),
       skip: int(offset),

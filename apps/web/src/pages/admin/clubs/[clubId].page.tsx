@@ -11,7 +11,7 @@ import { toFormikValidationSchema } from 'zod-formik-adapter';
 import { toast } from 'react-hot-toast';
 import { TbBrandFacebook, TbBrandInstagram, TbBrandTwitter, TbCheck, TbLink } from 'react-icons/tb';
 import { type Error, queryClient, api } from '~/lib/api';
-import { handleServerValidationErrors, isValidationError } from '~/shared/utils';
+import { handleServerValidationErrors, isValidationError, withUser } from '~/shared/utils';
 import { DashboardContainer as Page, TextInput, InputLabel, FieldError, Tag, Button } from '~/shared/components';
 
 type SupportedPlatforms = (typeof supportedPlatforms)[number];
@@ -38,7 +38,7 @@ const AdminDashboardClub: NextPageWithConfig = () => {
 
   const editClubMutation = useMutation<EditClub['payload'], Error, EditClub['args']>(api.clubs.edit, {
     onSuccess: async ({ id }) => {
-      await queryClient.refetchQueries(['club', { id }]);
+      await queryClient.invalidateQueries(['club', { id }]);
       toast.success('Club updated successfully');
     },
     onError: (e) => {
@@ -447,5 +447,7 @@ AdminDashboardClub.layout = {
   view: 'dashboard',
   config: {},
 };
+
+export const getServerSideProps = withUser({ role: 'ADMIN' });
 
 export default AdminDashboardClub;

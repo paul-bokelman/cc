@@ -1,66 +1,48 @@
-// import type {
-//   GetServerSideProps,
-//   GetServerSidePropsContext,
-//   GetServerSidePropsResult,
-// } from "next";
-// import { unstable_getServerSession } from "next-auth";
-// import { getProviders } from "next-auth/react";
-// import { authOptions } from "pages/api/auth/[...nextauth].controller";
+import type { GetServerSideProps, GetServerSidePropsContext, GetServerSidePropsResult } from 'next';
+import type { ServerError, Authorization } from '@/cc';
+import { AxiosError } from 'axios';
+import axios from 'axios';
+import { api } from 'lib/api';
 
-// type AuthorizationOptions = {
-//   fail?: string;
-// };
+type AuthorizationOptions = Omit<Authorization['args']['body'], 'signedCookie'> & {
+  fail?: string;
+};
 
-export const withUser = () => {};
+type WithUser = <Props extends { [key: string]: any }>(
+  auth: AuthorizationOptions,
+  ssp?: GetServerSideProps<Props>
+) => (context: GetServerSidePropsContext) => Promise<GetServerSidePropsResult<Props | unknown>>;
 
-// type WithUser = <Props extends { [key: string]: unknown }>(
-//   auth: AuthorizationOptions,
-//   ssp?: GetServerSideProps<Props>
-// ) => (
-//   context: GetServerSidePropsContext
-// ) => Promise<GetServerSidePropsResult<Props | unknown>>;
+export const withUser: WithUser = (auth, ssp) => {
+  return async (context) => {
+    const { role = 'MEMBER', fail = '/' } = auth; // add allow and block soon (user acc states)
+    const signedCookie = context.req.cookies?.['cc.sid'] ?? ''; //? sent as cookie?? ofc not that would be too easy
 
-// const unauthorizedMessage = "You're not authorized to view that page.";
+    try {
+      await api.auth.authorize({ body: { role, signedCookie } });
+      if (!ssp) return { props: {} };
 
-// export const withUser: WithUser = (auth, ssp) => {
-//   return async (context) => {
-//     const { fail = "/" } = auth;
+      return await ssp(context);
+    } catch (e) {
+      if (axios.isAxiosError(e)) {
+        const err = (e as AxiosError<ServerError>).response.data;
+        if (err.code === 401) {
+          // separated because there may be conditional logic later...
+          return {
+            redirect: {
+              permanent: false,
+              destination: `${fail}?unauthorized=${err.message}`,
+            },
+          };
+        }
 
-//     try {
-//       const providers = await getProviders();
-
-//       const session = await unstable_getServerSession(
-//         context.req,
-//         context.res,
-//         authOptions
-//       );
-
-//       if (!session?.user) {
-//         return {
-//           redirect: {
-//             permanent: false,
-//             destination: `${fail}?unauthorized=${unauthorizedMessage}`,
-//           },
-//         };
-//       }
-
-//       if (!ssp) {
-//         return {
-//           props: {
-//             providers,
-//             session: session,
-//           },
-//         };
-//       }
-
-//       return await ssp(context);
-//     } catch {
-//       return {
-//         redirect: {
-//           permanent: false,
-//           destination: `${fail}?unauthorized="Something went wrong"`,
-//         },
-//       };
-//     }
-//   };
-// };
+        return {
+          redirect: {
+            permanent: false,
+            destination: `${fail}?unauthorized=${err.message}`,
+          },
+        };
+      }
+    }
+  };
+};

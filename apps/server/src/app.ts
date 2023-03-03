@@ -27,6 +27,14 @@ app.use(bodyParser.json());
 app.use(cookies());
 app.use(cors({ origin: true, credentials: true }));
 
+app.options('/*', function (req, res, next) {
+  // catch options
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
+  res.send(200);
+});
+
 // origin: env('CLIENT_URL') ?
 
 app.use(isProduction ? '/' : '/api', services);

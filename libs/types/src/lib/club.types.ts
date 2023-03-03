@@ -1,4 +1,4 @@
-import type { Club, Tag } from '@prisma/client';
+import { type Club, type Tag, Availability } from '@prisma/client';
 
 type ClubIdentifierMethods = 'slug' | 'id' | 'name';
 
@@ -9,7 +9,7 @@ export type GetClubs = {
     query: {
       limit?: number;
       offset?: number;
-      filter?: { tags: string[]; tagMethod: string };
+      filter?: { tags?: string[]; tagMethod?: 'inclusive' | 'exclusive'; availability?: Availability[] };
       sort?: 'new' | 'old' | 'name-desc' | 'name-asc';
     };
   };

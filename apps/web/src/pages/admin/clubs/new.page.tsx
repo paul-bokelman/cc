@@ -11,7 +11,7 @@ import { toast } from 'react-hot-toast';
 import { toFormikValidationSchema } from 'zod-formik-adapter';
 import { TbBrandFacebook, TbBrandInstagram, TbBrandTwitter, TbCheck, TbLink } from 'react-icons/tb';
 import { type Error, api } from '~/lib/api';
-import { handleServerValidationErrors, isValidationError } from '~/shared/utils';
+import { handleServerValidationErrors, isValidationError, withUser } from '~/shared/utils';
 import { DashboardContainer as Page, TextInput, InputLabel, FieldError, Tag, Button } from '~/shared/components';
 
 type SupportedPlatforms = (typeof supportedPlatforms)[number]; // duplicate code
@@ -345,5 +345,7 @@ AdminDashboardNewClub.layout = {
   view: 'dashboard',
   config: {},
 };
+
+export const getServerSideProps = withUser({ role: 'ADMIN' });
 
 export default AdminDashboardNewClub;

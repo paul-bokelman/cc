@@ -15,11 +15,7 @@ type MobileNavigationModalProps = BaseModalProps & {
   links: Array<{ label: string; dest: string }>;
 };
 
-export const MobileNavigationModal: React.FC<MobileNavigationModalProps> = ({
-  isOpen,
-  links,
-  closeModal,
-}) => {
+export const MobileNavigationModal: React.FC<MobileNavigationModalProps> = ({ isOpen, links, closeModal }) => {
   const router = useRouter();
   Router.events.on('routeChangeComplete', closeModal);
 
@@ -59,10 +55,7 @@ export const MobileNavigationModal: React.FC<MobileNavigationModalProps> = ({
                 </div>
                 <div className="mt-12 flex flex-col gap-7">
                   {links.map((link) => {
-                    const isActive =
-                      link.dest === '/'
-                        ? router.pathname === '/'
-                        : router.pathname.includes(link.dest);
+                    const isActive = link.dest === '/' ? router.pathname === '/' : router.pathname.includes(link.dest);
                     return (
                       <Link
                         key={link.label}
@@ -80,6 +73,7 @@ export const MobileNavigationModal: React.FC<MobileNavigationModalProps> = ({
                     );
                   })}
                 </div>
+                {/* <p>Logout</p> */}
               </Dialog.Panel>
             </Transition.Child>
           </div>

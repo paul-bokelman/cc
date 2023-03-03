@@ -1,6 +1,6 @@
 import type { NextPageWithConfig } from '~/shared/types';
+import { withUser } from '~/shared/utils';
 import { DashboardContainer as Page } from '~/shared/components';
-import { TbPlus } from 'react-icons/tb';
 
 type Props = {};
 
@@ -25,5 +25,7 @@ AdminDashboard.layout = {
   view: 'dashboard',
   config: {},
 };
+
+export const getServerSideProps = withUser({ role: 'ADMIN' });
 
 export default AdminDashboard;
