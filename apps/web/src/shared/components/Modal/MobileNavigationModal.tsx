@@ -47,7 +47,7 @@ export const MobileNavigationModal: React.FC<MobileNavigationModalProps> = ({ is
             >
               <Dialog.Panel className="flex w-full max-w-md transform flex-col gap-4 px-4 text-left align-middle transition-all">
                 <div className="flex w-full items-start justify-between">
-                  <Logo dest="/" withText mobile size={48} />
+                  <Logo dest="/" mobile size={48} />
                   <TbX
                     className="h-12 w-12 cursor-pointer rounded-full bg-black-10 p-2 text-4xl text-black-80"
                     onClick={closeModal}

@@ -22,9 +22,13 @@ export const ClubsFilterModal: React.FC<ClubsFilterModalProps> = ({ isOpen, clos
     query?.filter?.tagMethod ?? 'inclusive'
   );
 
-  const { data: tags = [] } = useQuery<GetTags['payload'], Error>('tags', async () => await api.tags.all(), {
-    onError: (e) => console.log(e),
-  });
+  const { data: tags = [], ...tagsQuery } = useQuery<GetTags['payload'], Error>(
+    'tags',
+    async () => await api.tags.all(),
+    {
+      onError: (e) => console.log(e),
+    }
+  );
 
   const handleSelectTag = (name: string) => {
     if (selectedTags.includes(name)) {
@@ -56,7 +60,7 @@ export const ClubsFilterModal: React.FC<ClubsFilterModalProps> = ({ isOpen, clos
     appendToQuery({ filter: null });
   };
 
-  //! Loading state
+  //! fails to filter fallback?
 
   return (
     <Transition appear show={isOpen} as={Fragment}>
@@ -97,15 +101,25 @@ export const ClubsFilterModal: React.FC<ClubsFilterModalProps> = ({ isOpen, clos
                 <div className="max-h-96 flex flex-col gap-8 overflow-y-scroll px-8">
                   <FilterSection title="Tags" description="Inclusively or exclusively filter by selected tags">
                     <div className="flex flex-wrap w-full gap-2">
-                      {tags?.map(({ name }) => (
-                        <Tag
-                          name={name}
-                          variant="inline"
-                          size="lg"
-                          active={selectedTags.includes(name)}
-                          onClick={() => handleSelectTag(name)}
-                        />
-                      ))}
+                      {tagsQuery.isSuccess ? (
+                        tags?.map(({ name }) => (
+                          <Tag
+                            name={name}
+                            variant="inline"
+                            size="lg"
+                            active={selectedTags.includes(name)}
+                            onClick={() => handleSelectTag(name)}
+                          />
+                        ))
+                      ) : (
+                        <p className={cn({ 'text-red-500': tagsQuery.isError || tagsQuery.isIdle }, 'text-sm')}>
+                          {tagsQuery.isLoading
+                            ? 'Loading tags...'
+                            : tagsQuery.isError
+                            ? 'Something went wrong fetching the tags, please try again later.'
+                            : 'Query has not been enabled, please contact support.'}
+                        </p>
+                      )}
                     </div>
                     <div className="flex flex-col gap-2">
                       <span className="font-medium">Filtering Method</span>

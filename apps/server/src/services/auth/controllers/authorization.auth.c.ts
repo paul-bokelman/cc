@@ -21,6 +21,8 @@ const authorizeHandler: Controller<Authorization> = async (req, res) => {
   const { success, error } = formatResponse<Authorization>(res);
   const signedCookie = req.body.signedCookie ?? ''; // wish I could get this from cookies...
 
+  // console.log(req.cookies);
+
   (req.user as unknown) = null;
   (req.sid as unknown) = null;
 

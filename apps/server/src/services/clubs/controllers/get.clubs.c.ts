@@ -32,7 +32,7 @@ export const getClubsValidation = z.object({
 });
 
 export const getClubsHandler: Controller<GetClubs> = async (req, res) => {
-  const { success } = formatResponse<GetClubs>(res);
+  const { error, success } = formatResponse<GetClubs>(res);
   const { limit, offset, filter, sort = 'new' } = req.query;
 
   const method = filter?.tagMethod === 'exclusive' ? 'every' : 'some';

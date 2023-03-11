@@ -1,6 +1,7 @@
-export const bool = (v: string | number): boolean => {
+export const bool = (v: string | number | undefined): boolean => {
+  if (v === undefined) return false;
   if (typeof v === 'string') {
-    return v === 'true' ? true : v === 'false' ? false : v ? true : false;
+    return v === 'true' ? true : v === 'false' ? false : false;
   }
 
   return v === 1 ? true : v === 0 ? false : false;

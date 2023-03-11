@@ -30,9 +30,8 @@ export type ButtonProps = (
   BaseButtonProps;
 
 const variantStyles: { [key in Variants]: string } = {
-  primary: 'bg-blue-70 text-white hover:bg-blue-50',
-  secondary:
-    'border border-black-20 bg-white text-black-70 shadow-sm hover:bg-black-10/40',
+  primary: 'bg-blue-70 text-white hover:bg-blue-50 shadow-sm',
+  secondary: 'border border-black-20 bg-white text-black-70 shadow-sm hover:bg-black-10/40',
   danger: 'bg-red-50 text-white hover:bg-red-70',
   ghost: 'bg-transparent text-black hover:text-black-60',
 };
@@ -43,7 +42,7 @@ const sizeStyles: { [key in Sizes]: string } = {
 };
 const stateStyles: { [key in State]: string } = {
   default: '',
-  disabled: 'pointer-events-none opacity-50',
+  disabled: 'pointer-events-none opacity-50 shadow-none',
   loading: 'pointer-events-none opacity-50',
 };
 
@@ -57,11 +56,7 @@ export const Button: React.FC<ButtonProps & BaseButtonProps> = ({
   iconRight: IconRight,
   ...props
 }) => {
-  const state = props.loading
-    ? 'loading'
-    : props.disabled
-    ? 'disabled'
-    : 'default';
+  const state = props.loading ? 'loading' : props.disabled ? 'disabled' : 'default';
 
   const classes = cn(
     variantStyles[variant],
@@ -72,14 +67,10 @@ export const Button: React.FC<ButtonProps & BaseButtonProps> = ({
 
   const children = (
     <>
-      {IconLeft && !props.loading ? (
-        <IconLeft className="mr-2 text-sm" />
-      ) : null}
+      {IconLeft && !props.loading ? <IconLeft className="mr-2 text-sm" /> : null}
       {props.loading ? <TbLoader className="mr-2 animate-spin" /> : null}
       {text}
-      {IconRight && !props.loading ? (
-        <IconRight className="ml-2 text-sm" />
-      ) : null}
+      {IconRight && !props.loading ? <IconRight className="ml-2 text-sm" /> : null}
     </>
   );
 
@@ -90,13 +81,7 @@ export const Button: React.FC<ButtonProps & BaseButtonProps> = ({
         {children}
       </NextLink>
     ) : (
-      <a
-        href={href}
-        className={classes}
-        {...rest}
-        target="_blank"
-        rel="noopener noreferrer"
-      >
+      <a href={href} className={classes} {...rest} target="_blank" rel="noopener noreferrer">
         {children}
       </a>
     );

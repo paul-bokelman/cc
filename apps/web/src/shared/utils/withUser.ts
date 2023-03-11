@@ -29,18 +29,12 @@ export const withUser: WithUser = (auth, ssp) => {
         if (err.code === 401) {
           // separated because there may be conditional logic later...
           return {
-            redirect: {
-              permanent: false,
-              destination: `${fail}?unauthorized=${err.message}`,
-            },
+            redirect: { permanent: false, destination: `${fail}?unauthorized=${err.message}` },
           };
         }
 
         return {
-          redirect: {
-            permanent: false,
-            destination: `${fail}?unauthorized=${err.message}`,
-          },
+          redirect: { permanent: false, destination: `${fail}?unauthorized=${err.message}` },
         };
       }
     }

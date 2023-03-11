@@ -26,10 +26,10 @@ export const ClubCard: React.FC<ClubCardProps> = (club) => {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             {club.availability === 'OPEN' || club.availability === 'APPLICATION' ? (
-              <TbUserCheck className="text-xl text-black-60" />
+              <TbUserCheck className="text-xl text-blue-60" />
             ) : null}
             {club.availability === 'APPLICATION' ? <TbFileText className="text-xl text-black-60" /> : null}
-            {club.availability === 'CLOSED' ? <TbUserX className="text-xl text-black-60" /> : null}
+            {club.availability === 'CLOSED' ? <TbUserX className="text-xl text-red-60" /> : null}
           </div>
           <Link href={`/clubs/${club.slug}`}>
             <Button

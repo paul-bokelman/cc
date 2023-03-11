@@ -6,14 +6,14 @@ module.exports = {
   content: [
     // "./src/**/*.{js,ts,jsx,tsx}",
     // "./src/shared/components/**/*.{js,ts,jsx,tsx}",
-    join(
-      __dirname,
-      '{src,pages,components}/**/*!(*.stories|*.spec).{ts,tsx,html}'
-    ),
+    join(__dirname, '{src,pages,components}/**/*!(*.stories|*.spec).{ts,tsx,html}'),
     ...createGlobPatternsForDependencies(__dirname),
   ],
   theme: {
     extend: {
+      gridTemplateRows: {
+        login: '1f 1fr 1f',
+      },
       colors: {
         blue: {
           10: '#EEF3FF',

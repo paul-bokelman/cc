@@ -5,6 +5,7 @@
   "scripts": {
     "start:server": "nx run server:serve",
     "start:web": "nx run web:serve",
+    "build:server": "npm run prisma:generate && nx run server:build",
     "prisma:generate": "prisma generate --schema=./apps/server/prisma/schema.prisma",
     "prisma:reset": "prisma migrate reset --schema=./apps/server/prisma/schema.prisma",
     "prisma:push": "prisma db push --schema=./apps/server/prisma/schema.prisma"

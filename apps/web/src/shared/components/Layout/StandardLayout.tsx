@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import cn from 'classnames';
-import { TbMenu2 } from 'react-icons/tb';
+import { TbMenu2, TbBrandTwitter, TbBrandInstagram } from 'react-icons/tb';
 import { useAuthContext } from '~/shared/context';
 import { Logo, Button, Avatar, MobileNavigationModal } from '~/shared/components';
 
@@ -42,12 +42,11 @@ export const StandardLayout: React.FC<Props> = ({ config, children }) => {
   const links = user?.role === 'ADMIN' ? adminLinks : memberLinks; // if more roles are added this logic needs to be changed
 
   const footerLinks = [
-    //! UPDATES LINKS
-    { label: 'Twitter', dest: '/link' },
-    { label: 'Instagram', dest: '/link' },
-    { label: 'About Us', dest: '/link' },
-    { label: 'Contact Us', dest: '/link' },
-    { label: 'Contact ASB', dest: '/link' },
+    //! Icons for mobile
+    { label: 'Twitter', icon: TbBrandTwitter, dest: '/link' },
+    { label: 'Instagram', icon: TbBrandInstagram, dest: '/link' },
+    { label: 'About Us', dest: '/about' }, // random icon
+    { label: 'Contact Us', dest: '/link' }, // func
   ];
 
   // switch to grid to have things really centered.
@@ -99,7 +98,7 @@ export const StandardLayout: React.FC<Props> = ({ config, children }) => {
                     Login
                   </Button>
                   <Button disabled variant="primary">
-                    Signup
+                    Sign Up
                   </Button>
                 </>
               )}
@@ -110,8 +109,8 @@ export const StandardLayout: React.FC<Props> = ({ config, children }) => {
               <MobileNavigationModal isOpen={menuOpen} links={links} closeModal={() => setMenuOpen(false)} />
             </div>
           </div>
-          <div className="flex h-full w-full justify-start">{children}</div>
         </div>
+        <div className="flex h-full w-full justify-start">{children}</div>
         {/* FOOTER */}
         <div className="mt-12 flex w-full items-center justify-between">
           <div className="flex items-center gap-2">

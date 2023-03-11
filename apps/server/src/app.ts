@@ -8,19 +8,14 @@ import { client } from '~/config';
 
 preflightENV();
 
-(async () => {
-  try {
-    await client.connect();
-  } catch (error) {
-    console.error(error);
+(async () =>
+  await client.connect().catch((e) => {
+    console.error(e);
     process.exit(1);
-  }
-})();
+  }))();
 
-client.on('connect', () => {
-  console.log('Redis client connected');
-  return;
-});
+client.on('connect', () => console.log('Redis client connected'));
+
 export const app: Express = express();
 
 app.use(bodyParser.json());
@@ -31,7 +26,8 @@ app.options('/*', function (req, res, next) {
   // catch options
   res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, *');
+  res.header('Access-Control-Allow-Credentials', 'true');
   res.send(200);
 });
 

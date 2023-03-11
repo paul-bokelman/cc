@@ -26,12 +26,13 @@ export type GetClub = {
   args: {
     query: {
       method: ClubIdentifierMethods;
+      includeSimilar?: string;
     };
     params: {
       identifier: string;
     };
   };
-  payload: Club & { tags: Tag[] };
+  payload: Club & { tags: Tag[]; similarClubs?: (Club & { tags: Tag[] })[] };
 };
 
 /* -------------------------------- NEW CLUB -------------------------------- */
