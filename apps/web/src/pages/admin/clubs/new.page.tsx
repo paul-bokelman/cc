@@ -27,9 +27,7 @@ const AdminDashboardNewClub: NextPageWithConfig = () => {
       toast.success('Club created successfully');
     },
     onError: (e) => {
-      if (!isValidationError(e)) {
-        toast.error('Failed to create club');
-      }
+      if (!isValidationError(e)) toast.error('Failed to create club');
     },
   });
   const tagsQuery = useQuery<GetTags['payload'], Error>('tags', async () => await api.tags.all());
