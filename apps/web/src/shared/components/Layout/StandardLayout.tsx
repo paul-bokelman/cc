@@ -112,12 +112,12 @@ export const StandardLayout: React.FC<Props> = ({ config, children }) => {
         </div>
         <div className="flex h-full w-full justify-start">{children}</div>
         {/* FOOTER */}
-        <div className="mt-12 flex w-full items-center justify-between">
+        <div className="mt-12 flex md:flex-row flex-col w-full items-center justify-between">
           <div className="flex items-center gap-2">
             <Logo withText={false} size={14} />
             <span className="text-sm">Club Compass - Redefining Club Discovery</span>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 md:mt-0 mt-2">
             {footerLinks.map((link) => (
               <Link key={link.label} href={link.dest}>
                 <span className="text-sm text-black transition-colors hover:text-blue-60">{link.label}</span>
