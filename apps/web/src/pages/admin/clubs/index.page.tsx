@@ -1,15 +1,15 @@
-import type { NextPageWithConfig } from '~/shared/types';
-import type { GetAdminClubs } from '@/cc';
-import Link from 'next/link';
-import { useQuery } from 'react-query';
-import { TbPlus, TbFileText, TbUserCheck, TbUserX, TbUser } from 'react-icons/tb';
-import { type Error, api } from '~/lib/api';
-import { withUser } from '~/shared/utils';
-import { tags as tagList, DashboardContainer as Page, Button } from '~/shared/components';
+import type { NextPageWithConfig } from "~/shared/types";
+import type { GetAdminClubs } from "cc-common";
+import Link from "next/link";
+import { useQuery } from "react-query";
+import { TbPlus, TbFileText, TbUserCheck, TbUserX, TbUser } from "react-icons/tb";
+import { type Error, api } from "~/lib/api";
+import { withUser } from "~/shared/utils";
+import { tags as tagList, DashboardContainer as Page, Button } from "~/shared/components";
 
 const AdminDashboardClubs: NextPageWithConfig = () => {
-  const adminClubsQuery = useQuery<GetAdminClubs['payload'], Error>(
-    ['admin-clubs'],
+  const adminClubsQuery = useQuery<GetAdminClubs["payload"], Error>(
+    ["admin-clubs"],
     async () => await api.admin.clubs(),
     {
       retry: 0,
@@ -19,9 +19,9 @@ const AdminDashboardClubs: NextPageWithConfig = () => {
   const { clubs, overview } = adminClubsQuery?.data ?? {};
 
   const overviewAnalytics = {
-    'Total Clubs': overview?.totalClubs,
-    'Total leaders in clubs': overview?.totalMembersInClubs, // will be members in phase 2
-    'Percentage of open clubs': `${overview?.percentageOfOpenClubs}%`,
+    "Total Clubs": overview?.totalClubs,
+    "Total leaders in clubs": overview?.totalMembersInClubs, // will be members in phase 2
+    "Percentage of open clubs": `${overview?.percentageOfOpenClubs}%`,
   };
 
   return (
@@ -31,11 +31,11 @@ const AdminDashboardClubs: NextPageWithConfig = () => {
         description="Manage clubs and view overall analytics"
         actions={[
           {
-            variant: 'primary',
-            children: 'New Club',
+            variant: "primary",
+            children: "New Club",
             iconLeft: TbPlus,
             link: true,
-            href: '/admin/clubs/new',
+            href: "/admin/clubs/new",
           },
         ]}
       />
@@ -69,7 +69,7 @@ const AdminDashboardClubs: NextPageWithConfig = () => {
   );
 };
 
-type DashboardClubCardProps = GetAdminClubs['payload']['clubs'][number];
+type DashboardClubCardProps = GetAdminClubs["payload"]["clubs"][number];
 
 const DashboardClubCard: React.FC<DashboardClubCardProps> = (club) => {
   const leadership = {
@@ -144,10 +144,10 @@ const DashboardClubCard: React.FC<DashboardClubCardProps> = (club) => {
 };
 
 AdminDashboardClubs.layout = {
-  view: 'dashboard',
+  view: "dashboard",
   config: {},
 };
 
-export const getServerSideProps = withUser({ role: 'ADMIN' });
+export const getServerSideProps = withUser({ role: "ADMIN" });
 
 export default AdminDashboardClubs;

@@ -1,17 +1,17 @@
-import type { FC } from 'react';
-import type { Children } from '~/shared/types';
-import type { AuthenticatedUser, GetUser, Logout, ServerError } from '@/cc';
-import { createContext, useContext, useEffect, useMemo } from 'react';
-import { type UseMutateAsyncFunction, useMutation, useQuery, useQueryClient } from 'react-query';
-import { useRouter } from 'next/router';
-import { toast } from 'react-hot-toast';
-import { api } from '~/lib/api';
+import type { FC } from "react";
+import type { Children } from "~/shared/types";
+import type { AuthenticatedUser, GetUser, Logout, ServerError } from "cc-common";
+import { createContext, useContext, useEffect, useMemo } from "react";
+import { type UseMutateAsyncFunction, useMutation, useQuery, useQueryClient } from "react-query";
+import { useRouter } from "next/router";
+import { toast } from "react-hot-toast";
+import { api } from "~/lib/api";
 
 interface AuthContext {
   user: AuthenticatedUser | null;
   loading: boolean;
   isLoggedIn: boolean;
-  logout: UseMutateAsyncFunction<Logout['payload'], ServerError>;
+  logout: UseMutateAsyncFunction<Logout["payload"], ServerError>;
 }
 
 const AuthContext = createContext<AuthContext | undefined>(undefined);
@@ -19,7 +19,7 @@ const AuthContext = createContext<AuthContext | undefined>(undefined);
 export const useAuthContext = (): AuthContext => {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuthContext must be within AuthProvider');
+    throw new Error("useAuthContext must be within AuthProvider");
   }
   return context;
 };
@@ -27,17 +27,17 @@ export const useAuthContext = (): AuthContext => {
 export const AuthProvider: FC<{ children: Children }> = ({ children }) => {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const { data: user, isLoading } = useQuery<GetUser['payload'], ServerError>(['user'], async () => api.user.get()); // include sid in qk?
-  const { mutateAsync: logout } = useMutation<Logout['payload'], ServerError, Logout['args']>(api.auth.logout, {
+  const { data: user, isLoading } = useQuery<GetUser["payload"], ServerError>(["user"], async () => api.user.get()); // include sid in qk?
+  const { mutateAsync: logout } = useMutation<Logout["payload"], ServerError, Logout["args"]>(api.auth.logout, {
     onError: () => {
       // loading toast on mutate?
-      toast.error('Failed to logout');
+      toast.error("Failed to logout");
     },
     onSuccess: async () => {
-      await queryClient.invalidateQueries<GetUser['payload']>(['user']);
-      queryClient.setQueryData<GetUser['payload']>(['user'], null); // have to manually set user to null for some odd reason
-      await router.push('/clubs'); // should conditionally push to diff locations
-      toast.success('Logged out');
+      await queryClient.invalidateQueries<GetUser["payload"]>(["user"]);
+      queryClient.setQueryData<GetUser["payload"]>(["user"], null); // have to manually set user to null for some odd reason
+      await router.push("/clubs"); // should conditionally push to diff locations
+      toast.success("Logged out");
     },
   });
 

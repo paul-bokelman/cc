@@ -1,8 +1,8 @@
-import type { Controller, NewTag } from '@/cc';
-import { StatusCodes } from 'http-status-codes';
-import { z } from 'zod';
-import { prisma } from '~/config';
-import { formatResponse, handleControllerError } from '~/lib/utils';
+import type { Controller, NewTag } from "cc-common";
+import { StatusCodes } from "http-status-codes";
+import { z } from "zod";
+import { prisma } from "~/config";
+import { formatResponse, handleControllerError } from "~/lib/utils";
 
 export const newTagValidation = z.object({
   body: z.object({
@@ -19,7 +19,7 @@ export const newTagHandler: Controller<NewTag> = async (req, res) => {
     });
 
     if (existingTag) {
-      return error(StatusCodes.CONFLICT, 'Tag already exists');
+      return error(StatusCodes.CONFLICT, "Tag already exists");
     }
 
     const tag = await prisma.tag.create({

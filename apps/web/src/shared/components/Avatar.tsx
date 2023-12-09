@@ -1,15 +1,15 @@
-import Image from 'next/image';
-import type { AuthenticatedUser } from '@/cc';
-import cn from 'classnames';
+import Image from "next/image";
+import type { AuthenticatedUser } from "cc-common";
+import cn from "classnames";
 
 type Props = {
   user: AuthenticatedUser;
-  className?: React.ComponentProps<'div'>['className'];
+  className?: React.ComponentProps<"div">["className"];
 };
 
 export const Avatar: React.FC<Props> = ({ user, className }) => {
   return (
-    <div className={cn('rounded-full', className)}>
+    <div className={cn("rounded-full", className)}>
       {user?.avatar ? (
         <Image src={user.avatar} width={48} height={48} alt="avatar" className="h-full w-full rounded-full" />
       ) : (

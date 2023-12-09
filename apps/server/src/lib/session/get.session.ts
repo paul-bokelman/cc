@@ -1,18 +1,18 @@
-import type { UserSession, AuthenticatedUser } from '@/cc';
-import { client, prisma } from 'config';
-import { destroySession } from '.';
+import type { UserSession, AuthenticatedUser } from "cc-common";
+import { client, prisma } from "~/config";
+import { destroySession } from ".";
 
 type GetSession = (sid: string) => Promise<AuthenticatedUser>;
 
 export const getSession: GetSession = async (sid) => {
   try {
     const session = await client.get(`sessions:${sid}`);
-    if (!session) throw new Error('Failed to get session');
+    if (!session) throw new Error("Failed to get session");
     const { userId, cookie }: UserSession = JSON.parse(session);
 
     if (cookie.expires < new Date()) {
       await destroySession(sid);
-      throw new Error('Session expired');
+      throw new Error("Session expired");
     }
 
     const user = await prisma.user.findUnique({
@@ -29,10 +29,10 @@ export const getSession: GetSession = async (sid) => {
       },
     });
 
-    if (!user) throw new Error('No user associated with session');
+    if (!user) throw new Error("No user associated with session");
 
     return user;
   } catch (error) {
-    throw new Error('Malformed session data');
+    throw new Error("Malformed session data");
   }
 };

@@ -1,8 +1,8 @@
-import type { Controller, GetAdminClubs } from '@/cc';
-import { StatusCodes } from 'http-status-codes';
-import { z } from 'zod';
-import { prisma } from '~/config';
-import { formatResponse, handleControllerError, int } from '~/lib/utils';
+import type { Controller, GetAdminClubs } from "cc-common";
+import { StatusCodes } from "http-status-codes";
+import { z } from "zod";
+import { prisma } from "~/config";
+import { formatResponse, handleControllerError, int } from "~/lib/utils";
 
 export const getAdminClubsValidation = z.object({
   query: z.object({
@@ -28,14 +28,14 @@ export const getAdminClubsHandler: Controller<GetAdminClubs> = async (req, res) 
         availability: true,
         tags: true,
       },
-      orderBy: { updatedAt: 'desc' },
+      orderBy: { updatedAt: "desc" },
     });
 
     const totalClubs = await prisma.club.count();
 
     const percentageOfOpenClubs =
       (await prisma.club.count({
-        where: { availability: 'OPEN' },
+        where: { availability: "OPEN" },
       })) / totalClubs;
 
     return success(StatusCodes.OK, {

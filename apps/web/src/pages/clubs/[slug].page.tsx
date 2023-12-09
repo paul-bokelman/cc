@@ -1,9 +1,9 @@
-import type { NextPageWithConfig } from '~/shared/types';
-import type { IconType } from 'react-icons';
-import type { GetClub } from '@/cc';
-import { useRouter } from 'next/router';
-import { useQuery } from 'react-query';
-import { toast } from 'react-hot-toast';
+import type { NextPageWithConfig } from "~/shared/types";
+import type { IconType } from "react-icons";
+import type { GetClub } from "cc-common";
+import { useRouter } from "next/router";
+import { useQuery } from "react-query";
+import { toast } from "react-hot-toast";
 import {
   TbUserCheck,
   TbFileText,
@@ -16,17 +16,17 @@ import {
   TbBrandFacebook,
   TbBrandTwitter,
   TbMoodConfuzed,
-} from 'react-icons/tb';
-import { type Error, api } from '~/lib/api';
-import { type TagNames, Tag, Button, ClubCard, ClubCompassLogo } from '~/shared/components';
-import { GetServerSideProps } from 'next';
+} from "react-icons/tb";
+import { type Error, api } from "~/lib/api";
+import { type TagNames, Tag, Button, ClubCard, ClubCompassLogo } from "~/shared/components";
+import { GetServerSideProps } from "next";
 
 export type Club = {
   //base club
   name: string;
   tags: Array<TagNames>;
   applicationRequired: boolean;
-  availability: 'open' | 'closed';
+  availability: "open" | "closed";
   description: string;
   members: { leadership: Array<{ name: string; role: string }>; total: number };
 
@@ -49,11 +49,11 @@ export type Club = {
 const Club: NextPageWithConfig = () => {
   const router = useRouter();
 
-  const { data: club, ...clubQuery } = useQuery<GetClub['payload'], Error>(
-    ['club', { slug: router.query.slug }],
+  const { data: club, ...clubQuery } = useQuery<GetClub["payload"], Error>(
+    ["club", { slug: router.query.slug }],
     async () =>
       await api.clubs.get({
-        query: { method: 'slug', includeSimilar: 'true' },
+        query: { method: "slug", includeSimilar: "true" },
         params: { identifier: router.query.slug as string },
       }),
     { enabled: !!router.query.slug }
@@ -61,7 +61,7 @@ const Club: NextPageWithConfig = () => {
 
   // check if error is 404, if so club doesn't exist!
 
-  if (clubQuery.status !== 'success') {
+  if (clubQuery.status !== "success") {
     return (
       <div className="w-full flex justify-center items-center">
         {clubQuery.isLoading ? (
@@ -76,7 +76,7 @@ const Club: NextPageWithConfig = () => {
               <ClubCompassLogo className="grayscale opacity-30 text-3xl mb-2" />
               <p className="font-medium text-lg">Oops! Looks like that club doesn't exist.</p>
               <p className="text-xs text-black-60">If this club does exist please contact support.</p>
-              <Button link href="/clubs" variant="secondary" size="small" style={{ marginTop: '0.5rem' }}>
+              <Button link href="/clubs" variant="secondary" size="small" style={{ marginTop: "0.5rem" }}>
                 Back to Clubs
               </Button>
             </div>
@@ -104,13 +104,13 @@ const Club: NextPageWithConfig = () => {
   }> = (props) => (
     <div className="flex items-center gap-2">
       <props.icon className="stroke-2 text-lg text-black-90" />
-      {typeof props.element === 'string' ? <span className="text-black-70">{props.element}</span> : props.element}
+      {typeof props.element === "string" ? <span className="text-black-70">{props.element}</span> : props.element}
     </div>
   );
 
   const leadership = {
     president: club.president,
-    'vice president': club.vicePresident,
+    "vice president": club.vicePresident,
     secretary: club.secretary,
     treasurer: club.treasurer,
     advisor: club.advisor,
@@ -128,13 +128,13 @@ const Club: NextPageWithConfig = () => {
             ))}
           </div>
           <div className="flex items-center gap-3">
-            {club.availability === 'OPEN' || club.availability === 'APPLICATION' ? (
+            {club.availability === "OPEN" || club.availability === "APPLICATION" ? (
               <div className="flex items-center gap-1">
                 <TbUserCheck className="text-xl text-black" />
                 <span className="text-sm text-black-70">Accepting Members</span>
               </div>
             ) : null}
-            {club.availability === 'APPLICATION' ? (
+            {club.availability === "APPLICATION" ? (
               <div className="flex items-center gap-1">
                 <TbFileText className="text-xl text-black" />
                 <span className="text-sm text-black-70">Application Required</span>
@@ -148,13 +148,13 @@ const Club: NextPageWithConfig = () => {
             iconLeft={TbShare}
             onClick={() => {
               navigator.clipboard.writeText(window.location.href);
-              toast.success('Link copied to clipboard!');
+              toast.success("Link copied to clipboard!");
             }}
           >
             Share
           </Button>
           {/* students can't join clubs yet so they can only apply */}
-          {club.availability === 'APPLICATION' ? (
+          {club.availability === "APPLICATION" ? (
             <Button variant="primary" link external href={club.applicationLink}>
               Apply
             </Button>
@@ -260,7 +260,7 @@ const Club: NextPageWithConfig = () => {
   );
 };
 
-Club.layout = { view: 'standard', config: {} };
+Club.layout = { view: "standard", config: {} };
 
 // export const getServerSideProps: GetServerSideProps = async ({ req }) => {
 //   const subdomain = req.headers.host.split('.')[0];

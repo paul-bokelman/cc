@@ -1,8 +1,8 @@
-import type { Response } from 'express';
-import type { ServerError } from '@/cc';
-import { Prisma } from '@prisma/client';
-import { StatusCodes } from 'http-status-codes';
-import { formatResponse } from '~/lib/utils';
+import type { Response } from "express";
+import type { ServerError } from "cc-common";
+import { Prisma } from "@prisma/client";
+import { StatusCodes } from "http-status-codes";
+import { formatResponse } from "~/lib/utils";
 
 //! This really needs to be more robust
 

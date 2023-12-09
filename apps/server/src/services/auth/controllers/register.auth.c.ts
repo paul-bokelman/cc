@@ -1,10 +1,10 @@
-import type { Controller, Register } from '@/cc';
-import bcrypt from 'bcryptjs';
-import { StatusCodes } from 'http-status-codes';
-import { z } from 'zod';
-import { prisma } from '~/config';
-import { generateSession } from '~/lib/session';
-import { generate, handleControllerError } from '~/lib/utils';
+import type { Controller, Register } from "cc-common";
+import bcrypt from "bcryptjs";
+import { StatusCodes } from "http-status-codes";
+import { z } from "zod";
+import { prisma } from "~/config";
+import { generateSession } from "~/lib/session";
+import { generate, handleControllerError } from "~/lib/utils";
 
 // type Register = {
 //   args: {

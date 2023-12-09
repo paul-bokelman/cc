@@ -1,31 +1,31 @@
-import type { NextPageWithConfig } from '~/shared/types';
-import type { IconType } from 'react-icons';
-import { GetClub, EditClub, DeleteClub, GetTags } from '@/cc';
-import { useState } from 'react';
-import { useRouter } from 'next/router';
-import { useMutation, useQuery } from 'react-query';
-import { type FormikHelpers, Formik, Field, Form } from 'formik';
-import { z } from 'zod';
-import cn from 'classnames';
-import { toFormikValidationSchema } from 'zod-formik-adapter';
-import { toast } from 'react-hot-toast';
-import { TbBrandFacebook, TbBrandInstagram, TbBrandTwitter, TbCheck, TbLink } from 'react-icons/tb';
-import { type Error, queryClient, api } from '~/lib/api';
-import { handleServerValidationErrors, isValidationError, withUser } from '~/shared/utils';
-import { DashboardContainer as Page, TextInput, InputLabel, FieldError, Tag, Button } from '~/shared/components';
+import type { NextPageWithConfig } from "~/shared/types";
+import type { IconType } from "react-icons";
+import { GetClub, EditClub, DeleteClub, GetTags } from "cc-common";
+import { useState } from "react";
+import { useRouter } from "next/router";
+import { useMutation, useQuery } from "react-query";
+import { type FormikHelpers, Formik, Field, Form } from "formik";
+import { z } from "zod";
+import cn from "classnames";
+import { toFormikValidationSchema } from "zod-formik-adapter";
+import { toast } from "react-hot-toast";
+import { TbBrandFacebook, TbBrandInstagram, TbBrandTwitter, TbCheck, TbLink } from "react-icons/tb";
+import { type Error, queryClient, api } from "~/lib/api";
+import { handleServerValidationErrors, isValidationError, withUser } from "~/shared/utils";
+import { DashboardContainer as Page, TextInput, InputLabel, FieldError, Tag, Button } from "~/shared/components";
 
 type SupportedPlatforms = (typeof supportedPlatforms)[number];
 
-const supportedPlatforms = ['instagram', 'facebook', 'twitter', 'website'] as const;
+const supportedPlatforms = ["instagram", "facebook", "twitter", "website"] as const;
 
 const AdminDashboardClub: NextPageWithConfig = () => {
   const router = useRouter();
 
-  const clubQuery = useQuery<GetClub['payload'], Error>(
-    ['club', { id: router.query.clubId }],
+  const clubQuery = useQuery<GetClub["payload"], Error>(
+    ["club", { id: router.query.clubId }],
     async () =>
       await api.clubs.get({
-        query: { method: 'id' },
+        query: { method: "id" },
         params: { identifier: router.query.clubId as string },
       }),
     {
@@ -34,41 +34,41 @@ const AdminDashboardClub: NextPageWithConfig = () => {
     }
   );
 
-  const tagsQuery = useQuery<GetTags['payload'], Error>('tags', async () => api.tags.all());
+  const tagsQuery = useQuery<GetTags["payload"], Error>("tags", async () => api.tags.all());
 
-  const editClubMutation = useMutation<EditClub['payload'], Error, EditClub['args']>(api.clubs.edit, {
+  const editClubMutation = useMutation<EditClub["payload"], Error, EditClub["args"]>(api.clubs.edit, {
     onSuccess: async ({ id }) => {
-      await queryClient.invalidateQueries(['club', { id }]);
-      toast.success('Club updated successfully');
+      await queryClient.invalidateQueries(["club", { id }]);
+      toast.success("Club updated successfully");
     },
     onError: (e) => {
       if (!isValidationError(e)) {
         console.log(e);
-        toast.error('Failed to update club');
+        toast.error("Failed to update club");
       }
     },
   });
 
-  const deleteClubMutation = useMutation<DeleteClub['payload'], Error, DeleteClub['args']>(api.clubs.delete, {
+  const deleteClubMutation = useMutation<DeleteClub["payload"], Error, DeleteClub["args"]>(api.clubs.delete, {
     onSuccess: async (d) => {
-      await router.push('/admin/clubs');
-      toast.success('Club deleted successfully');
+      await router.push("/admin/clubs");
+      toast.success("Club deleted successfully");
     },
     onError: (e) => {
-      toast.error('Failed to delete club');
+      toast.error("Failed to delete club");
     },
   });
 
   const [selectedPlatforms, setSelectedPlatforms] = useState<Array<SupportedPlatforms>>([
-    'website',
-    'instagram',
-    'facebook',
-    'twitter',
+    "website",
+    "instagram",
+    "facebook",
+    "twitter",
   ] as Array<SupportedPlatforms>);
 
   const club = clubQuery.data;
 
-  const initialValues: EditClub['args']['body'] = {
+  const initialValues: EditClub["args"]["body"] = {
     // type will be club
     name: club?.name,
     tags: club?.tags.map((tag) => tag.name),
@@ -95,8 +95,8 @@ const AdminDashboardClub: NextPageWithConfig = () => {
   };
 
   const handleSubmit = async (
-    values: EditClub['args']['body'],
-    { setFieldError }: FormikHelpers<EditClub['args']['body']>
+    values: EditClub["args"]["body"],
+    { setFieldError }: FormikHelpers<EditClub["args"]["body"]>
   ): Promise<void> => {
     try {
       const filteredValues = Object.entries(values).reduce((acc, [key, value]) => {
@@ -107,7 +107,7 @@ const AdminDashboardClub: NextPageWithConfig = () => {
 
       await editClubMutation.mutateAsync({
         params: { identifier: club?.id },
-        query: { method: 'id' },
+        query: { method: "id" },
         body: filteredValues,
       });
     } catch (e) {
@@ -119,19 +119,19 @@ const AdminDashboardClub: NextPageWithConfig = () => {
   const handleDeleteClub = async () => {
     if (!club?.id) return; // shouldn't happen (toast)
     //! confirmation modal (modal provider)
-    await deleteClubMutation.mutateAsync({ query: { method: 'id' }, params: { identifier: club?.id } });
+    await deleteClubMutation.mutateAsync({ query: { method: "id" }, params: { identifier: club?.id } });
   };
 
   const editClubValidation = z
     .object({
       name: z
         .string()
-        .max(50, 'Club name cannot be longer than 50 characters')
-        .min(3, 'Club name must be at least 3 characters'),
-      description: z.string().min(10, 'Club description must be at least 10 characters'),
-      availability: z.enum(['OPEN', 'APPLICATION', 'CLOSED']),
+        .max(50, "Club name cannot be longer than 50 characters")
+        .min(3, "Club name must be at least 3 characters"),
+      description: z.string().min(10, "Club description must be at least 10 characters"),
+      availability: z.enum(["OPEN", "APPLICATION", "CLOSED"]),
       applicationLink: z.string().optional().nullable(),
-      tags: z.string().array().max(3, 'You can only select up to 3 tags').min(1, 'You must select at least 1 tag'),
+      tags: z.string().array().max(3, "You can only select up to 3 tags").min(1, "You must select at least 1 tag"),
 
       meetingFrequency: z.string(),
       meetingTime: z.string(),
@@ -151,30 +151,30 @@ const AdminDashboardClub: NextPageWithConfig = () => {
       advisor: z.string(),
     })
     .superRefine((input, ctx) => {
-      if (input.availability === 'APPLICATION' && !input.applicationLink) {
+      if (input.availability === "APPLICATION" && !input.applicationLink) {
         ctx.addIssue({
-          path: ['applicationLink'],
+          path: ["applicationLink"],
           code: z.ZodIssueCode.custom,
-          message: 'Required if the club requires an application',
+          message: "Required if the club requires an application",
         });
       }
     });
 
   const availabilityOptions = [
     {
-      value: 'OPEN',
+      value: "OPEN",
       description:
-        'An open availability for a club means that the club is open to anyone who wants to join. There are no requirements or restrictions on who can join.',
+        "An open availability for a club means that the club is open to anyone who wants to join. There are no requirements or restrictions on who can join.",
     },
     {
-      value: 'APPLICATION',
+      value: "APPLICATION",
       description:
-        'An application availability for a club means interested users must fill out an application then be invited by the club president through their ccid.',
+        "An application availability for a club means interested users must fill out an application then be invited by the club president through their ccid.",
     },
     {
-      value: 'CLOSED',
+      value: "CLOSED",
       description:
-        'A closed availability for a club means that the club is not currently accepting new members. This could be because the club is full, or because it is not currently active.',
+        "A closed availability for a club means that the club is not currently accepting new members. This could be because the club is full, or because it is not currently active.",
     },
   ];
 
@@ -195,11 +195,11 @@ const AdminDashboardClub: NextPageWithConfig = () => {
       />
       <Page.Navigation
         links={[
-          { label: 'Manage', query: 'manage', active: true },
-          { label: 'Metrics', query: 'metrics', disabled: true },
+          { label: "Manage", query: "manage", active: true },
+          { label: "Metrics", query: "metrics", disabled: true },
         ]}
       />
-      <Formik<EditClub['args']['body']>
+      <Formik<EditClub["args"]["body"]>
         initialValues={initialValues}
         onSubmit={handleSubmit}
         validationSchema={toFormikValidationSchema(editClubValidation)}
@@ -241,24 +241,24 @@ const AdminDashboardClub: NextPageWithConfig = () => {
                   return (
                     <div
                       key={option}
-                      className={cn('box-border flex cursor-pointer flex-col gap-4 rounded-lg p-6 pr-24', {
-                        'border border-black-20': !isActive,
-                        'border-[2px] border-blue-70': isActive,
+                      className={cn("box-border flex cursor-pointer flex-col gap-4 rounded-lg p-6 pr-24", {
+                        "border border-black-20": !isActive,
+                        "border-[2px] border-blue-70": isActive,
                       })}
                       onClick={() => {
                         if (!touched?.availability) {
-                          setFieldTouched('availability', true);
+                          setFieldTouched("availability", true);
                         }
 
-                        setFieldValue('availability', option);
+                        setFieldValue("availability", option);
                         // if (option !== 'APPLICATION') setFieldValue('applicationLink', null); //! NO REASON THIS SHOULDNT WORK
                       }}
                     >
                       <div className="flex items-center gap-2">
                         <div
-                          className={cn('flex h-6 w-6 items-center justify-center rounded-md', {
-                            'bg-black-20': !isActive,
-                            'bg-blue-70': isActive,
+                          className={cn("flex h-6 w-6 items-center justify-center rounded-md", {
+                            "bg-black-20": !isActive,
+                            "bg-blue-70": isActive,
                           })}
                         >
                           {isActive ? <TbCheck className="stroke-[3px] text-sm text-white" /> : null}
@@ -271,7 +271,7 @@ const AdminDashboardClub: NextPageWithConfig = () => {
                 })}
                 <FieldError touched={touched?.availability} error={errors?.availability} />
               </InputLabel>
-              {values.availability === 'APPLICATION' ? (
+              {values.availability === "APPLICATION" ? (
                 <InputLabel value="Application Link" edited={initialValues.applicationLink !== values.applicationLink}>
                   <Field name="applicationLink" component={TextInput} placeholder="https://docs.google.com/forms/..." />
                 </InputLabel>
@@ -287,16 +287,16 @@ const AdminDashboardClub: NextPageWithConfig = () => {
                       size="lg"
                       onClick={() => {
                         if (!touched?.tags) {
-                          setFieldTouched('tags', true);
+                          setFieldTouched("tags", true);
                         }
                         if (values.tags.length >= 3 && !values.tags.includes(tag)) return;
                         if (values.tags.includes(tag)) {
                           setFieldValue(
-                            'tags',
+                            "tags",
                             values.tags.filter((t) => t !== tag)
                           );
                         } else {
-                          setFieldValue('tags', [...values.tags, tag]);
+                          setFieldValue("tags", [...values.tags, tag]);
                         }
                       }}
                     />
@@ -350,10 +350,10 @@ const AdminDashboardClub: NextPageWithConfig = () => {
                             key={platform}
                             className={cn(
                               {
-                                'border-blue-70 bg-blue-10': isActive,
-                                'border-black-20 hover:bg-black-10': !isActive,
+                                "border-blue-70 bg-blue-10": isActive,
+                                "border-black-20 hover:bg-black-10": !isActive,
                               },
-                              'flex h-8 w-8 cursor-pointer items-center justify-center rounded-md border transition-colors'
+                              "flex h-8 w-8 cursor-pointer items-center justify-center rounded-md border transition-colors"
                             )}
                             onClick={() => {
                               if (isActive) {
@@ -364,7 +364,7 @@ const AdminDashboardClub: NextPageWithConfig = () => {
                               }
                             }}
                           >
-                            <Icon className={cn({ 'text-blue-70': isActive }, 'text-lg')} />
+                            <Icon className={cn({ "text-blue-70": isActive }, "text-lg")} />
                           </div>
                         );
                       })}
@@ -376,7 +376,7 @@ const AdminDashboardClub: NextPageWithConfig = () => {
                           name={platform}
                           component={TextInput}
                           placeholder={`${
-                            platform === 'website' ? 'https://www.dnhsengineering.com/' : 'dnhsengineering'
+                            platform === "website" ? "https://www.dnhsengineering.com/" : "dnhsengineering"
                           }`}
                           accessory={socialMediaOptions[platform].icon}
                         />
@@ -419,7 +419,7 @@ const AdminDashboardClub: NextPageWithConfig = () => {
               <div className="mb-8 h-[1px] w-full bg-black-20" />
               <div className="flex w-full items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Button type="button" variant="secondary" onClick={() => router.push('/admin/clubs')}>
+                  <Button type="button" variant="secondary" onClick={() => router.push("/admin/clubs")}>
                     Cancel
                   </Button>
                   <Button
@@ -428,7 +428,7 @@ const AdminDashboardClub: NextPageWithConfig = () => {
                     disabled={!dirty || !isValid || initialValues === values || isSubmitting}
                     variant="primary"
                   >
-                    {isSubmitting ? 'Saving Changes...' : 'Save Changes'}
+                    {isSubmitting ? "Saving Changes..." : "Save Changes"}
                   </Button>
                 </div>
                 <Button type="button" variant="danger" onClick={handleDeleteClub}>
@@ -444,10 +444,10 @@ const AdminDashboardClub: NextPageWithConfig = () => {
 };
 
 AdminDashboardClub.layout = {
-  view: 'dashboard',
+  view: "dashboard",
   config: {},
 };
 
-export const getServerSideProps = withUser({ role: 'ADMIN' });
+export const getServerSideProps = withUser({ role: "ADMIN" });
 
 export default AdminDashboardClub;

@@ -1,6 +1,6 @@
-import type { AuthenticatedUser } from '@/cc';
+import type { AuthenticatedUser } from "cc-common";
 
-interface AuthenticatedRequestPayload {
+export interface AuthenticatedRequestPayload {
   sid: string;
   user: AuthenticatedUser;
 }

@@ -1,12 +1,12 @@
-import type { Authorization, Controller } from '@/cc';
-import { StatusCodes } from 'http-status-codes';
-import { z } from 'zod';
-import { Role } from '@prisma/client';
-import { getSession } from 'lib/session';
-import { unsignCookie } from 'lib/session/utils';
-import { formatResponse } from '~/lib/utils';
+import type { Authorization, Controller } from "cc-common";
+import { StatusCodes } from "http-status-codes";
+import { z } from "zod";
+import { Role } from "@prisma/client";
+import { getSession } from "~/lib/session";
+import { unsignCookie } from "~/lib/session/utils";
+import { formatResponse } from "~/lib/utils";
 
-const roleHierarchy = ['MEMBER', 'SCHOLAR', 'MANAGER', 'ADMIN'];
+const roleHierarchy = ["MEMBER", "SCHOLAR", "MANAGER", "ADMIN"];
 
 const authorizationValidation = z.object({
   body: z.object({
@@ -19,23 +19,23 @@ const authorizationValidation = z.object({
 
 const authorizeHandler: Controller<Authorization> = async (req, res) => {
   const { success, error } = formatResponse<Authorization>(res);
-  const signedCookie = req.body.signedCookie ?? ''; // wish I could get this from cookies...
+  const signedCookie = req.body.signedCookie ?? ""; // wish I could get this from cookies...
 
   // console.log(req.cookies);
 
-  (req.user as unknown) = null;
-  (req.sid as unknown) = null;
+  ((req as typeof req & { user: unknown }).user as unknown) = null; // todo: wtf is this
+  ((req as typeof req & { sid: unknown }).sid as unknown) = null;
 
-  if (!signedCookie) return error(StatusCodes.UNAUTHORIZED, 'No session');
+  if (!signedCookie) return error(StatusCodes.UNAUTHORIZED, "No session");
 
-  const { role = 'MEMBER' } = req.body ?? {};
+  const { role = "MEMBER" } = req.body ?? {};
 
   try {
     const sid = unsignCookie(signedCookie);
     const user = await getSession(sid);
 
     if (!(roleHierarchy.indexOf(user.role) >= roleHierarchy.indexOf(role)))
-      return error(StatusCodes.UNAUTHORIZED, 'Insufficient role');
+      return error(StatusCodes.UNAUTHORIZED, "Insufficient role");
 
     // req.user = user; // irrelevant in this file
     // req.sid = sid; // irrelevant in this file

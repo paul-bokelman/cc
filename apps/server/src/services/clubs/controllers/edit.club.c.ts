@@ -1,9 +1,9 @@
-import type { Controller, EditClub } from '@/cc';
-import { Availability } from '@prisma/client';
-import { StatusCodes } from 'http-status-codes';
-import { z } from 'zod';
-import { prisma } from '~/config';
-import { formatResponse, handleControllerError, generate } from '~/lib/utils';
+import type { Controller, EditClub } from "cc-common";
+import { Availability } from "@prisma/client";
+import { StatusCodes } from "http-status-codes";
+import { z } from "zod";
+import { prisma } from "~/config";
+import { formatResponse, handleControllerError, generate } from "~/lib/utils";
 
 // export type EditClub = {
 //   args: {
@@ -43,14 +43,14 @@ import { formatResponse, handleControllerError, generate } from '~/lib/utils';
 // };
 
 export const editClubValidation = z.object({
-  query: z.object({ method: z.enum(['slug', 'id', 'name']) }),
+  query: z.object({ method: z.enum(["slug", "id", "name"]) }),
   params: z.object({ identifier: z.string() }),
   body: z
     .object({
       name: z
         .string()
-        .max(50, 'Club name cannot be longer than 50 characters')
-        .min(3, 'Club name must be at least 3 characters')
+        .max(50, "Club name cannot be longer than 50 characters")
+        .min(3, "Club name must be at least 3 characters")
         .refine(async (input) => {
           const club = await prisma.club.findFirst({
             where: {
@@ -58,21 +58,21 @@ export const editClubValidation = z.object({
             },
           });
           return !club;
-        }, 'Club name already exists')
+        }, "Club name already exists")
         .optional(),
-      description: z.string().min(10, 'Club description must be at least 10 characters').optional(),
+      description: z.string().min(10, "Club description must be at least 10 characters").optional(),
       availability: z.nativeEnum(Availability).optional(),
       applicationLink: z.string().optional().nullable(),
       tags: z
         .array(z.string()) // should get all tags and check if they exist (names)
-        .max(3, 'You can only select up to 3 tags')
-        .min(1, 'You must select at least 1 tag')
+        .max(3, "You can only select up to 3 tags")
+        .min(1, "You must select at least 1 tag")
         .refine(async (input) => {
           const tags = await prisma.tag.findMany({
             where: { name: { in: input } },
           });
           return tags.length === input.length;
-        }, 'One or more tags do not exist')
+        }, "One or more tags do not exist")
         .optional(),
 
       meetingFrequency: z.string().optional(),
@@ -94,11 +94,11 @@ export const editClubValidation = z.object({
     })
     .superRefine((input, ctx) => {
       if (!input) return;
-      if (input.availability === 'APPLICATION' && !input.applicationLink) {
+      if (input.availability === "APPLICATION" && !input.applicationLink) {
         ctx.addIssue({
-          path: ['applicationLink'],
+          path: ["applicationLink"],
           code: z.ZodIssueCode.custom,
-          message: 'Required if the club requires an application',
+          message: "Required if the club requires an application",
         });
       }
     }),
@@ -113,11 +113,12 @@ export const editClubHandler: Controller<EditClub> = async (req, res) => {
       where: { [req.query.method]: req.params.identifier },
     });
 
-    if (!existingClub) return error(StatusCodes.NOT_FOUND, 'Club not found');
+    if (!existingClub) return error(StatusCodes.NOT_FOUND, "Club not found");
 
     const { tags, ...rest } = club ?? {};
 
     const { id } = await prisma.club.update({
+      //@ts-ignore
       where: { [req.query.method]: req.params.identifier },
       data: {
         slug: club?.name ? generate.slug(club.name) : undefined,

@@ -1,9 +1,9 @@
-import type { Controller, NewClub } from '@/cc';
-import { Availability } from '@prisma/client';
-import { StatusCodes } from 'http-status-codes';
-import { z } from 'zod';
-import { prisma } from '~/config';
-import { formatResponse, handleControllerError, generate } from '~/lib/utils';
+import type { Controller, NewClub } from "cc-common";
+import { Availability } from "@prisma/client";
+import { StatusCodes } from "http-status-codes";
+import { z } from "zod";
+import { prisma } from "~/config";
+import { formatResponse, handleControllerError, generate } from "~/lib/utils";
 
 // type NewClub = {
 //   // args: z.infer<typeof newClubValidation>;
@@ -42,24 +42,24 @@ export const newClubValidation = z.object({
     .object({
       name: z
         .string()
-        .max(50, 'Club name cannot be longer than 50 characters')
-        .min(3, 'Club name must be at least 3 characters')
+        .max(50, "Club name cannot be longer than 50 characters")
+        .min(3, "Club name must be at least 3 characters")
         .refine(async (input) => {
           const club = await prisma.club.findFirst({ where: { name: input } });
           return !club;
-        }, 'Club name already exists'),
-      description: z.string().min(10, 'Club description must be at least 10 characters'),
+        }, "Club name already exists"),
+      description: z.string().min(10, "Club description must be at least 10 characters"),
       availability: z.nativeEnum(Availability),
       applicationLink: z.string().optional().nullable(),
       tags: z
         .string()
         .array() // should get all tags and check if they exist (names)
-        .max(3, 'You can only select up to 3 tags')
-        .min(1, 'You must select at least 1 tag')
+        .max(3, "You can only select up to 3 tags")
+        .min(1, "You must select at least 1 tag")
         .refine(async (input) => {
           const tags = await prisma.tag.findMany({ where: { name: { in: input } } });
           return tags.length === input.length;
-        }, 'One or more tags do not exist'),
+        }, "One or more tags do not exist"),
 
       meetingFrequency: z.string(),
       meetingTime: z.string(),
@@ -79,11 +79,11 @@ export const newClubValidation = z.object({
       advisor: z.string(),
     })
     .superRefine((input, ctx) => {
-      if (input.availability === 'APPLICATION' && !input.applicationLink) {
+      if (input.availability === "APPLICATION" && !input.applicationLink) {
         ctx.addIssue({
-          path: ['applicationLink'],
+          path: ["applicationLink"],
           code: z.ZodIssueCode.custom,
-          message: 'Required if the club requires an application',
+          message: "Required if the club requires an application",
         });
       }
     }),

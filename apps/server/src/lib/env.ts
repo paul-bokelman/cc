@@ -1,26 +1,26 @@
-import dotenv from 'dotenv';
+import dotenv from "dotenv";
 
-export const isProduction = process.env.NODE_ENV === 'production';
+export const isProduction = process.env.NODE_ENV === "production";
 
-dotenv.config({ path: '.env', debug: true });
+dotenv.config({ path: ".env", debug: true });
 
 const variables = [
-  'NODE_ENV',
-  'CLIENT_URL',
-  'CLIENT_DOMAIN',
-  'SERVER_URL',
-  'JWT_SECRET',
-  'SESSION_SECRET',
-  'PORT',
-  'REDIS_URL',
-  'DB_URL',
+  "NODE_ENV",
+  "CLIENT_URL",
+  "CLIENT_DOMAIN",
+  "SERVER_URL",
+  "JWT_SECRET",
+  "SESSION_SECRET",
+  "PORT",
+  "REDIS_URL",
+  "DB_URL",
 ] as const;
 
 type Variables = (typeof variables)[number];
 
 const fetchVariable = (variable: Variables): string => {
   if (!process.env[variable]) {
-    throw new Error(`${variable} is not defined in .env.${isProduction ? 'production' : 'development'}`);
+    throw new Error(`${variable} is not defined in .env.${isProduction ? "production" : "development"}`);
   }
 
   return process.env[variable] as string;
@@ -30,8 +30,8 @@ export const env = (variable: Variables): string => {
   return fetchVariable(variable);
 };
 
-export const preflightENV = (): void => {
-  isProduction && console.log('\x1b[33m', 'RUNNING IN PRODUCTION', '\x1b[0m');
+export const initializeENV = (): void => {
+  isProduction && console.log("\x1b[33m", "RUNNING IN PRODUCTION", "\x1b[0m");
 
   variables.forEach((variable) => {
     fetchVariable(variable);

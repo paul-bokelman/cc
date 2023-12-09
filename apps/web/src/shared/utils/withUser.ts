@@ -1,10 +1,10 @@
-import type { GetServerSideProps, GetServerSidePropsContext, GetServerSidePropsResult } from 'next';
-import type { ServerError, Authorization } from '@/cc';
-import { AxiosError } from 'axios';
-import axios from 'axios';
-import { api } from 'lib/api';
+import type { GetServerSideProps, GetServerSidePropsContext, GetServerSidePropsResult } from "next";
+import type { ServerError, Authorization } from "cc-common";
+import { AxiosError } from "axios";
+import axios from "axios";
+import { api } from "~/lib/api";
 
-type AuthorizationOptions = Omit<Authorization['args']['body'], 'signedCookie'> & {
+type AuthorizationOptions = Omit<Authorization["args"]["body"], "signedCookie"> & {
   fail?: string;
 };
 
@@ -15,8 +15,8 @@ type WithUser = <Props extends { [key: string]: any }>(
 
 export const withUser: WithUser = (auth, ssp) => {
   return async (context) => {
-    const { role = 'MEMBER', fail = '/' } = auth; // add allow and block soon (user acc states)
-    const signedCookie = context.req.cookies?.['cc.sid'] ?? ''; //? sent as cookie?? ofc not that would be too easy
+    const { role = "MEMBER", fail = "/" } = auth; // add allow and block soon (user acc states)
+    const signedCookie = context.req.cookies?.["cc.sid"] ?? ""; //? sent as cookie?? ofc not that would be too easy
 
     try {
       await api.auth.authorize({ body: { role, signedCookie } });

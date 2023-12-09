@@ -1,8 +1,9 @@
-import type { Controller, GetClub } from '@/cc';
-import { StatusCodes } from 'http-status-codes';
-import { z } from 'zod';
-import { prisma } from '~/config';
-import { formatResponse, handleControllerError, bool } from '~/lib/utils';
+import type { Controller, GetClub } from "cc-common";
+import { StatusCodes } from "http-status-codes";
+import { z } from "zod";
+import { prisma } from "~/config";
+import { formatResponse, handleControllerError, bool } from "~/lib/utils";
+import { Prisma } from "@prisma/client";
 
 //   args: {
 //     query: {
@@ -17,13 +18,13 @@ import { formatResponse, handleControllerError, bool } from '~/lib/utils';
 
 export const getClubValidation = z.object({
   query: z.object({
-    method: z.enum(['slug', 'id', 'name']),
+    method: z.enum(["slug", "id", "name"]),
     includeSimilar: z
       .string()
       .optional()
       .refine((input) => {
         if (input === undefined) return true;
-        if (typeof bool(input) === 'boolean') return true;
+        if (typeof bool(input) === "boolean") return true;
       }),
   }),
   params: z.object({ identifier: z.string() }),
@@ -35,8 +36,14 @@ export const getClubHandler: Controller<GetClub> = async (req, res) => {
   const { identifier } = req.params;
 
   try {
-    const club = await prisma.club.findUnique({ where: { [method]: identifier }, include: { tags: true } });
-    if (!club) return error(StatusCodes.NOT_FOUND, 'Club not found');
+    const club = await prisma.club.findUnique({
+      where: {
+        // clean this up!!
+        [method as keyof Prisma.ClubWhereUniqueInput]: identifier as Prisma.ClubWhereUniqueInput[typeof method],
+      } as Prisma.ClubWhereUniqueInput,
+      include: { tags: true },
+    });
+    if (!club) return error(StatusCodes.NOT_FOUND, "Club not found");
 
     const similarClubs = bool(includeSimilar)
       ? (

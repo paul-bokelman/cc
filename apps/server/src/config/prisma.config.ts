@@ -1,5 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-import { env, isProduction } from "lib/env";
+import { env, isProduction } from "~/lib/env";
 
 interface Global {
   prisma: PrismaClient;

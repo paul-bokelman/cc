@@ -1,9 +1,9 @@
-import type { Controller, GetClubs } from '@/cc';
-import { Availability } from '@prisma/client';
-import { StatusCodes } from 'http-status-codes';
-import { z } from 'zod';
-import { prisma } from '~/config';
-import { formatResponse, handleControllerError, int } from '~/lib/utils';
+import type { Controller, GetClubs } from "cc-common";
+import { Availability } from "@prisma/client";
+import { StatusCodes } from "http-status-codes";
+import { z } from "zod";
+import { prisma } from "~/config";
+import { formatResponse, handleControllerError, int } from "~/lib/utils";
 
 //   args: {
 //     query: {
@@ -23,19 +23,19 @@ export const getClubsValidation = z.object({
     filter: z
       .object({
         tags: z.array(z.string()).optional(),
-        tagMethod: z.enum(['inclusive', 'exclusive']).optional(),
+        tagMethod: z.enum(["inclusive", "exclusive"]).optional(),
         availability: z.array(z.nativeEnum(Availability)).optional(),
       })
       .optional(),
-    sort: z.enum(['new', 'old', 'name-desc', 'name-asc']).optional(),
+    sort: z.enum(["new", "old", "name-desc", "name-asc"]).optional(),
   }),
 });
 
 export const getClubsHandler: Controller<GetClubs> = async (req, res) => {
   const { error, success } = formatResponse<GetClubs>(res);
-  const { limit, offset, filter, sort = 'new' } = req.query;
+  const { limit, offset, filter, sort = "new" } = req.query;
 
-  const method = filter?.tagMethod === 'exclusive' ? 'every' : 'some';
+  const method = filter?.tagMethod === "exclusive" ? "every" : "some";
   // exclusive is flawed, because it will return clubs that include all tags, but not necessarily all tags
 
   try {
@@ -59,8 +59,8 @@ export const getClubsHandler: Controller<GetClubs> = async (req, res) => {
         tags: true,
       },
       orderBy: {
-        name: sort === 'name-asc' ? 'asc' : sort === 'name-desc' ? 'desc' : undefined,
-        createdAt: sort === 'new' ? 'desc' : sort === 'old' ? 'asc' : undefined, // defaults to new
+        name: sort === "name-asc" ? "asc" : sort === "name-desc" ? "desc" : undefined,
+        createdAt: sort === "new" ? "desc" : sort === "old" ? "asc" : undefined, // defaults to new
       },
     });
 

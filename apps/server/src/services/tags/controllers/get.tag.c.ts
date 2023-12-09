@@ -1,8 +1,8 @@
-import type { Controller, GetTag } from '@/cc';
-import { StatusCodes } from 'http-status-codes';
-import { z } from 'zod';
-import { prisma } from '~/config';
-import { formatResponse, handleControllerError } from '~/lib/utils';
+import type { Controller, GetTag } from "cc-common";
+import { StatusCodes } from "http-status-codes";
+import { z } from "zod";
+import { prisma } from "~/config";
+import { formatResponse, handleControllerError } from "~/lib/utils";
 
 export const getTagValidation = z.object({
   params: z.object({
@@ -19,7 +19,7 @@ export const getTagHandler: Controller<GetTag> = async (req, res) => {
       where: { id },
     });
 
-    if (!tag) return error(StatusCodes.NOT_FOUND, 'Tag not found');
+    if (!tag) return error(StatusCodes.NOT_FOUND, "Tag not found");
 
     return success(StatusCodes.OK, tag);
   } catch (e) {

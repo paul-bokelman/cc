@@ -1,5 +1,5 @@
-import type { ServerError } from '@/cc';
-import axios, { type AxiosError } from 'axios';
+import type { ServerError } from "cc-common";
+import axios, { type AxiosError } from "axios";
 
 export const isValidationError = (e: any): e is AxiosError<ServerError> => {
   if (axios.isAxiosError<ServerError>(e)) {

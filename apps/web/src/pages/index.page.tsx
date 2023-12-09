@@ -1,4 +1,4 @@
-import type { NextPageWithConfig } from '~/shared/types';
+import type { NextPageWithConfig } from "~/shared/types";
 
 const Home: NextPageWithConfig = () => {
   return (
@@ -8,6 +8,6 @@ const Home: NextPageWithConfig = () => {
   );
 };
 
-Home.layout = { view: 'standard', config: {} };
+Home.layout = { view: "standard", config: {} };
 
 export default Home;

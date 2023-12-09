@@ -1,29 +1,29 @@
-import type { BaseModalProps } from '.'; // should be on base modal
-import type { Children } from '~/shared/types';
-import type { GetTags } from '@/cc';
-import type { GetClubs } from '@/cc';
-import { Availability } from '@prisma/client'; // technically type
-import { useState, Fragment } from 'react';
-import { useQuery } from 'react-query';
-import cn from 'classnames';
-import { Dialog, Transition } from '@headlessui/react';
-import { TbX } from 'react-icons/tb';
-import { api } from '~/lib/api';
-import { Button, Switch, Tag } from '~/shared/components';
-import { useQ } from '~/shared/hooks';
+import type { BaseModalProps } from "."; // should be on base modal
+import type { Children } from "~/shared/types";
+import type { GetTags } from "cc-common";
+import type { GetClubs } from "cc-common";
+import { Availability } from "@prisma/client"; // technically type
+import { useState, Fragment } from "react";
+import { useQuery } from "react-query";
+import cn from "classnames";
+import { Dialog, Transition } from "@headlessui/react";
+import { TbX } from "react-icons/tb";
+import { api } from "~/lib/api";
+import { Button, Switch, Tag } from "~/shared/components";
+import { useQ } from "~/shared/hooks";
 
 type ClubsFilterModalProps = BaseModalProps;
 
 export const ClubsFilterModal: React.FC<ClubsFilterModalProps> = ({ isOpen, closeModal }) => {
-  const { query, append: appendToQuery } = useQ<GetClubs['args']['query']>();
+  const { query, append: appendToQuery } = useQ<GetClubs["args"]["query"]>();
   const [selectedAvailabilities, setSelectedAvailabilities] = useState<Availability[]>([]);
   const [selectedTags, setSelectedTags] = useState<string[]>(query?.filter?.tags ?? []);
-  const [tagFilteringMethod, setTagFilteringMethod] = useState<'exclusive' | 'inclusive'>(
-    query?.filter?.tagMethod ?? 'inclusive'
+  const [tagFilteringMethod, setTagFilteringMethod] = useState<"exclusive" | "inclusive">(
+    query?.filter?.tagMethod ?? "inclusive"
   );
 
-  const { data: tags = [], ...tagsQuery } = useQuery<GetTags['payload'], Error>(
-    'tags',
+  const { data: tags = [], ...tagsQuery } = useQuery<GetTags["payload"], Error>(
+    "tags",
     async () => await api.tags.all(),
     {
       onError: (e) => console.log(e),
@@ -55,7 +55,7 @@ export const ClubsFilterModal: React.FC<ClubsFilterModalProps> = ({ isOpen, clos
 
   const clearFilter = () => {
     setSelectedTags([]);
-    setTagFilteringMethod('inclusive');
+    setTagFilteringMethod("inclusive");
     setSelectedAvailabilities([]);
     appendToQuery({ filter: null });
   };
@@ -112,12 +112,12 @@ export const ClubsFilterModal: React.FC<ClubsFilterModalProps> = ({ isOpen, clos
                           />
                         ))
                       ) : (
-                        <p className={cn({ 'text-red-500': tagsQuery.isError || tagsQuery.isIdle }, 'text-sm')}>
+                        <p className={cn({ "text-red-500": tagsQuery.isError || tagsQuery.isIdle }, "text-sm")}>
                           {tagsQuery.isLoading
-                            ? 'Loading tags...'
+                            ? "Loading tags..."
                             : tagsQuery.isError
-                            ? 'Something went wrong fetching the tags, please try again later.'
-                            : 'Query has not been enabled, please contact support.'}
+                            ? "Something went wrong fetching the tags, please try again later."
+                            : "Query has not been enabled, please contact support."}
                         </p>
                       )}
                     </div>
@@ -127,12 +127,12 @@ export const ClubsFilterModal: React.FC<ClubsFilterModalProps> = ({ isOpen, clos
                         state={[tagFilteringMethod, setTagFilteringMethod]}
                         options={[
                           {
-                            label: 'Inclusive',
-                            value: 'inclusive',
+                            label: "Inclusive",
+                            value: "inclusive",
                           },
                           {
-                            label: 'Exclusive',
-                            value: 'exclusive',
+                            label: "Exclusive",
+                            value: "exclusive",
                           },
                         ]}
                       />
@@ -144,12 +144,12 @@ export const ClubsFilterModal: React.FC<ClubsFilterModalProps> = ({ isOpen, clos
                         <div
                           className={cn(
                             {
-                              'bg-blue-10 border-blue-60 text-blue-60 hover:bg-blue-10':
+                              "bg-blue-10 border-blue-60 text-blue-60 hover:bg-blue-10":
                                 selectedAvailabilities.includes(availability),
-                              'opacity-50 pointer-events-none':
+                              "opacity-50 pointer-events-none":
                                 !selectedAvailabilities.includes(availability) && selectedAvailabilities.length === 2,
                             },
-                            'flex capitalize justify-center border p-2 rounded-md border-black-20 hover:bg-black-10 cursor-pointer'
+                            "flex capitalize justify-center border p-2 rounded-md border-black-20 hover:bg-black-10 cursor-pointer"
                           )}
                           onClick={() => handleSelectAvailability(availability)}
                         >
@@ -163,14 +163,14 @@ export const ClubsFilterModal: React.FC<ClubsFilterModalProps> = ({ isOpen, clos
                   <div className="w-full flex justify-start">
                     <Button
                       variant="ghost"
-                      style={{ width: 'fit-content', paddingLeft: 0, paddingRight: 0 }}
+                      style={{ width: "fit-content", paddingLeft: 0, paddingRight: 0 }}
                       onClick={clearFilter}
                     >
                       Clear Selection
                     </Button>
                   </div>
                   <div className="w-full flex justify-end">
-                    <Button variant="primary" style={{ width: 'fit-content' }} onClick={handleApplyFilter}>
+                    <Button variant="primary" style={{ width: "fit-content" }} onClick={handleApplyFilter}>
                       Apply Filter
                     </Button>
                   </div>
