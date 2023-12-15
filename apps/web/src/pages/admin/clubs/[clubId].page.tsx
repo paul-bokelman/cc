@@ -1,6 +1,6 @@
 import type { NextPageWithConfig } from "~/shared/types";
 import type { IconType } from "react-icons";
-import { GetClub, EditClub, DeleteClub, GetTags } from "cc-common";
+import { type GetClub, type EditClub, type DeleteClub, type GetTags, editClubSchema } from "cc-common";
 import { useState } from "react";
 import { useRouter } from "next/router";
 import { useMutation, useQuery } from "react-query";
@@ -36,7 +36,7 @@ const AdminDashboardClub: NextPageWithConfig = () => {
 
   const tagsQuery = useQuery<GetTags["payload"], Error>("tags", async () => api.tags.all());
 
-  const editClubMutation = useMutation<EditClub["payload"], Error, EditClub["args"]>(api.clubs.edit, {
+  const editClubMutation = useMutation<EditClub["payload"], Error, EditClub>(api.clubs.edit, {
     onSuccess: async ({ id }) => {
       await queryClient.invalidateQueries(["club", { id }]);
       toast.success("Club updated successfully");
@@ -68,7 +68,7 @@ const AdminDashboardClub: NextPageWithConfig = () => {
 
   const club = clubQuery.data;
 
-  const initialValues: EditClub["args"]["body"] = {
+  const initialValues: EditClub["body"] = {
     // type will be club
     name: club?.name,
     tags: club?.tags.map((tag) => tag.name),
@@ -95,8 +95,8 @@ const AdminDashboardClub: NextPageWithConfig = () => {
   };
 
   const handleSubmit = async (
-    values: EditClub["args"]["body"],
-    { setFieldError }: FormikHelpers<EditClub["args"]["body"]>
+    values: EditClub["body"],
+    { setFieldError }: FormikHelpers<EditClub["body"]>
   ): Promise<void> => {
     try {
       const filteredValues = Object.entries(values).reduce((acc, [key, value]) => {
@@ -121,44 +121,6 @@ const AdminDashboardClub: NextPageWithConfig = () => {
     //! confirmation modal (modal provider)
     await deleteClubMutation.mutateAsync({ query: { method: "id" }, params: { identifier: club?.id } });
   };
-
-  const editClubValidation = z
-    .object({
-      name: z
-        .string()
-        .max(50, "Club name cannot be longer than 50 characters")
-        .min(3, "Club name must be at least 3 characters"),
-      description: z.string().min(10, "Club description must be at least 10 characters"),
-      availability: z.enum(["OPEN", "APPLICATION", "CLOSED"]),
-      applicationLink: z.string().optional().nullable(),
-      tags: z.string().array().max(3, "You can only select up to 3 tags").min(1, "You must select at least 1 tag"),
-
-      meetingFrequency: z.string(),
-      meetingTime: z.string(),
-      meetingDays: z.string(), // should be array of days
-      meetingLocation: z.string(),
-
-      contactEmail: z.string().email(),
-      instagram: z.string().optional().nullable(),
-      facebook: z.string().optional().nullable(),
-      twitter: z.string().optional().nullable(),
-      website: z.string().optional().nullable(),
-
-      president: z.string(),
-      vicePresident: z.string(),
-      secretary: z.string(),
-      treasurer: z.string(),
-      advisor: z.string(),
-    })
-    .superRefine((input, ctx) => {
-      if (input.availability === "APPLICATION" && !input.applicationLink) {
-        ctx.addIssue({
-          path: ["applicationLink"],
-          code: z.ZodIssueCode.custom,
-          message: "Required if the club requires an application",
-        });
-      }
-    });
 
   const availabilityOptions = [
     {
@@ -199,10 +161,10 @@ const AdminDashboardClub: NextPageWithConfig = () => {
           { label: "Metrics", query: "metrics", disabled: true },
         ]}
       />
-      <Formik<EditClub["args"]["body"]>
+      <Formik<EditClub["body"]>
         initialValues={initialValues}
         onSubmit={handleSubmit}
-        validationSchema={toFormikValidationSchema(editClubValidation)}
+        validationSchema={toFormikValidationSchema(editClubSchema)}
         enableReinitialize
       >
         {({

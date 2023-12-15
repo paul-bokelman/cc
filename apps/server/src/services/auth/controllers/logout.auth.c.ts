@@ -9,7 +9,7 @@ import { formatResponse, handleControllerError } from "~/lib/utils";
 //   };
 // };
 
-export const logoutHandler: Controller<Logout> = async (req, res) => {
+const handler: Controller<Logout> = async (req, res) => {
   const { error, success } = formatResponse(res);
   const sid = req.sid;
 
@@ -23,4 +23,4 @@ export const logoutHandler: Controller<Logout> = async (req, res) => {
   }
 };
 
-export const logout = { handler: logoutHandler };
+export const logout = { handler };

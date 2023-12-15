@@ -1,7 +1,6 @@
 import { Router } from "express";
+import { isAuthorized, validate } from "~/middleware";
 import { login, register, logout, authorize } from "./controllers";
-import { isAuthorized } from "~/middleware/authentication";
-import { validate } from "~/middleware/validation";
 
 export const auth = Router();
 

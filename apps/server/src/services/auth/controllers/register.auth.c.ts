@@ -1,34 +1,11 @@
-import type { Controller, Register } from "cc-common";
+import { Controller, Register, registerSchema } from "cc-common";
 import bcrypt from "bcryptjs";
 import { StatusCodes } from "http-status-codes";
-import { z } from "zod";
 import { prisma } from "~/config";
 import { generateSession } from "~/lib/session";
 import { generate, handleControllerError } from "~/lib/utils";
 
-// type Register = {
-//   args: {
-//     body: {
-//       username: string;
-//       email: string;
-//       password: string;
-//     };
-//   };
-//   payload: {
-//     signedCookie: string;
-//   };
-// };
-
-// check if username and email are taken in validation
-export const registerValidation = z.object({
-  body: z.object({
-    username: z.string(),
-    email: z.string(),
-    password: z.string(),
-  }),
-});
-
-export const registerHandler: Controller<Register> = async (req, res) => {
+const handler: Controller<Register> = async (req, res) => {
   const { username, email, password } = req.body;
 
   try {
@@ -51,7 +28,4 @@ export const registerHandler: Controller<Register> = async (req, res) => {
   }
 };
 
-export const register = {
-  schema: registerValidation,
-  handler: registerHandler,
-};
+export const register = { handler, schema: registerSchema };

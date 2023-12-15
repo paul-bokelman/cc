@@ -1,8 +1,8 @@
-export * from './controller.types';
-export * from './session.types';
+export * from "./utils.types";
+export * from "./session.types";
 
-export * from './club.types';
-export * from './auth.types';
-export * from './user.types';
-export * from './admin.types';
-export * from './tag.types';
+export * from "./controllers/club.types";
+export * from "./controllers/auth.types";
+export * from "./controllers/user.types";
+export * from "./controllers/admin.types";
+export * from "./controllers/tag.types";

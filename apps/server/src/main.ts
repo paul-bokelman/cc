@@ -9,12 +9,12 @@ import { AuthenticatedRequestPayload } from "~/types";
 
 initializeENV();
 
-declare global {
-  // eslint-disable-next-line @typescript-eslint/no-namespace
-  namespace Express {
-    export interface Request extends AuthenticatedRequestPayload {}
-  }
-}
+// declare global {
+//   // eslint-disable-next-line @typescript-eslint/no-namespace
+//   namespace Express {
+//     export interface Request extends AuthenticatedRequestPayload {}
+//   }
+// }
 
 (async () =>
   await client.connect().catch((e: unknown) => {

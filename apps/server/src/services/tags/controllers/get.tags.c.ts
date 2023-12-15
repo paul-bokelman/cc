@@ -1,9 +1,9 @@
-import type { Controller, GetTags } from "cc-common";
+import { Controller, GetTags } from "cc-common";
 import { StatusCodes } from "http-status-codes";
 import { prisma } from "~/config";
 import { formatResponse, handleControllerError } from "~/lib/utils";
 
-export const getTagsHandler: Controller<GetTags> = async (_, res) => {
+const handler: Controller<GetTags> = async (_, res) => {
   const { error, success } = formatResponse<GetTags>(res);
 
   try {
@@ -17,4 +17,4 @@ export const getTagsHandler: Controller<GetTags> = async (_, res) => {
   }
 };
 
-export const getTags = { handler: getTagsHandler };
+export const getTags = { handler };

@@ -1,6 +1,10 @@
-import type { Controller, GetUser } from "cc-common";
+import { Controller, GetUser } from "cc-common";
 import { StatusCodes } from "http-status-codes";
+import { formatResponse } from "~/lib/utils";
 
-export const getUser: Controller<GetUser> = async (req, res) => {
-  return res.status(StatusCodes.OK).json(req.user);
+const handler: Controller<GetUser> = async (req, res) => {
+  const { success } = formatResponse<GetUser>(res);
+  return success(StatusCodes.OK, req.user);
 };
+
+export const getUser = { handler };

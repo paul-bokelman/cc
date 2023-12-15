@@ -1,17 +1,9 @@
-import type { Controller, GetAdminClubs } from "cc-common";
+import { Controller, GetAdminClubs, getAdminClubsSchema } from "cc-common";
 import { StatusCodes } from "http-status-codes";
-import { z } from "zod";
 import { prisma } from "~/config";
 import { formatResponse, handleControllerError, int } from "~/lib/utils";
 
-export const getAdminClubsValidation = z.object({
-  query: z.object({
-    limit: z.preprocess(Number, z.number()).optional(),
-    offset: z.preprocess(Number, z.number()).optional(),
-  }),
-});
-
-export const getAdminClubsHandler: Controller<GetAdminClubs> = async (req, res) => {
+const handler: Controller<GetAdminClubs> = async (req, res) => {
   const { success } = formatResponse<GetAdminClubs>(res);
   const { limit, offset } = req.query;
 
@@ -33,10 +25,7 @@ export const getAdminClubsHandler: Controller<GetAdminClubs> = async (req, res) 
 
     const totalClubs = await prisma.club.count();
 
-    const percentageOfOpenClubs =
-      (await prisma.club.count({
-        where: { availability: "OPEN" },
-      })) / totalClubs;
+    const percentageOfOpenClubs = (await prisma.club.count({ where: { availability: "OPEN" } })) / totalClubs;
 
     return success(StatusCodes.OK, {
       clubs,
@@ -51,7 +40,4 @@ export const getAdminClubsHandler: Controller<GetAdminClubs> = async (req, res) 
   }
 };
 
-export const getAdminClubs = {
-  schema: getAdminClubsValidation,
-  handler: getAdminClubsHandler,
-};
+export const getAdminClubs = { handler, schema: getAdminClubsSchema };

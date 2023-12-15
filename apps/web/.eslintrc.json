@@ -1,11 +1,5 @@
 {
-  "extends": [
-    "plugin:@nrwl/nx/react-typescript",
-    "next",
-    "next/core-web-vitals",
-    "next/babel",
-    "../../.eslintrc.json"
-  ],
+  "extends": ["next", "next/core-web-vitals", "next/babel", "../../packages/eslint-config-custom/next.js"],
   "ignorePatterns": ["!**/*", ".next/**/*"],
   "overrides": [
     {

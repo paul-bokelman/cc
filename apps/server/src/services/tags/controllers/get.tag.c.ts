@@ -1,16 +1,9 @@
-import type { Controller, GetTag } from "cc-common";
+import { Controller, GetTag, getTagSchema } from "cc-common";
 import { StatusCodes } from "http-status-codes";
-import { z } from "zod";
 import { prisma } from "~/config";
 import { formatResponse, handleControllerError } from "~/lib/utils";
 
-export const getTagValidation = z.object({
-  params: z.object({
-    id: z.string(),
-  }),
-});
-
-export const getTagHandler: Controller<GetTag> = async (req, res) => {
+const handler: Controller<GetTag> = async (req, res) => {
   const { error, success } = formatResponse<GetTag>(res);
   const { id } = req.params;
 
@@ -27,4 +20,4 @@ export const getTagHandler: Controller<GetTag> = async (req, res) => {
   }
 };
 
-export const getTag = { schema: getTagValidation, handler: getTagHandler };
+export const getTag = { handler, schema: getTagSchema };

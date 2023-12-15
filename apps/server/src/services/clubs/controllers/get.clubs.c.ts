@@ -1,7 +1,5 @@
-import type { Controller, GetClubs } from "cc-common";
-import { Availability } from "@prisma/client";
+import { Controller, GetClubs, getClubsSchema } from "cc-common";
 import { StatusCodes } from "http-status-codes";
-import { z } from "zod";
 import { prisma } from "~/config";
 import { formatResponse, handleControllerError, int } from "~/lib/utils";
 
@@ -16,23 +14,8 @@ import { formatResponse, handleControllerError, int } from "~/lib/utils";
 //   >;
 // };
 
-export const getClubsValidation = z.object({
-  query: z.object({
-    limit: z.preprocess(Number, z.number()).optional(),
-    offset: z.preprocess(Number, z.number()).optional(),
-    filter: z
-      .object({
-        tags: z.array(z.string()).optional(),
-        tagMethod: z.enum(["inclusive", "exclusive"]).optional(),
-        availability: z.array(z.nativeEnum(Availability)).optional(),
-      })
-      .optional(),
-    sort: z.enum(["new", "old", "name-desc", "name-asc"]).optional(),
-  }),
-});
-
-export const getClubsHandler: Controller<GetClubs> = async (req, res) => {
-  const { error, success } = formatResponse<GetClubs>(res);
+const handler: Controller<GetClubs> = async (req, res) => {
+  const { success } = formatResponse<GetClubs>(res);
   const { limit, offset, filter, sort = "new" } = req.query;
 
   const method = filter?.tagMethod === "exclusive" ? "every" : "some";
@@ -76,7 +59,4 @@ export const getClubsHandler: Controller<GetClubs> = async (req, res) => {
   }
 };
 
-export const getClubs = {
-  schema: getClubsValidation,
-  handler: getClubsHandler,
-};
+export const getClubs = { handler, schema: getClubsSchema };

@@ -1,6 +1,6 @@
 import { Router } from "express";
+import { validate } from "~/middleware";
 import { getTag, getTags, newTag } from "./controllers";
-import { validate } from "~/middleware/validation";
 
 export const tags = Router();
 

@@ -1,7 +1,7 @@
 import { Router } from "express";
-import * as controllers from "./controllers";
-import { isAuthorized } from "~/middleware/authentication";
+import { isAuthorized } from "~/middleware";
+import { getUser } from "./controllers";
 
 export const user = Router();
 
-user.get("/", isAuthorized({ role: "MEMBER" }), controllers.getUser);
+user.get("/", isAuthorized({ role: "MEMBER" }), getUser.handler);
