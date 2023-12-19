@@ -6,7 +6,7 @@ import { generateSession } from "~/lib/session";
 import { formatResponse, handleControllerError } from "~/lib/utils";
 
 const handler: Controller<Login> = async (req, res) => {
-  const { error, success } = formatResponse<Login>(res);
+  const { success, error } = formatResponse<Login>(res);
   const { username, password } = req.body;
 
   try {

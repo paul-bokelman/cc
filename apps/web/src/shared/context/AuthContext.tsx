@@ -1,17 +1,18 @@
 import type { FC } from "react";
 import type { Children } from "~/shared/types";
-import type { AuthenticatedUser, GetUser, Logout, ServerError } from "cc-common";
+import type { AuthenticatedUser, GetUser } from "cc-common";
 import { createContext, useContext, useEffect, useMemo } from "react";
-import { type UseMutateAsyncFunction, useMutation, useQuery, useQueryClient } from "react-query";
+import { useQueryClient } from "react-query";
+import { useGetUser, useLogout } from "~/lib/queries";
 import { useRouter } from "next/router";
 import { toast } from "react-hot-toast";
-import { api } from "~/lib/api";
+import { handleResponseError } from "../utils";
 
 interface AuthContext {
   user: AuthenticatedUser | null;
   loading: boolean;
   isLoggedIn: boolean;
-  logout: UseMutateAsyncFunction<Logout["payload"], ServerError>;
+  logout: ReturnType<typeof useLogout>["mutateAsync"];
 }
 
 const AuthContext = createContext<AuthContext | undefined>(undefined);
@@ -27,12 +28,9 @@ export const useAuthContext = (): AuthContext => {
 export const AuthProvider: FC<{ children: Children }> = ({ children }) => {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const { data: user, isLoading } = useQuery<GetUser["payload"], ServerError>(["user"], async () => api.user.get()); // include sid in qk?
-  const { mutateAsync: logout } = useMutation<Logout["payload"], ServerError, Logout["args"]>(api.auth.logout, {
-    onError: () => {
-      // loading toast on mutate?
-      toast.error("Failed to logout");
-    },
+  const { data: user, isLoading } = useGetUser({ params: undefined, query: undefined, body: undefined });
+  const { mutateAsync: logout } = useLogout({
+    onError: (e) => handleResponseError(e, "Unable to logout"),
     onSuccess: async () => {
       await queryClient.invalidateQueries<GetUser["payload"]>(["user"]);
       queryClient.setQueryData<GetUser["payload"]>(["user"], null); // have to manually set user to null for some odd reason

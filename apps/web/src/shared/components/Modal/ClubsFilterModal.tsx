@@ -1,33 +1,29 @@
 import type { BaseModalProps } from "."; // should be on base modal
 import type { Children } from "~/shared/types";
-import type { GetTags } from "cc-common";
 import type { GetClubs } from "cc-common";
 import { Availability } from "@prisma/client"; // technically type
 import { useState, Fragment } from "react";
-import { useQuery } from "react-query";
 import cn from "classnames";
 import { Dialog, Transition } from "@headlessui/react";
 import { TbX } from "react-icons/tb";
-import { api } from "~/lib/api";
+import { useGetTags } from "~/lib/queries";
 import { Button, Switch, Tag } from "~/shared/components";
 import { useQ } from "~/shared/hooks";
+import { handleResponseError } from "~/shared/utils";
 
 type ClubsFilterModalProps = BaseModalProps;
 
 export const ClubsFilterModal: React.FC<ClubsFilterModalProps> = ({ isOpen, closeModal }) => {
-  const { query, append: appendToQuery } = useQ<GetClubs["args"]["query"]>();
+  const { query, append: appendToQuery } = useQ<GetClubs["query"]>();
   const [selectedAvailabilities, setSelectedAvailabilities] = useState<Availability[]>([]);
   const [selectedTags, setSelectedTags] = useState<string[]>(query?.filter?.tags ?? []);
   const [tagFilteringMethod, setTagFilteringMethod] = useState<"exclusive" | "inclusive">(
     query?.filter?.tagMethod ?? "inclusive"
   );
 
-  const { data: tags = [], ...tagsQuery } = useQuery<GetTags["payload"], Error>(
-    "tags",
-    async () => await api.tags.all(),
-    {
-      onError: (e) => console.log(e),
-    }
+  const { data: tags = [], ...tagsQuery } = useGetTags(
+    { body: undefined, params: undefined, query: undefined },
+    { onError: (e) => handleResponseError(e, "Unable to fetch tags") }
   );
 
   const handleSelectTag = (name: string) => {
@@ -58,6 +54,7 @@ export const ClubsFilterModal: React.FC<ClubsFilterModalProps> = ({ isOpen, clos
     setTagFilteringMethod("inclusive");
     setSelectedAvailabilities([]);
     appendToQuery({ filter: null });
+    closeModal(); // should close?
   };
 
   //! fails to filter fallback?
@@ -140,7 +137,7 @@ export const ClubsFilterModal: React.FC<ClubsFilterModalProps> = ({ isOpen, clos
                   </FilterSection>
                   <FilterSection title="Availability" description="Filter by 1-2 of the 3 availability options">
                     <div className="w-full grid grid-cols-3 gap-4">
-                      {Object.keys(Availability).map((availability: Availability) => (
+                      {(Object.keys(Availability) as Array<keyof typeof Availability>).map((availability) => (
                         <div
                           className={cn(
                             {

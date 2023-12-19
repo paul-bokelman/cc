@@ -7,7 +7,6 @@ import { Tag } from "~/shared/components";
 export type ClubCardProps = GetClubs["payload"][number];
 
 export const ClubCard: React.FC<ClubCardProps> = (club) => {
-  console.log(club.tags);
   return (
     <div className="flex w-full md:max-w-md flex-col gap-2 rounded-md border border-black-20 p-4 h-full justify-between">
       <div className="flex flex-col gap-2">

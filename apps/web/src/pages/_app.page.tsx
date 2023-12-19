@@ -1,7 +1,7 @@
 import type { ExtendedAppProps } from "~/shared/types";
 import { QueryClientProvider } from "react-query";
 import { Toaster } from "react-hot-toast";
-import { queryClient } from "~/lib/api";
+import { queryClient } from "~/lib/queries";
 import { AuthProvider } from "~/shared/context";
 import { Layout } from "~/shared/components";
 import "../styles/global.css";

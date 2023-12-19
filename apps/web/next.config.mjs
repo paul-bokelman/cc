@@ -1,7 +1,9 @@
 /**
  * @type {import('next').NextConfig}
  */
+
 const nextConfig = {
+  transpilePackages: ["cc-common"],
   reactStrictMode: true,
   pageExtensions: ["page.tsx", "page.ts", "page.jsx", "page.js"],
   images: {
@@ -11,3 +13,5 @@ const nextConfig = {
 };
 
 export default nextConfig;
+
+// export default nextConfig;

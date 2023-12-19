@@ -3,7 +3,8 @@ import type { ToControllerConfig } from "../utils.types";
 import * as z from "zod";
 
 /* -------------------------------- GET TAGS -------------------------------- */
-export type GetTags = ToControllerConfig<undefined, Array<Tag>>;
+export type GetTags = ToControllerConfig<typeof getTagsSchema, Array<Tag>>;
+export const getTagsSchema = z.object({});
 
 /* --------------------------------- GET TAG -------------------------------- */
 export type GetTag = ToControllerConfig<typeof getTagSchema, Tag>;

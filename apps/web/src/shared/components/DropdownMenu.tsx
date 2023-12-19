@@ -1,9 +1,9 @@
-import type { Children } from '~/shared/types';
-import type { IconType } from 'react-icons';
-import { Fragment } from 'react';
-import cn from 'classnames';
-import { Menu, Transition } from '@headlessui/react';
-import { type ButtonProps, Button } from '~/shared/components';
+import type { Children } from "~/shared/types";
+import type { IconType } from "react-icons";
+import { Fragment } from "react";
+import cn from "classnames";
+import { Menu, Transition } from "@headlessui/react";
+import { type ButtonProps, Button } from "~/shared/components";
 
 type DropdownMenuProps = {
   children: Children;
@@ -38,11 +38,11 @@ export const DropdownMenu: React.FunctionComponent<DropdownMenuProps> & {
               <button
                 onClick={onClick}
                 className={cn(
-                  { 'bg-blue-10 font-medium text-blue-70': active },
-                  'flex w-full items-center rounded-md bg-transparent px-3 py-2 text-sm capitalize text-black-60 hover:bg-black-10 hover:text-black-70'
+                  { "bg-blue-10 font-medium text-blue-70": active },
+                  "flex w-full items-center rounded-md bg-transparent px-3 py-2 text-sm capitalize text-black-60 hover:bg-black-10 hover:text-black-70"
                 )}
               >
-                {typeof Icon !== 'undefined' && <Icon className="mr-2" />}
+                {typeof Icon !== "undefined" && <Icon className="mr-2" />}
                 {label}
               </button>
             </Menu.Item>
@@ -53,10 +53,7 @@ export const DropdownMenu: React.FunctionComponent<DropdownMenuProps> & {
   );
 };
 
-export const DropdownMenuButton: React.FC<ButtonProps> = ({
-  children: text,
-  ...props
-}) => (
+export const DropdownMenuButton: React.FC<ButtonProps> = ({ children: text, ...props }) => (
   <Menu.Button>
     <Button asChild {...props}>
       {text}

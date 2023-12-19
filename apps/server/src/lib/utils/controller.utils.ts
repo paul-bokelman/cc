@@ -1,5 +1,5 @@
 import type { Response } from "express";
-import type { ControllerConfig, ServerError } from "cc-common";
+import type { ControllerConfig, ServerError, ValidationErrors } from "cc-common";
 import { getReasonPhrase } from "http-status-codes";
 import { env } from "~/lib/env";
 import { Prisma } from "@prisma/client";
@@ -44,6 +44,14 @@ export const formatResponse = <C extends ControllerConfig>(res: Response) => {
         code: status,
         reason: getReasonPhrase(status),
         message: message ?? undefined,
+        errors,
+      });
+    },
+    validationError: (errors: ValidationErrors): Response<ServerError> => {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        code: StatusCodes.BAD_REQUEST,
+        reason: getReasonPhrase(StatusCodes.BAD_REQUEST),
+        message: "Validation Error",
         errors,
       });
     },

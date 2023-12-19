@@ -1,4 +1,4 @@
-import { type Club, type Tag, Prisma, Availability } from "@prisma/client";
+import { type Club, type Tag, Availability } from "@prisma/client";
 import type { ToControllerConfig } from "../utils.types";
 import * as z from "zod";
 
@@ -13,7 +13,6 @@ export type GetClubs = ToControllerConfig<
     }
   >
 >;
-
 export const getClubsSchema = z.object({
   query: z.object({
     limit: z.preprocess(Number, z.number()).optional(),
@@ -34,7 +33,6 @@ export type GetClub = ToControllerConfig<
   typeof getClubSchema,
   Club & { tags: Tag[]; similarClubs?: (Club & { tags: Tag[] })[] }
 >;
-
 export const getClubSchema = z.object({
   query: z.object({
     method: z.enum(clubIdentifierMethods),

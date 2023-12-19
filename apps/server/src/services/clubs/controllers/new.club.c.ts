@@ -4,7 +4,7 @@ import { prisma } from "~/config";
 import { formatResponse, handleControllerError, generate } from "~/lib/utils";
 
 const handler: Controller<NewClub> = async (req, res) => {
-  const { success, error } = formatResponse<NewClub>(res);
+  const { success, validationError } = formatResponse<NewClub>(res);
   const club = req.body;
   const { tags, ...rest } = club;
 
@@ -13,12 +13,13 @@ const handler: Controller<NewClub> = async (req, res) => {
   if (existingClub) {
     const slug = generate.slug(club.name);
     const existingSlug = await prisma.club.findFirst({ where: { slug } });
-    if (existingSlug) return error(StatusCodes.CONFLICT, "Club name already taken"); // todo: should throw zod error (for client reflection)
+    if (existingSlug) return validationError([{ path: "name", message: "Club name already taken" }]);
   }
 
   if (club.tags) {
     const tags = await prisma.tag.findMany({ where: { name: { in: club.tags } } });
-    if (tags.length !== club.tags.length) return error(StatusCodes.NOT_FOUND, "Tag not found"); // todo: throw zod error
+    if (tags.length !== club.tags.length)
+      return validationError([{ path: "tags", message: "One or more tags are invalid" }]);
   }
 
   try {

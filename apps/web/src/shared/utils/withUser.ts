@@ -1,10 +1,9 @@
 import type { GetServerSideProps, GetServerSidePropsContext, GetServerSidePropsResult } from "next";
 import type { ServerError, Authorization } from "cc-common";
-import { AxiosError } from "axios";
 import axios from "axios";
-import { api } from "~/lib/api";
+import { authorize } from "~/lib/queries";
 
-type AuthorizationOptions = Omit<Authorization["args"]["body"], "signedCookie"> & {
+type AuthorizationOptions = Omit<Authorization["body"], "signedCookie"> & {
   fail?: string;
 };
 
@@ -19,24 +18,21 @@ export const withUser: WithUser = (auth, ssp) => {
     const signedCookie = context.req.cookies?.["cc.sid"] ?? ""; //? sent as cookie?? ofc not that would be too easy
 
     try {
-      await api.auth.authorize({ body: { role, signedCookie } });
+      await authorize({ body: { role, signedCookie }, params: undefined, query: undefined });
       if (!ssp) return { props: {} };
 
       return await ssp(context);
     } catch (e) {
-      if (axios.isAxiosError(e)) {
-        const err = (e as AxiosError<ServerError>).response.data;
-        if (err.code === 401) {
+      if (axios.isAxiosError<ServerError>(e)) {
+        if (e.response?.data.code === 401) {
           // separated because there may be conditional logic later...
-          return {
-            redirect: { permanent: false, destination: `${fail}?unauthorized=${err.message}` },
-          };
+          return { redirect: { permanent: false, destination: `${fail}?unauthorized=${e.response?.data.message}` } };
         }
 
-        return {
-          redirect: { permanent: false, destination: `${fail}?unauthorized=${err.message}` },
-        };
+        return { redirect: { permanent: false, destination: `${fail}?unauthorized=${e.response?.data.message}` } };
       }
     }
+
+    return { redirect: { permanent: false, destination: `${fail}?unauthorized=An unknown error occurred.` } };
   };
 };

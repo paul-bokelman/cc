@@ -29,7 +29,7 @@ export const TextInput: React.FC<Props> = ({
   return (
     <div className="flex flex-col gap-2">
       {textArea ? (
-        <textarea className={textInputClasses} {...field} {...props} />
+        <textarea {...field} {...props} className={textInputClasses} />
       ) : (
         <div className="flex w-full items-center">
           {Accessory ? (
@@ -54,9 +54,9 @@ export const TextInput: React.FC<Props> = ({
             style={{
               borderRadius: Accessory ? "0 0.5rem 0.5rem 0" : undefined,
             }}
-            className={textInputClasses}
             {...field}
             {...props}
+            className={textInputClasses}
           />
         </div>
       )}

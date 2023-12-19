@@ -1,18 +1,17 @@
 import type { NextPageWithConfig } from "~/shared/types";
 import type { IconType } from "react-icons";
-import { type GetClub, type EditClub, type DeleteClub, type GetTags, editClubSchema } from "cc-common";
+import { type EditClub, editClubSchema } from "cc-common";
 import { useState } from "react";
 import { useRouter } from "next/router";
-import { useMutation, useQuery } from "react-query";
 import { type FormikHelpers, Formik, Field, Form } from "formik";
-import { z } from "zod";
 import cn from "classnames";
 import { toFormikValidationSchema } from "zod-formik-adapter";
 import { toast } from "react-hot-toast";
 import { TbBrandFacebook, TbBrandInstagram, TbBrandTwitter, TbCheck, TbLink } from "react-icons/tb";
-import { type Error, queryClient, api } from "~/lib/api";
-import { handleServerValidationErrors, isValidationError, withUser } from "~/shared/utils";
+import { queryClient, useGetTags, useEditClub, useDeleteClub } from "~/lib/queries";
+import { handleFormError, handleResponseError, withUser } from "~/shared/utils";
 import { DashboardContainer as Page, TextInput, InputLabel, FieldError, Tag, Button } from "~/shared/components";
+import { useGetClub } from "~/lib/queries";
 
 type SupportedPlatforms = (typeof supportedPlatforms)[number];
 
@@ -21,42 +20,29 @@ const supportedPlatforms = ["instagram", "facebook", "twitter", "website"] as co
 const AdminDashboardClub: NextPageWithConfig = () => {
   const router = useRouter();
 
-  const clubQuery = useQuery<GetClub["payload"], Error>(
-    ["club", { id: router.query.clubId }],
-    async () =>
-      await api.clubs.get({
-        query: { method: "id" },
-        params: { identifier: router.query.clubId as string },
-      }),
-    {
-      onError: (e) => console.log(e),
-      enabled: !!router.query.clubId,
-    }
+  const cq = useGetClub(
+    { query: { method: "id" }, params: { identifier: router.query.clubId as string }, body: undefined },
+    { enabled: !!router.query.clubId, onError: (e) => handleResponseError(e, "Unable to fetch club") }
   );
 
-  const tagsQuery = useQuery<GetTags["payload"], Error>("tags", async () => api.tags.all());
+  const tagsQuery = useGetTags(
+    { body: undefined, params: undefined, query: undefined },
+    { onError: (e) => handleResponseError(e, "Unable to get tags") }
+  );
 
-  const editClubMutation = useMutation<EditClub["payload"], Error, EditClub>(api.clubs.edit, {
+  const editClubMutation = useEditClub({
     onSuccess: async ({ id }) => {
       await queryClient.invalidateQueries(["club", { id }]);
       toast.success("Club updated successfully");
     },
-    onError: (e) => {
-      if (!isValidationError(e)) {
-        console.log(e);
-        toast.error("Failed to update club");
-      }
-    },
   });
 
-  const deleteClubMutation = useMutation<DeleteClub["payload"], Error, DeleteClub["args"]>(api.clubs.delete, {
-    onSuccess: async (d) => {
+  const deleteClubMutation = useDeleteClub({
+    onSuccess: async () => {
       await router.push("/admin/clubs");
       toast.success("Club deleted successfully");
     },
-    onError: (e) => {
-      toast.error("Failed to delete club");
-    },
+    onError: (e) => handleResponseError(e, { toast: "Failed to delete club" }),
   });
 
   const [selectedPlatforms, setSelectedPlatforms] = useState<Array<SupportedPlatforms>>([
@@ -66,7 +52,7 @@ const AdminDashboardClub: NextPageWithConfig = () => {
     "twitter",
   ] as Array<SupportedPlatforms>);
 
-  const club = clubQuery.data;
+  const club = cq.data; // geez...
 
   const initialValues: EditClub["body"] = {
     // type will be club
@@ -98,28 +84,40 @@ const AdminDashboardClub: NextPageWithConfig = () => {
     values: EditClub["body"],
     { setFieldError }: FormikHelpers<EditClub["body"]>
   ): Promise<void> => {
+    if (!cq.isSuccess) {
+      toast.error("Club data is invalid, please try again later");
+      return;
+    }
     try {
       const filteredValues = Object.entries(values).reduce((acc, [key, value]) => {
-        const hasChanged = initialValues[key] !== value;
-        if (hasChanged) acc[key] = value;
+        if (initialValues[key as keyof EditClub["body"]] !== (value as EditClub["body"][keyof EditClub["body"]])) {
+          acc[key as keyof Partial<EditClub["body"]>] = value as any; // any shouldn't be used here...
+        }
         return acc;
-      }, {} as Partial<typeof initialValues>);
+      }, {} as Partial<EditClub["body"]>);
 
       await editClubMutation.mutateAsync({
-        params: { identifier: club?.id },
+        params: { identifier: cq.data.id },
         query: { method: "id" },
         body: filteredValues,
       });
+
+      await router.push("/admin/clubs"); // should push?
     } catch (e) {
-      handleServerValidationErrors(e, setFieldError);
-      // server side validation
+      handleFormError(e, { toast: "Failed to update club", setFieldError });
     }
   };
 
   const handleDeleteClub = async () => {
-    if (!club?.id) return; // shouldn't happen (toast)
-    //! confirmation modal (modal provider)
-    await deleteClubMutation.mutateAsync({ query: { method: "id" }, params: { identifier: club?.id } });
+    if (!cq.isSuccess) {
+      toast.error("Club data is invalid, please try again later");
+      return;
+    }
+    await deleteClubMutation.mutateAsync({
+      query: { method: "id" },
+      params: { identifier: cq.data.id },
+      body: undefined,
+    });
   };
 
   const availabilityOptions = [
@@ -150,7 +148,7 @@ const AdminDashboardClub: NextPageWithConfig = () => {
   };
 
   return (
-    <Page state={clubQuery.status}>
+    <Page state={cq.status}>
       <Page.Header
         title={`Manage ${club?.name}`} // conditional name
         description={`Edit and get an overview of the ${club?.name} club`}
@@ -164,22 +162,10 @@ const AdminDashboardClub: NextPageWithConfig = () => {
       <Formik<EditClub["body"]>
         initialValues={initialValues}
         onSubmit={handleSubmit}
-        validationSchema={toFormikValidationSchema(editClubSchema)}
+        validationSchema={toFormikValidationSchema(editClubSchema.shape.body)}
         enableReinitialize
       >
-        {({
-          // change to f? this is verbose
-          values,
-          initialValues,
-          touched,
-          errors,
-          dirty,
-          isValid,
-          isSubmitting,
-          resetForm,
-          setFieldValue,
-          setFieldTouched,
-        }) => (
+        {({ values, initialValues, touched, errors, dirty, isValid, isSubmitting, setFieldValue, setFieldTouched }) => (
           <Form className="grid w-full grid-cols-1 gap-10 lg:grid-cols-2">
             <Page.Section
               title="General Club Information"
@@ -320,7 +306,7 @@ const AdminDashboardClub: NextPageWithConfig = () => {
                             onClick={() => {
                               if (isActive) {
                                 setSelectedPlatforms(selectedPlatforms.filter((p) => p !== platform));
-                                setFieldValue(`media.${platform}`, null);
+                                setFieldValue(`${platform}`, null);
                               } else {
                                 setSelectedPlatforms([...selectedPlatforms, platform]);
                               }

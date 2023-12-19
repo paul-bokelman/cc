@@ -1,8 +1,6 @@
 import type { NextPageWithConfig } from "~/shared/types";
 import type { IconType } from "react-icons";
-import type { GetClub } from "cc-common";
 import { useRouter } from "next/router";
-import { useQuery } from "react-query";
 import { toast } from "react-hot-toast";
 import {
   TbUserCheck,
@@ -17,9 +15,9 @@ import {
   TbBrandTwitter,
   TbMoodConfuzed,
 } from "react-icons/tb";
-import { type Error, api } from "~/lib/api";
 import { type TagNames, Tag, Button, ClubCard, ClubCompassLogo } from "~/shared/components";
-import { GetServerSideProps } from "next";
+import { useGetClub } from "~/lib/queries";
+import { handleResponseError } from "~/shared/utils";
 
 export type Club = {
   //base club
@@ -49,29 +47,29 @@ export type Club = {
 const Club: NextPageWithConfig = () => {
   const router = useRouter();
 
-  const { data: club, ...clubQuery } = useQuery<GetClub["payload"], Error>(
-    ["club", { slug: router.query.slug }],
-    async () =>
-      await api.clubs.get({
-        query: { method: "slug", includeSimilar: "true" },
-        params: { identifier: router.query.slug as string },
-      }),
-    { enabled: !!router.query.slug }
+  // todo: convert to just "cq" instead of destructuring
+  const cq = useGetClub(
+    {
+      query: { method: "slug", includeSimilar: "true" },
+      params: { identifier: router.query.slug as string },
+      body: undefined,
+    },
+    { enabled: !!router.query.slug, onError: (e) => handleResponseError(e, "Unable to fetch club") }
   );
 
   // check if error is 404, if so club doesn't exist!
 
-  if (clubQuery.status !== "success") {
+  if (cq.status !== "success") {
     return (
       <div className="w-full flex justify-center items-center">
-        {clubQuery.isLoading ? (
+        {cq.isLoading ? (
           <div className="flex flex-col gap-2 justify-center items-center">
             <ClubCompassLogo className="animate-pulse text-3xl mb-2" />
             <p className="font-medium text-lg">Loading Club Information...</p>
             <p className="text-xs text-black-60">This shouldn't take long. Please be patient.</p>
           </div>
-        ) : clubQuery.isError ? (
-          clubQuery.error.response.data.code === 404 ? (
+        ) : cq.isError ? (
+          cq.error.response?.data.code === 404 ? (
             <div className="flex flex-col gap-2 justify-center items-center">
               <ClubCompassLogo className="grayscale opacity-30 text-3xl mb-2" />
               <p className="font-medium text-lg">Oops! Looks like that club doesn't exist.</p>
@@ -109,32 +107,39 @@ const Club: NextPageWithConfig = () => {
   );
 
   const leadership = {
-    president: club.president,
-    "vice president": club.vicePresident,
-    secretary: club.secretary,
-    treasurer: club.treasurer,
-    advisor: club.advisor,
+    president: cq.data.president,
+    "vice president": cq.data.vicePresident,
+    secretary: cq.data.secretary,
+    treasurer: cq.data.treasurer,
+    advisor: cq.data.advisor,
   };
+
+  const media = [
+    { prefix: "https://www.instagram.com/", icon: TbBrandInstagram, handle: cq.data.instagram },
+    { prefix: "https://www.facebook.com/", icon: TbBrandFacebook, handle: cq.data.facebook },
+    { prefix: "https://www.twitter.com/", icon: TbBrandTwitter, handle: cq.data.twitter },
+    { prefix: "", icon: TbLink, handle: cq.data.website },
+  ].filter((m) => m.handle !== null);
 
   return (
     <div className="mt-12 flex w-full flex-col items-start justify-center gap-8">
       {/* HEADER */}
       <div className="flex w-full flex-col items-center justify-between md:flex-row md:items-start ">
         <div className="flex w-full flex-col items-center gap-4 md:items-start ">
-          <h1 className="text-4xl font-semibold">{club.name}</h1>
+          <h1 className="text-4xl font-semibold">{cq.data.name}</h1>
           <div className="flex items-center gap-2">
-            {club.tags?.map(({ name }) => (
+            {cq.data.tags?.map(({ name }) => (
               <Tag key={name} variant="inline" name={name} active={false} />
             ))}
           </div>
           <div className="flex items-center gap-3">
-            {club.availability === "OPEN" || club.availability === "APPLICATION" ? (
+            {cq.data.availability === "OPEN" || cq.data.availability === "APPLICATION" ? (
               <div className="flex items-center gap-1">
                 <TbUserCheck className="text-xl text-black" />
                 <span className="text-sm text-black-70">Accepting Members</span>
               </div>
             ) : null}
-            {club.availability === "APPLICATION" ? (
+            {cq.data.availability === "APPLICATION" ? (
               <div className="flex items-center gap-1">
                 <TbFileText className="text-xl text-black" />
                 <span className="text-sm text-black-70">Application Required</span>
@@ -154,8 +159,8 @@ const Club: NextPageWithConfig = () => {
             Share
           </Button>
           {/* students can't join clubs yet so they can only apply */}
-          {club.availability === "APPLICATION" ? (
-            <Button variant="primary" link external href={club.applicationLink}>
+          {cq.data.availability === "APPLICATION" && cq.data.applicationLink ? (
+            <Button variant="primary" link external href={cq.data.applicationLink}>
               Apply
             </Button>
           ) : null}
@@ -165,12 +170,12 @@ const Club: NextPageWithConfig = () => {
       <div className="grid w-full grid-cols-1 items-start border-t border-b border-black-20 py-10 md:grid-cols-2 ">
         <div className="flex w-full flex-col items-center justify-center gap-6 md:w-3/4 md:items-start md:justify-start">
           <h2 className="text-xl font-semibold">Description</h2>
-          <p className="w-3/4 text-sm text-black-70 md:w-full">{club.description}</p>
+          <p className="w-3/4 text-sm text-black-70 md:w-full">{cq.data.description}</p>
         </div>
         <div className="mt-8 flex w-full flex-col items-center justify-center gap-6 md:mt-0 md:w-3/4 md:items-start md:justify-start">
           <h2 className="text-xl font-semibold">Leadership</h2>
           <div className="grid grid-cols-2 grid-rows-3 gap-3 w-3/4 grid-flow-col">
-            {Object.entries(leadership).map(([role, name], i) => (
+            {Object.entries(leadership).map(([role, name]) => (
               <div key={name} className="flex">
                 <div className="flex flex-col gap-1">
                   <span className="text-black-70">{name}</span>
@@ -178,9 +183,9 @@ const Club: NextPageWithConfig = () => {
                 </div>
               </div>
             ))}
-            {/* {club.members.total > club.members.leadership.length ? (
+            {/* {cq.data.members.total > cq.data.members.leadership.length ? (
               <span className="my-auto text-sm font-medium text-black-60">
-                + {club.members.total - club.members.leadership.length} more
+                + {cq.data.members.total - cq.data.members.leadership.length} more
               </span>
             ) : null} */}
           </div>
@@ -192,54 +197,26 @@ const Club: NextPageWithConfig = () => {
           <h2 className="text-xl font-semibold">Meeting Information</h2>
           <div className="flex flex-col gap-2">
             <TextWithIcon
-              element={`${club.meetingDays}, ${club.meetingTime}, ${club.meetingFrequency}`}
+              element={`${cq.data.meetingDays}, ${cq.data.meetingTime}, ${cq.data.meetingFrequency}`}
               icon={TbCalendarTime}
             />
-            <TextWithIcon element={club.meetingLocation} icon={TbLocation} />
+            <TextWithIcon element={cq.data.meetingLocation} icon={TbLocation} />
           </div>
         </div>
         <div className="mt-8 flex w-full flex-col items-center justify-center gap-6 md:mt-0 md:w-3/4 md:items-start md:justify-start">
           <h2 className="text-xl font-semibold">Contact Information</h2>
           <div className="flex flex-col gap-2">
-            <TextWithIcon element={club.contactEmail} icon={TbMail} />
-            {club.instagram ? (
+            <TextWithIcon element={cq.data.contactEmail} icon={TbMail} />
+            {media.map((m) => (
               <TextWithIcon
                 element={
-                  <a href={`https://www.instagram.com/${club.instagram}`} className="text-blue-60 underline">
-                    @{club.instagram}
+                  <a href={`${m.prefix}${m.handle}`} className="text-blue-60 underline">
+                    {!m.prefix ? "Website" : `@${m.handle}`}
                   </a>
                 }
-                icon={TbBrandInstagram}
+                icon={m.icon}
               />
-            ) : null}
-            {club.facebook ? (
-              <TextWithIcon
-                element={
-                  <a href={`https://www.facebook.com/${club.facebook}`} className="text-blue-60 underline">
-                    @{club.facebook}
-                  </a>
-                }
-                icon={TbBrandFacebook}
-              />
-            ) : null}
-            {club.twitter ? (
-              <TextWithIcon
-                element={
-                  <a href={`https://www.twitter.com/${club.twitter}`} className="text-blue-60 underline">
-                    @{club.twitter}
-                  </a>
-                }
-                icon={TbBrandTwitter}
-              />
-            ) : null}
-            <TextWithIcon
-              element={
-                <a href={club.website} className="text-blue-60 underline">
-                  Website
-                </a>
-              }
-              icon={TbLink}
-            />
+            ))}
           </div>
         </div>
       </div>
@@ -247,9 +224,9 @@ const Club: NextPageWithConfig = () => {
       <div className="flex w-full flex-col items-center justify-center gap-6 md:items-start md:justify-start">
         <h2 className="text-xl font-semibold">Similar Clubs</h2>
         <div className="grid grid-cols-1 gap-2 md:grid-cols-2 lg:grid-cols-3">
-          {club?.similarClubs && club?.similarClubs?.length !== 0 ? (
-            club?.similarClubs?.map(({ tags, ...club }) => (
-              <ClubCard key={club.name} {...club} tags={tags.map((tag) => ({ ...tag, active: false }))} />
+          {cq.data.similarClubs && cq.data.similarClubs?.length !== 0 ? (
+            cq.data.similarClubs?.map(({ tags, ...club }) => (
+              <ClubCard key={cq.data.name} {...club} tags={tags.map((tag) => ({ ...tag, active: false }))} />
             ))
           ) : (
             <p className="text-sm text-black-60">Could not find any similar clubs</p>

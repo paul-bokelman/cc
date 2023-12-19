@@ -1,6 +1,6 @@
-import type { NextPageWithConfig } from '~/shared/types';
-import { withUser } from '~/shared/utils';
-import { DashboardContainer as Page } from '~/shared/components';
+import type { NextPageWithConfig } from "~/shared/types";
+import { withUser } from "~/shared/utils";
+import { DashboardContainer as Page } from "~/shared/components";
 
 type Props = {};
 
@@ -22,10 +22,10 @@ const AdminDashboard: NextPageWithConfig<Props> = () => {
 };
 
 AdminDashboard.layout = {
-  view: 'dashboard',
+  view: "dashboard",
   config: {},
 };
 
-export const getServerSideProps = withUser({ role: 'ADMIN' });
+export const getServerSideProps = withUser({ role: "ADMIN" });
 
 export default AdminDashboard;

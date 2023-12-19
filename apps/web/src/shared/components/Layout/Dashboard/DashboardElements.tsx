@@ -1,9 +1,9 @@
-import type { Children } from '~/shared/types';
-import { useRouter } from 'next/router';
-import NextLink from 'next/link';
-import cn from 'classnames';
-import { type ButtonProps, Button, ClubCompassLogo } from '~/shared/components';
-import { useEffect } from 'react';
+import type { Children } from "~/shared/types";
+import { useRouter } from "next/router";
+import NextLink from "next/link";
+import cn from "classnames";
+import { type ButtonProps, Button, ClubCompassLogo } from "~/shared/components";
+import { useEffect } from "react";
 
 type DashboardHeaderProps = {
   title: string;
@@ -16,7 +16,7 @@ type DashboardHeaderProps = {
 
 type DashboardContainerProps = {
   children: Array<JSX.Element>;
-  state: 'loading' | 'error' | 'success' | 'idle';
+  state: "loading" | "error" | "success" | "idle";
 };
 
 // alias as C
@@ -24,10 +24,10 @@ export const DashboardContainer: React.FunctionComponent<DashboardContainerProps
   Header: React.FC<DashboardHeaderProps>;
   Section: React.FC<DashboardSectionProps>;
   Navigation: React.FC<DashboardNavigationProps>;
-} = ({ state = 'loading', children }): JSX.Element => {
-  if (!children) throw new Error('DashboardContainer requires children');
+} = ({ state = "loading", children }): JSX.Element => {
+  if (!children) throw new Error("DashboardContainer requires children");
 
-  if (state === 'loading' || state === 'idle') {
+  if (state === "loading" || state === "idle") {
     return (
       <div className="flex h-screen w-full items-center justify-center bg-gray-50">
         <ClubCompassLogo className="animate-pulse text-5xl" />
@@ -35,7 +35,7 @@ export const DashboardContainer: React.FunctionComponent<DashboardContainerProps
     );
   }
 
-  if (state === 'error') {
+  if (state === "error") {
     // pass in error?
     return (
       <div className="flex h-screen w-full flex-col items-center justify-center gap-2 bg-red-10/50">
@@ -60,7 +60,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({ title, descrip
           {actions && actions.length !== 0 ? (
             <div className="flex gap-2">
               {actions.map((props, i) => (
-                <Button key={i} {...props} style={{ height: '46px' }} />
+                <Button key={i} {...props} style={{ height: "46px" }} />
               ))}
             </div>
           ) : null}
@@ -91,7 +91,7 @@ export const DashboardSection: React.FC<DashboardSectionProps> = ({
   childClass,
   children,
 }) => {
-  const classes = cn('mt-6 flex w-full flex-col gap-6', containerClass);
+  const classes = cn("mt-6 flex w-full flex-col gap-6", containerClass);
   return (
     <div style={style} className={classes}>
       <div className="flex flex-col gap-2 ">
@@ -128,16 +128,16 @@ export const DashboardNavigation: React.FC<DashboardNavigationProps> = ({ links 
     <div className="flex flex-col gap-2">
       <div className="flex items-center gap-2">
         {links.map((link) => (
-          <div className="relative flex items-center">
+          <div key={link.label} className="relative flex items-center">
             <NextLink
               href={{ href: link.dest, query: { ...router.query, location: link.query } }}
               aria-disabled={link.disabled}
               className={cn(
                 {
-                  'text-blue-70 hover:bg-blue-10/50': link.active,
-                  'pointer-events-none text-black-30 hover:bg-transparent': link.disabled,
+                  "text-blue-70 hover:bg-blue-10/50": link.active,
+                  "pointer-events-none text-black-30 hover:bg-transparent": link.disabled,
                 },
-                'rounded-md py-1 px-3 hover:bg-black-10'
+                "rounded-md py-1 px-3 hover:bg-black-10"
               )}
             >
               {link.label}

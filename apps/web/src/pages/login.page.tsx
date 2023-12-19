@@ -1,44 +1,37 @@
 import type { NextPageWithConfig } from "~/shared/types";
-import type { Login } from "cc-common";
+import { Login, loginSchema } from "cc-common";
 import { useRouter } from "next/router";
-import { useMutation, useQueryClient } from "react-query";
+import { useQueryClient } from "react-query";
 import { type FormikHelpers, Formik, Form, Field } from "formik";
-import { z } from "zod";
 import { toast } from "react-hot-toast";
 import { toFormikValidationSchema } from "zod-formik-adapter";
-import { type Error, api } from "~/lib/api";
-import { handleServerValidationErrors, isValidationError } from "~/shared/utils";
+import { useLogin } from "~/lib/queries";
+import { handleFormError } from "~/shared/utils";
 import { Button, FieldError, InputLabel, TextInput, Logo, ClubCompassLogo } from "~/shared/components";
 
 const LoginPage: NextPageWithConfig = () => {
   const router = useRouter();
   const queryClient = useQueryClient();
 
-  const loginMutation = useMutation<Login["payload"], Error, Login["args"]>(api.auth.login, {
-    onSuccess: async (d) => {
+  const loginMutation = useLogin({
+    onSuccess: async () => {
       // set cookie on browser >:(
       await queryClient.invalidateQueries(["user"]);
       await router.push("/admin/clubs"); // pushing to clubs instead of index bc it doesn't exist
       toast.success("Successfully logged in");
     },
-    onError: (e) => {
-      // if (!isValidationError(e)) toast.error('Failed to login');
-    },
   });
 
   const handleSubmit = async (
-    values: Login["args"]["body"],
-    { setFieldError }: FormikHelpers<Login["args"]["body"]>
+    values: Login["body"],
+    { setFieldError }: FormikHelpers<Login["body"]>
   ): Promise<void> => {
     try {
-      await loginMutation.mutateAsync({ body: values });
+      await loginMutation.mutateAsync({ body: values, params: undefined, query: undefined });
     } catch (e) {
-      handleServerValidationErrors(e, setFieldError);
+      handleFormError(e, { toast: "Login failed", setFieldError });
     }
   };
-
-  const loginValidation = z.object({ username: z.string(), password: z.string() });
-  // should there be extra validation here?
 
   return (
     <div className="h-screen w-screen grid grid-cols-1 lg:grid-cols-2">
@@ -52,13 +45,10 @@ const LoginPage: NextPageWithConfig = () => {
               <h1 className="font-semibold text-3xl">Login</h1>
               <p className="text-black-60 text-sm">Welcome back! Enter your details to see and manage your clubs.</p>
             </div>
-            <Formik<Login["args"]["body"]>
-              initialValues={{
-                username: "",
-                password: "",
-              }} // track type state through formik?
+            <Formik<Login["body"]>
+              initialValues={{ username: "", password: "" }} // track type state through formik?
               onSubmit={handleSubmit}
-              validationSchema={toFormikValidationSchema(loginValidation)}
+              validationSchema={toFormikValidationSchema(loginSchema.shape.body)}
             >
               {({ isSubmitting, isValid, dirty }) => (
                 <Form className="flex flex-col gap-4 w-full">
@@ -66,9 +56,9 @@ const LoginPage: NextPageWithConfig = () => {
                     <Field name="username" component={TextInput} placeholder="Jennifer27" />
                   </InputLabel>
                   <InputLabel value="Password">
-                    <Field type="password" name="password" component={TextInput} placeholder="••••••••••••••" />
+                    <Field type="password" name="password" component={TextInput} placeholder="••••••••••••" />
                   </InputLabel>
-                  {loginMutation.error?.response.data.code === 401 ? (
+                  {loginMutation.error?.response?.data.code === 401 ? (
                     <FieldError touched error={loginMutation.error?.response.data.message} />
                   ) : null}
                   <Button
@@ -85,7 +75,7 @@ const LoginPage: NextPageWithConfig = () => {
               )}
             </Formik>
           </div>
-          <p className="flex items-end mb-4 text-xs text-black-70">© 2021 Club Compass. All Rights Reserved.</p>
+          {/* <p className="flex items-end mb-4 text-xs text-black-70">© 2021 Club Compass. All Rights Reserved.</p> */}
         </div>
       </div>
       <div className="hidden lg:flex h-full w-full bg-gradient-to-bl from-blue-70 to-blue-50 justify-center items-center">

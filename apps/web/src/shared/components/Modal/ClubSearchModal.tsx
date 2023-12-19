@@ -1,22 +1,18 @@
-import type { BaseModalProps } from '.'; // should be on base modal
-import Link from 'next/link';
-import { Fragment, useState } from 'react';
-import { Dialog, Transition } from '@headlessui/react';
-import { motion, AnimatePresence } from 'framer-motion';
-import cn from 'classnames';
-import { type ClubCardProps, Button, Tag } from '~/shared/components';
-import { TbSearch, TbUserCheck, TbFileText } from 'react-icons/tb';
+import type { BaseModalProps } from "."; // should be on base modal
+import Link from "next/link";
+import { Fragment, useState } from "react";
+import { Dialog, Transition } from "@headlessui/react";
+import { motion, AnimatePresence } from "framer-motion";
+import cn from "classnames";
+import { type ClubCardProps, Button, Tag } from "~/shared/components";
+import { TbSearch, TbUserCheck, TbFileText } from "react-icons/tb";
 
 type ClubSearchModalProps = BaseModalProps & {
   clubs: Array<ClubCardProps>;
 };
 
-export const ClubSearchModal: React.FC<ClubSearchModalProps> = ({
-  isOpen,
-  clubs,
-  closeModal,
-}) => {
-  const [query, setQuery] = useState('');
+export const ClubSearchModal: React.FC<ClubSearchModalProps> = ({ isOpen, clubs, closeModal }) => {
+  const [query, setQuery] = useState("");
 
   const handleQueryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setQuery(e.target.value);
@@ -72,7 +68,7 @@ export const ClubSearchModal: React.FC<ClubSearchModalProps> = ({
                         opacity: 0,
                       }}
                       animate={{
-                        height: 'auto',
+                        height: "auto",
                         opacity: 1,
                         transition: {
                           height: {
@@ -98,26 +94,21 @@ export const ClubSearchModal: React.FC<ClubSearchModalProps> = ({
                       }}
                     >
                       {/* CLUB PREVIEWS */}
-                      {clubs.map((club, i) => (
+                      {clubs.map((club) => (
                         <Link
+                          key={club.name}
                           href="/clubs/slug"
                           className={cn(
-                            'group flex w-full cursor-pointer items-center justify-between gap-2 rounded-2xl py-4 px-4 hover:bg-black-10/80'
+                            "group flex w-full cursor-pointer items-center justify-between gap-2 rounded-2xl py-4 px-4 hover:bg-black-10/80"
                             // {
                             //   "border-t border-black-20": i !== 0,
                             // }
                           )}
                         >
                           <div className="flex items-start gap-3">
-                            <Tag
-                              name={club.tags[0]!}
-                              active={false}
-                              variant="icon"
-                            />
+                            <Tag name={club.tags[0]!} active={false} variant="icon" />
                             <div className="-mt-1 flex flex-col">
-                              <p className="text-lg font-medium text-black">
-                                {club.name}
-                              </p>
+                              <p className="text-lg font-medium text-black">{club.name}</p>
                               <p className="w-3/4 text-sm text-black-40">
                                 {club.description.length > 140
                                   ? `${club.description.substring(0, 140)}...`

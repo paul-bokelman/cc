@@ -9,6 +9,8 @@ export interface ServerError {
   errors?: unknown;
 }
 
+export type ValidationErrors = Array<{ path: string; message: string }>;
+
 export type ControllerConfig = {
   params: unknown;
   body: unknown;

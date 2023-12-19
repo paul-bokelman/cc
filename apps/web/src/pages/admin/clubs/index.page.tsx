@@ -1,20 +1,15 @@
 import type { NextPageWithConfig } from "~/shared/types";
 import type { GetAdminClubs } from "cc-common";
 import Link from "next/link";
-import { useQuery } from "react-query";
-import { TbPlus, TbFileText, TbUserCheck, TbUserX, TbUser } from "react-icons/tb";
-import { type Error, api } from "~/lib/api";
-import { withUser } from "~/shared/utils";
+import { TbPlus, TbFileText, TbUserCheck, TbUserX } from "react-icons/tb";
+import { useGetAdminClubs } from "~/lib/queries";
+import { handleResponseError, withUser } from "~/shared/utils";
 import { tags as tagList, DashboardContainer as Page, Button } from "~/shared/components";
 
 const AdminDashboardClubs: NextPageWithConfig = () => {
-  const adminClubsQuery = useQuery<GetAdminClubs["payload"], Error>(
-    ["admin-clubs"],
-    async () => await api.admin.clubs(),
-    {
-      retry: 0,
-      onError: (e) => console.log(e),
-    }
+  const adminClubsQuery = useGetAdminClubs(
+    { body: undefined, params: undefined, query: {} },
+    { onError: (e) => handleResponseError(e, "Unable to fetch clubs") }
   );
   const { clubs, overview } = adminClubsQuery?.data ?? {};
 
@@ -41,8 +36,8 @@ const AdminDashboardClubs: NextPageWithConfig = () => {
       />
       <div className="grid w-full grid-cols-1 gap-10 lg:grid-cols-4">
         <Page.Section
-          title="Del Norte Clubs"
-          description="View and manage the Clubs at Del Norte"
+          title="Clubs"
+          description="View and manage club pages"
           containerClass="col-span-2 lg:col-span-3"
           childClass="grid grid-cols-1 gap-4 lg:grid-cols-2"
         >
@@ -51,8 +46,8 @@ const AdminDashboardClubs: NextPageWithConfig = () => {
           ))}
         </Page.Section>
         <Page.Section
-          title="Overview"
-          description="Del Norte club analytics"
+          title="Analytics Overview"
+          description="Statistics about clubs"
           containerClass="col-span-2 lg:col-span-1 order-first lg:order-none"
         >
           <div className="flex flex-col gap-4 rounded-md border border-black-20 p-8">
@@ -122,8 +117,8 @@ const DashboardClubCard: React.FC<DashboardClubCardProps> = (club) => {
       <div className="flex w-full items-center justify-between">
         <div className="flex items-center gap-2">
           {club.tags.map(({ name }) => {
-            const Icon = tagList[name].icon;
-            return <Icon className="text-lg text-black" />;
+            const Icon = tagList[name as keyof typeof tagList].icon;
+            return <Icon key={name} className="text-lg texPt-black" />;
           })}
         </div>
         <div className="flex items-center gap-2">

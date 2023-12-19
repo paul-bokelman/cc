@@ -52,8 +52,8 @@ export const tags: Tags = {
 
 // CLEAN THIS UP
 
-export const Tag: React.FC<Props> = ({ variant, size = "sm", name, active, parentStyles, onClick }) => {
-  const tag = tags[name] ?? { icon: TbQuestionMark };
+export const Tag: React.FC<Props> = ({ variant, size = "sm", name, active, onClick }) => {
+  const tag = tags[name as keyof Tags] ?? { icon: TbQuestionMark };
   if (variant === "filter") {
     return (
       <div

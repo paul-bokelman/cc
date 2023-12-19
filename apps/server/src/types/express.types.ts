@@ -1,8 +1,8 @@
 import type { AuthenticatedUser } from "cc-common";
 
 export interface AuthenticatedRequestPayload {
-  sid: string;
-  user: AuthenticatedUser;
+  sid: string | null;
+  user: AuthenticatedUser | null;
 }
 
 declare global {

@@ -2,42 +2,28 @@ import type { NextPageWithConfig } from "~/shared/types";
 import type { GetClubs } from "cc-common";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import { useQuery, useQueryClient } from "react-query";
 import { TbChevronDown, TbFilter, TbSearchOff, TbMoodConfuzed } from "react-icons/tb";
-import { type Error, api } from "~/lib/api";
 import { ClubCard, ClubCardSkeleton, Button, DropdownMenu, ClubsFilterModal } from "~/shared/components";
 import { useQ } from "~/shared/hooks";
+import { useGetClubs } from "~/lib/queries";
+import { handleResponseError } from "~/shared/utils";
 
 const Clubs: NextPageWithConfig = () => {
   const router = useRouter();
-  const qc = useQueryClient();
-  const { query, append: appendToQuery, parse: parseQ } = useQ<GetClubs["args"]["query"]>();
+  const { query, append: appendToQuery, parse: parseQ } = useQ<GetClubs["query"]>();
 
   const [activeSortIndex, setActiveSortIndex] = useState<number>(0);
   const [showFilterModal, setShowFilterModal] = useState<boolean>(false);
 
-  const { data: clubs, ...clubsQuery } = useQuery<GetClubs["payload"], Error>(
-    ["clubs", router.query],
-    async () => await api.clubs.all({ query: parseQ(router.asPath) }), // stupid asf
+  const { data: clubs, ...clubsQuery } = useGetClubs(
+    { query: parseQ(router.asPath), params: undefined, body: undefined },
     {
-      // onSuccess: async (clubs) => { //? should prefetch?
-      //   for (const club of clubs) {
-      //     await qc.prefetchQuery(
-      //       ['club', { slug: club.slug }],
-      //       async () =>
-      //         await api.clubs.get({
-      //           query: { method: 'slug', includeSimilar: 'true' },
-      //           params: { identifier: club.slug },
-      //         })
-      //     );
-      //   }
-      // },
-      onError: (e) => console.log(e),
       keepPreviousData: true,
+      onError: (e) => handleResponseError(e, "Unable to fetch clubs"),
     }
   );
 
-  const sortMenuItems: { label: string; value: GetClubs["args"]["query"]["sort"] }[] = [
+  const sortMenuItems: { label: string; value: GetClubs["query"]["sort"] }[] = [
     { label: "Newest", value: "new" },
     { label: "Oldest", value: "old" },
     { label: "A-Z", value: "name-asc" },

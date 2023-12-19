@@ -5,16 +5,16 @@ import cookies from "cookie-parser";
 import { env, isProduction, initializeENV } from "~/lib/env";
 import { services } from "~/services/router";
 import { client } from "~/config";
-import { AuthenticatedRequestPayload } from "~/types";
+import { AuthenticatedRequestPayload } from "./types";
 
 initializeENV();
 
-// declare global {
-//   // eslint-disable-next-line @typescript-eslint/no-namespace
-//   namespace Express {
-//     export interface Request extends AuthenticatedRequestPayload {}
-//   }
-// }
+declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
+  namespace Express {
+    export interface Request extends AuthenticatedRequestPayload {}
+  }
+}
 
 (async () =>
   await client.connect().catch((e: unknown) => {
@@ -30,6 +30,7 @@ app.use(bodyParser.json());
 app.use(cookies());
 app.use(cors({ origin: true, credentials: true }));
 
+//? Is this needed?
 app.options("/*", function (req, res, next) {
   // catch options
   res.header("Access-Control-Allow-Origin", "*");
@@ -38,8 +39,6 @@ app.options("/*", function (req, res, next) {
   res.header("Access-Control-Allow-Credentials", "true");
   res.send(200);
 });
-
-// origin: env('CLIENT_URL') ?
 
 app.use(isProduction ? "/" : "/api", services);
 

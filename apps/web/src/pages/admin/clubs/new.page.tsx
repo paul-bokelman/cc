@@ -1,17 +1,17 @@
 import type { NextPageWithConfig } from "~/shared/types";
+import type { NewClub } from "cc-common";
 import type { IconType } from "react-icons";
-import type { NewClub, GetTags } from "cc-common";
+import { newClubSchema } from "cc-common";
 import { useState } from "react";
 import { useRouter } from "next/router";
-import { useMutation, useQuery } from "react-query";
 import { type FormikHelpers, Formik, Field, Form } from "formik";
-import { z } from "zod";
 import cn from "classnames";
 import { toast } from "react-hot-toast";
 import { toFormikValidationSchema } from "zod-formik-adapter";
 import { TbBrandFacebook, TbBrandInstagram, TbBrandTwitter, TbCheck, TbLink } from "react-icons/tb";
-import { type Error, api } from "~/lib/api";
-import { handleServerValidationErrors, isValidationError, withUser } from "~/shared/utils";
+import { useGetTags } from "~/lib/queries";
+import { useNewClub } from "~/lib/queries";
+import { handleFormError, handleResponseError, withUser } from "~/shared/utils";
 import { DashboardContainer as Page, TextInput, InputLabel, FieldError, Tag, Button } from "~/shared/components";
 
 type SupportedPlatforms = (typeof supportedPlatforms)[number]; // duplicate code
@@ -22,66 +22,25 @@ const AdminDashboardNewClub: NextPageWithConfig = () => {
   const router = useRouter();
   const [selectedPlatforms, setSelectedPlatforms] = useState<Array<SupportedPlatforms>>(["website"]);
 
-  const newClubMutation = useMutation<NewClub["payload"], Error, NewClub["args"]>(api.clubs.new, {
-    onSuccess: (data) => {
+  const newClubMutation = useNewClub({
+    onSuccess: () => {
       toast.success("Club created successfully");
     },
-    onError: (e) => {
-      if (!isValidationError(e)) toast.error("Failed to create club");
-    },
   });
-  const tagsQuery = useQuery<GetTags["payload"], Error>("tags", async () => await api.tags.all());
 
-  const handleSubmit = async (
-    values: NewClub["args"]["body"],
-    { setFieldError }: FormikHelpers<NewClub["args"]["body"]>
-  ): Promise<void> => {
-    console.log(values);
+  const tagsQuery = useGetTags(
+    { body: undefined, params: undefined, query: undefined },
+    { onError: (e) => handleResponseError(e, "Unable to get tags") }
+  );
+
+  const handleSubmit = async (values: NewClub["body"], { setFieldError }: FormikHelpers<NewClub["body"]>) => {
     try {
-      await newClubMutation.mutateAsync({ body: values });
+      await newClubMutation.mutateAsync({ body: values, params: undefined, query: undefined });
       await router.push("/admin/clubs");
     } catch (e) {
-      handleServerValidationErrors(e, setFieldError);
+      handleFormError(e, { toast: "Unable to create club", setFieldError });
     }
   };
-
-  const newClubValidation = z
-    .object({
-      name: z
-        .string()
-        .max(50, "Club name cannot be longer than 50 characters")
-        .min(3, "Club name must be at least 3 characters"),
-      description: z.string().min(10, "Club description must be at least 10 characters"),
-      availability: z.enum(["OPEN", "APPLICATION", "CLOSED"]),
-      applicationLink: z.string().optional().nullable(),
-      tags: z.string().array().max(3, "You can only select up to 3 tags").min(1, "You must select at least 1 tag"),
-
-      meetingFrequency: z.string(),
-      meetingTime: z.string(),
-      meetingDays: z.string(), // should be array of days
-      meetingLocation: z.string(),
-
-      contactEmail: z.string().email(),
-      instagram: z.string().optional().nullable(),
-      facebook: z.string().optional().nullable(),
-      twitter: z.string().optional().nullable(),
-      website: z.string().optional().nullable(),
-
-      president: z.string(),
-      vicePresident: z.string(),
-      secretary: z.string(),
-      treasurer: z.string(),
-      advisor: z.string(),
-    })
-    .superRefine((input, ctx) => {
-      if (input.availability === "APPLICATION" && !input.applicationLink) {
-        ctx.addIssue({
-          path: ["applicationLink"],
-          code: z.ZodIssueCode.custom,
-          message: "Required if the club requires an application",
-        });
-      }
-    });
 
   const availabilityOptions = [
     {
@@ -113,7 +72,7 @@ const AdminDashboardNewClub: NextPageWithConfig = () => {
   return (
     <Page state="success">
       <Page.Header title="New Club" description="Fill out all the information below to create a new club" />
-      <Formik<NewClub["args"]["body"]>
+      <Formik<NewClub["body"]>
         initialValues={{
           name: "",
           description: "",
@@ -136,9 +95,9 @@ const AdminDashboardNewClub: NextPageWithConfig = () => {
           advisor: "",
         }} // track type state through formik?
         onSubmit={handleSubmit}
-        validationSchema={toFormikValidationSchema(newClubValidation)}
+        validationSchema={toFormikValidationSchema(newClubSchema.shape.body)}
       >
-        {({ values, touched, errors, dirty, isValid, isSubmitting, resetForm, setFieldValue, setFieldTouched }) => (
+        {({ values, touched, errors, dirty, isValid, isSubmitting, setFieldValue, setFieldTouched }) => (
           <Form className="grid w-full grid-cols-1 gap-10 lg:grid-cols-2">
             <Page.Section
               title="General Club Information"
