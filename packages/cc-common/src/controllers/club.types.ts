@@ -1,6 +1,7 @@
 import { type Club, type Tag, Availability } from "@prisma/client";
 import type { ToControllerConfig } from "../utils.types";
 import * as z from "zod";
+import { nonempty } from "../zod.utils";
 
 export const clubIdentifierMethods = ["slug", "id", "name"] as const;
 
@@ -72,16 +73,17 @@ export const newClubSchema = z.object({
       meetingLocation: z.string(),
 
       contactEmail: z.string().email(),
+      // check nonempty?
       instagram: z.string().optional().nullable(),
       facebook: z.string().optional().nullable(),
       twitter: z.string().optional().nullable(),
       website: z.string().optional().nullable(),
 
-      president: z.string(),
-      vicePresident: z.string(),
-      secretary: z.string(),
-      treasurer: z.string(),
-      advisor: z.string(),
+      president: z.string().min(3, "Name must be at least 3 characters").pipe(nonempty),
+      vicePresident: z.string().min(3, "Name must be at least 3 characters").pipe(nonempty),
+      secretary: z.string().min(3, "Name must be at least 3 characters").pipe(nonempty),
+      treasurer: z.string().min(3, "Name must be at least 3 characters").pipe(nonempty),
+      advisor: z.string().min(3, "Name must be at least 3 characters").pipe(nonempty),
     })
     .superRefine((input, ctx) => {
       if (input.availability === "APPLICATION" && !input.applicationLink) {
@@ -127,11 +129,11 @@ export const editClubSchema = z.object({
       twitter: z.string().optional().nullable(),
       website: z.string().optional().nullable(),
 
-      president: z.string().optional(),
-      vicePresident: z.string().optional(),
-      secretary: z.string().optional(),
-      treasurer: z.string().optional(),
-      advisor: z.string().optional(),
+      president: z.string().min(3, "Name must be at least 3 characters").pipe(nonempty).optional(),
+      vicePresident: z.string().min(3, "Name must be at least 3 characters").pipe(nonempty).optional(),
+      secretary: z.string().min(3, "Name must be at least 3 characters").pipe(nonempty).optional(),
+      treasurer: z.string().min(3, "Name must be at least 3 characters").pipe(nonempty).optional(),
+      advisor: z.string().min(3, "Name must be at least 3 characters").pipe(nonempty).optional(),
     })
     .superRefine((input, ctx) => {
       if (!input) return;

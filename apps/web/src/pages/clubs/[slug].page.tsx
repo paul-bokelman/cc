@@ -15,34 +15,9 @@ import {
   TbBrandTwitter,
   TbMoodConfuzed,
 } from "react-icons/tb";
-import { type TagNames, Tag, Button, ClubCard, ClubCompassLogo } from "~/shared/components";
+import { Tag, Button, ClubCard, ClubCompassLogo } from "~/shared/components";
 import { useGetClub } from "~/lib/queries";
 import { handleResponseError } from "~/shared/utils";
-
-export type Club = {
-  //base club
-  name: string;
-  tags: Array<TagNames>;
-  applicationRequired: boolean;
-  availability: "open" | "closed";
-  description: string;
-  members: { leadership: Array<{ name: string; role: string }>; total: number };
-
-  meetingInformation: {
-    frequency: string;
-    time: string;
-    day: string;
-    location: string;
-  };
-
-  contactInformation: {
-    email: string;
-    instagram: string;
-    website: { label: string; url: string };
-  };
-
-  // similarClubs: ClubCardProps[];
-};
 
 const Club: NextPageWithConfig = () => {
   const router = useRouter();

@@ -1,5 +1,6 @@
 export * from "./utils.types";
 export * from "./session.types";
+export * from "./zod.utils";
 
 export * from "./controllers/club.types";
 export * from "./controllers/auth.types";
