@@ -13,8 +13,8 @@ import qs from "qs";
 /* ------------------------------ Query Client ------------------------------ */
 const queryClientConfig: QueryClientConfig = {
   defaultOptions: {
-    queries: { retry: false, refetchOnWindowFocus: false, refetchIntervalInBackground: false },
-    mutations: { retry: false },
+    queries: { retry: 0, refetchOnWindowFocus: false, refetchIntervalInBackground: false },
+    mutations: { retry: 0 },
   },
 };
 

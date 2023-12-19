@@ -16,7 +16,7 @@ const LoginPage: NextPageWithConfig = () => {
   const loginMutation = useLogin({
     onSuccess: async () => {
       // set cookie on browser >:(
-      await queryClient.invalidateQueries(["user"]);
+      await queryClient.invalidateQueries({ queryKey: ["user"] });
       await router.push("/admin/clubs"); // pushing to clubs instead of index bc it doesn't exist
       toast.success("Successfully logged in");
     },

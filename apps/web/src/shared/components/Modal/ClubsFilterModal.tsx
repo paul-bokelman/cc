@@ -101,6 +101,7 @@ export const ClubsFilterModal: React.FC<ClubsFilterModalProps> = ({ isOpen, clos
                       {tagsQuery.isSuccess ? (
                         tags?.map(({ name }) => (
                           <Tag
+                            key={name}
                             name={name}
                             variant="inline"
                             size="lg"
@@ -139,6 +140,7 @@ export const ClubsFilterModal: React.FC<ClubsFilterModalProps> = ({ isOpen, clos
                     <div className="w-full grid grid-cols-3 gap-4">
                       {(Object.keys(Availability) as Array<keyof typeof Availability>).map((availability) => (
                         <div
+                          key={availability}
                           className={cn(
                             {
                               "bg-blue-10 border-blue-60 text-blue-60 hover:bg-blue-10":

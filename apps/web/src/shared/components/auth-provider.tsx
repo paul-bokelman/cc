@@ -1,6 +1,6 @@
 import type { FC } from "react";
 import type { Children } from "~/shared/types";
-import type { AuthenticatedUser, GetUser } from "cc-common";
+import type { AuthenticatedUser } from "cc-common";
 import { createContext, useContext, useEffect, useMemo } from "react";
 import { useQueryClient } from "react-query";
 import { useGetUser, useLogout } from "~/lib/queries";
@@ -28,13 +28,16 @@ export const useAuthContext = (): AuthContext => {
 export const AuthProvider: FC<{ children: Children }> = ({ children }) => {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const { data: user, isLoading } = useGetUser({ params: undefined, query: undefined, body: undefined });
+
+  const { data: user, isLoading } = useGetUser(
+    { params: undefined, query: undefined, body: undefined },
+    { initialData: null }
+  );
   const { mutateAsync: logout } = useLogout({
     onError: (e) => handleResponseError(e, "Unable to logout"),
     onSuccess: async () => {
-      await queryClient.invalidateQueries<GetUser["payload"]>(["user"]);
-      queryClient.setQueryData<GetUser["payload"]>(["user"], null); // have to manually set user to null for some odd reason
-      await router.push("/clubs"); // should conditionally push to diff locations
+      await queryClient.resetQueries({ queryKey: ["user"] });
+      await router.push("/clubs");
       toast.success("Logged out");
     },
   });

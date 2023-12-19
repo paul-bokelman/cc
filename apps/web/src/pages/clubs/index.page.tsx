@@ -87,7 +87,7 @@ const Clubs: NextPageWithConfig = () => {
             </div>
           )
         ) : clubsQuery.isLoading ? (
-          Array.from({ length: 9 }).map((_) => <ClubCardSkeleton />)
+          Array.from({ length: 9 }).map((_, i) => <ClubCardSkeleton key={i} />)
         ) : (
           <div className="flex w-full border border-red-20 bg-red-10/50 h-60 col-span-3 rounded-md">
             <div className="flex flex-col items-center justify-center w-full">

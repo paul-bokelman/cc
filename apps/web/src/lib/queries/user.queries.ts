@@ -6,5 +6,5 @@ import { query } from "./query.utils";
 /* -------------------------------- GET USER -------------------------------- */
 const getUser = query<GetUser>("/user");
 export const useGetUser: QueryHook<GetUser> = (args, options) => {
-  return useQuery<GetUser["payload"], Error>(["clubs", args.query], async () => await getUser(args), options);
+  return useQuery<GetUser["payload"], Error>(["user"], async () => await getUser(args), options);
 };

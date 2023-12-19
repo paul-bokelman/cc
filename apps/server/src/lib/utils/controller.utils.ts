@@ -1,9 +1,9 @@
 import type { Response } from "express";
 import type { ControllerConfig, ServerError, ValidationErrors } from "cc-common";
 import { getReasonPhrase } from "http-status-codes";
-import { env } from "~/lib/env";
 import { Prisma } from "@prisma/client";
 import { StatusCodes } from "http-status-codes";
+import { cookieOptions } from "~/lib/session";
 
 export const handleControllerError = (e: unknown, res: Response) => {
   const { error } = formatResponse(res as Response<ServerError>);
@@ -20,16 +20,7 @@ export const formatResponse = <C extends ControllerConfig>(res: Response) => {
     success: (status: number, payload: C["payload"], cookie?: string | { clear: true }) => {
       if (cookie) {
         if (typeof cookie === "string") {
-          return res
-            .status(status)
-            .cookie("cc.sid", cookie, {
-              domain: env("CLIENT_DOMAIN"),
-              httpOnly: true,
-              expires: new Date(Date.now() + 24 * 60 * 60 * 1000),
-              secure: true,
-              sameSite: "none",
-            })
-            .json(payload);
+          return res.status(status).cookie("cc.sid", cookie, cookieOptions).json(payload);
         }
         return res
           .status(status)
