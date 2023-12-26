@@ -70,7 +70,9 @@ const LoginPage: NextPageWithConfig = () => {
                   >
                     {isSubmitting ? "Logging in" : "Login"}
                   </Button>
-                  <p className="text-red-500 text-xs italic">Note: Phase 1 of CC only allows ASB to have accounts.</p>
+                  <p className="text-red-500 text-xs italic">
+                    Note: Club Compass beta only allows ASB to have accounts.
+                  </p>
                 </Form>
               )}
             </Formik>

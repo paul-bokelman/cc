@@ -8,11 +8,14 @@ const handler: Controller<NewClub> = async (req, res) => {
   const club = req.body;
   const { tags, ...rest } = club;
 
-  const existingClub = await prisma.club.findUnique({ where: { name: club.name }, select: { name: true } });
+  const existingClub = await prisma.club.findFirst({
+    where: { AND: { name: club.name }, school: { name: req.school } },
+    select: { name: true },
+  });
 
   if (existingClub) {
     const slug = generate.slug(club.name);
-    const existingSlug = await prisma.club.findFirst({ where: { slug } });
+    const existingSlug = await prisma.club.findFirst({ where: { AND: { slug, school: { name: req.school } } } });
     if (existingSlug) return validationError([{ path: "name", message: "Club name already taken" }]);
   }
 
@@ -27,6 +30,7 @@ const handler: Controller<NewClub> = async (req, res) => {
       data: {
         slug: generate.slug(rest.name),
         tags: { connect: tags.map((name) => ({ name })) },
+        school: { connect: { name: req.school } },
         ...rest,
       },
     });

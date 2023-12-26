@@ -1,7 +1,7 @@
 import type { Login, Register, Logout, Authorization } from "cc-common";
 import type { MutationHook, Error } from "./query.utils";
 import { useMutation } from "react-query";
-import { mutation } from "./query.utils";
+import { mutation, query } from "./query.utils";
 
 /* ---------------------------------- LOGIN --------------------------------- */
 const login = mutation<Login>("/auth/login");
@@ -22,7 +22,4 @@ export const useLogout: MutationHook<Logout> = (options) => {
 };
 
 /* ------------------------------- AUTHORIZATION ------------------------------ */
-export const authorize = mutation<Authorization>("/auth/authorize"); // export because used in withUser
-export const useAuthorization: MutationHook<Authorization> = (options) => {
-  return useMutation<Authorization["payload"], Error, Omit<Authorization, "payload">>(authorize, options);
-};
+export const authorize = query<Authorization>("/auth/authorized"); // export because used in withUser

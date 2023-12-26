@@ -1,28 +1,37 @@
 import type { GetServerSideProps, GetServerSidePropsContext, GetServerSidePropsResult } from "next";
 import type { ServerError, Authorization } from "cc-common";
 import axios from "axios";
-import { authorize } from "~/lib/queries";
+import { parseSubdomain, appendSubdomain } from "~/lib/utils";
 
-type AuthorizationOptions = Omit<Authorization["body"], "signedCookie"> & {
+type AuthorizationOptions = Omit<Authorization["query"], "sid"> & {
   fail?: string;
 };
 
 type WithUser = <Props extends { [key: string]: any }>(
-  auth: AuthorizationOptions,
+  options: AuthorizationOptions,
   ssp?: GetServerSideProps<Props>
 ) => (context: GetServerSidePropsContext) => Promise<GetServerSidePropsResult<Props | unknown>>;
 
-export const withUser: WithUser = (auth, ssp) => {
-  return async (context) => {
-    const { role = "MEMBER", fail = "/" } = auth; // add allow and block soon (user acc states)
-    const signedCookie = context.req.cookies?.["cc.sid"] ?? ""; //? sent as cookie?? ofc not, that would be too easy
+export const withUser: WithUser = (options, ssp) => {
+  return async (ctx) => {
+    const { role = "STUDENT", fail = "/" } = options;
+    const sid = ctx.req.cookies?.["cc.sid"] ?? "";
+
+    const url = new URL(ctx.req.headers["x-forwarded-proto"] + "://" + ctx.req.headers.host);
+    const parseResult = parseSubdomain(url, process.env.NODE_ENV === "production");
+    if (!parseResult.valid)
+      return { redirect: { permanent: false, destination: `${fail}?unauthorized=Invalid school` } };
 
     try {
-      await authorize({ body: { role, signedCookie }, params: undefined, query: undefined });
+      const baseURL = appendSubdomain(parseResult.subdomain);
+
+      await axios.get(`${baseURL}/api/auth/authorized`, { params: { role, sid }, withCredentials: true });
+
       if (!ssp) return { props: {} };
 
-      return await ssp(context);
+      return await ssp(ctx);
     } catch (e) {
+      console.log(e);
       if (axios.isAxiosError<ServerError>(e)) {
         if (e.response?.data.code === 401) {
           // separated because there may be conditional logic later...

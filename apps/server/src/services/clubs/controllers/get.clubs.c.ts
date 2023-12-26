@@ -3,17 +3,6 @@ import { StatusCodes } from "http-status-codes";
 import { prisma } from "~/config";
 import { formatResponse, handleControllerError, int } from "~/lib/utils";
 
-//   args: {
-//     query: {
-//       limit?: number;
-//       offset?: number;
-//     };
-//   };
-//   payload: Array<
-//     Pick<Club, 'id' | 'name' | 'slug' | 'description' | 'availability'>
-//   >;
-// };
-
 const handler: Controller<GetClubs> = async (req, res) => {
   const { success } = formatResponse<GetClubs>(res);
   const { limit, offset, filter, sort = "new" } = req.query;
@@ -24,6 +13,7 @@ const handler: Controller<GetClubs> = async (req, res) => {
   try {
     const clubs = await prisma.club.findMany({
       where: {
+        school: { name: req.school },
         AND: filter
           ? {
               tags: filter.tags ? { [method]: { name: { in: filter.tags } } } : undefined,

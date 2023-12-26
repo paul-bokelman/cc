@@ -8,9 +8,11 @@ const handler: Controller<GetClub> = async (req, res) => {
   const { method, includeSimilar } = req.query;
   const { identifier } = req.params;
 
+  // todo: should query by school and identifier but this is ok for now
   try {
-    const club = await prisma.club.findUnique({
-      where: { [method]: identifier } as { slug: string } | { id: string } | { name: string }, // should be inferred...
+    const club = await prisma.club.findFirst({
+      // @ts-ignore
+      where: { AND: { [method]: identifier, school: { name: req.school } } }, // should be inferred...
       include: { tags: true },
     });
     if (!club) return error(StatusCodes.NOT_FOUND, "Club not found");

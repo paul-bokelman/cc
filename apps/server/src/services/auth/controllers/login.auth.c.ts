@@ -10,15 +10,19 @@ const handler: Controller<Login> = async (req, res) => {
   const { username, password } = req.body;
 
   try {
-    const user = await prisma.user.findUnique({ where: { username } });
+    // index by subdomain
+    const user = await prisma.user.findFirst({
+      where: { AND: { username: { equals: username }, school: { name: { equals: req.school } } } },
+    });
     if (!user) return error(StatusCodes.UNAUTHORIZED, "Invalid username or password");
 
     const match = await bcrypt.compare(password, user.password);
     if (!match) return error(StatusCodes.UNAUTHORIZED, "Invalid username or password");
 
-    const signedCookie = await generateSession(user.id);
+    // todo: school should come from user
+    const cookie = await generateSession({ userId: user.id, school: req.subdomains[0] });
     const { password: _, ...userWithoutPassword } = user;
-    return success(StatusCodes.OK, userWithoutPassword, signedCookie);
+    return success(StatusCodes.OK, userWithoutPassword, cookie);
   } catch (e) {
     return handleControllerError(e, res);
   }

@@ -24,7 +24,7 @@ export type ButtonProps = (
     } & React.ButtonHTMLAttributes<HTMLAnchorElement>)
   | ({
       link?: false;
-      asChild?: boolean;
+      child?: boolean;
     } & React.ButtonHTMLAttributes<HTMLButtonElement>)
 ) &
   BaseButtonProps;
@@ -89,7 +89,7 @@ export const Button: React.FC<ButtonProps & BaseButtonProps> = ({
 
   const { loading: _, ...rest } = props; // have to separate because loading isn't a dom attribute...
 
-  if (props.asChild) {
+  if (props.child) {
     return (
       <span className={classes} {...rest}>
         {children}

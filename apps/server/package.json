@@ -10,9 +10,14 @@
     "build": "tsc -p tsconfig.json",
     "db:generate": "npx prisma generate",
     "db:push": "npx prisma db push",
+    "db:reset": "ts-node prisma/db.reset.ts",
+    "db:seed": "npx prisma db seed",
     "dev": " ts-node -r tsconfig-paths/register ./src/main.ts",
     "start": "node main.js",
     "watch": "nodemon ./src/main.ts"
+  },
+  "prisma": {
+    "seed": "ts-node prisma/db.seed.ts"
   },
   "dependencies": {
     "@prisma/client": "^5.5.2",
@@ -39,8 +44,5 @@
     "prisma": "^5.5.2",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.2.2"
-  },
-  "prisma": {
-    "seed": "ts-node prisma/seed.ts"
   }
 }

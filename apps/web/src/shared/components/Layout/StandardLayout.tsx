@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import cn from "classnames";
-import { TbMenu2, TbBrandTwitter, TbBrandInstagram } from "react-icons/tb";
+import { TbMenu2, TbBrandTwitter, TbBrandInstagram, TbBugFilled } from "react-icons/tb";
 import { useAuthContext } from "~/shared/components";
 import { Logo, Button, Avatar, MobileNavigationModal } from "~/shared/components";
 
@@ -24,6 +24,8 @@ export const StandardLayout: React.FC<Props> = ({ config, children }) => {
   const router = useRouter();
   const { user } = useAuthContext();
 
+  // should just be /dashboard and content should be different
+
   // two arrays for scale
   const adminLinks = [
     { label: "Home", dest: "/" },
@@ -35,7 +37,7 @@ export const StandardLayout: React.FC<Props> = ({ config, children }) => {
   const memberLinks = [
     { label: "Home", dest: "/" },
     { label: "Clubs", dest: "/clubs" },
-    //  { label: 'Dashboard', dest: '/dashboard' } // no dash rn
+    // { label: "Dashboard", dest: "/dashboard" }, // no dash rn
     { label: "About", dest: "/about" },
   ];
 
@@ -43,10 +45,10 @@ export const StandardLayout: React.FC<Props> = ({ config, children }) => {
 
   const footerLinks = [
     //! Icons for mobile
-    { label: "Twitter", icon: TbBrandTwitter, dest: "/link" },
-    { label: "Instagram", icon: TbBrandInstagram, dest: "/link" },
-    { label: "About Us", dest: "/about" }, // random icon
-    { label: "Contact Us", dest: "/link" }, // func
+    { label: "Twitter", icon: TbBrandTwitter, dest: "https://twitter.com/clubcompass_" },
+    { label: "Instagram", icon: TbBrandInstagram, dest: "https://www.instagram.com/clubcompassofficial/" },
+    // { label: "About Us", dest: "/about" }, // random icon
+    // { label: "Contact Us", dest: "/link" }, // func
   ];
 
   // switch to grid to have things really centered.
@@ -60,7 +62,7 @@ export const StandardLayout: React.FC<Props> = ({ config, children }) => {
         <div className="flex h-full w-full flex-col gap-6">
           <div className="w-full grid md:grid-cols-3 grid-cols-2">
             {/* LOGO */}
-            <Logo withText />
+            <Logo withText beta />
             {/* NAV */}
             <div className="hidden items-center gap-6 md:flex justify-center">
               {links.map((link) => {
@@ -88,7 +90,20 @@ export const StandardLayout: React.FC<Props> = ({ config, children }) => {
             {/* USER */}
 
             <div className="hidden items-center gap-2 md:flex justify-end">
-              {user ? (
+              <div className="flex items-center gap-2 text-red-500">
+                <div
+                  className={cn(
+                    { "mr-2": user },
+                    "flex items-center gap-2 py-1 px-2 hover:bg-red-100/50 rounded-md cursor-pointer"
+                  )}
+                >
+                  <TbBugFilled className="cursor-pointer text-lg " />
+                  <span className="text-sm">Report a Bug</span>
+                </div>
+              </div>
+              {user && <Avatar user={user} className="w-9 h-9" />}
+              {/* disabled until phase 2 */}
+              {/* {user ? (
                 <div>
                   <Avatar user={user} className="w-9 h-9" />
                 </div>
@@ -101,7 +116,7 @@ export const StandardLayout: React.FC<Props> = ({ config, children }) => {
                     Sign Up
                   </Button>
                 </>
-              )}
+              )} */}
             </div>
 
             <div className="flex md:hidden justify-end">

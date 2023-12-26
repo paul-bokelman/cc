@@ -15,6 +15,7 @@ export const validate = (schema: AnyZodObject): RequestHandler => {
       await schema.parseAsync({ body: req.body, query: req.query, params: req.params });
       return next();
     } catch (e) {
+      console.log(e);
       if (e instanceof ZodError) {
         return error(
           StatusCodes.BAD_REQUEST,

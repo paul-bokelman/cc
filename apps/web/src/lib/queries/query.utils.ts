@@ -10,6 +10,8 @@ import type { ControllerConfig, ServerError } from "cc-common";
 import axios, { type AxiosError } from "axios";
 import qs from "qs";
 
+// todo: restructure file, it's a mess
+
 /* ------------------------------ Query Client ------------------------------ */
 const queryClientConfig: QueryClientConfig = {
   defaultOptions: {
@@ -34,9 +36,30 @@ export type MutationHook<C extends ControllerConfig> = (
   options?: UseMutationOptions<C["payload"], Error, Omit<C, "payload">>
 ) => UseMutationResult<C["payload"], Error, Omit<C, "payload">>;
 
+export const appendSubdomain = (subdomain: string | "current", base: "client" | "server"): string => {
+  if (typeof window === "undefined") return "";
+  const url = new URL(
+    base === "server" ? (process.env.NEXT_PUBLIC_SERVER_URL as string) : (process.env.NEXT_PUBLIC_CLIENT_URL as string)
+  );
+
+  if (subdomain === "current") {
+    subdomain = location.hostname.split(".")[0].replace(location.protocol, "");
+  }
+
+  const host = `${subdomain}.${url.host}`;
+
+  return url.href.replace(url.host, host);
+};
+
 axios.defaults.withCredentials = true; //? remove `defaultHeaders` if works
+
 const defaultHeaders = { withCredentials: true, headers: { "Content-Type": "application/json" } };
-export const client = axios.create({ baseURL: process.env.NEXT_PUBLIC_API_URL, ...defaultHeaders });
+
+export const client = axios.create({
+  baseURL: appendSubdomain("current", "server"), //! needs to be tested more
+  ...defaultHeaders,
+});
+
 export const nextClient = axios.create({ baseURL: "/api", ...defaultHeaders });
 
 // doesn't really make sense here
@@ -70,16 +93,6 @@ type APIRequest = <C extends ControllerConfig>(
   path: string,
   next?: boolean
 ) => (args?: Omit<C, "payload">) => Promise<C["payload"]>; //? do return function need to be async?
-
-// type QueryFunction = <C extends ControllerConfig>(
-//   path: string,
-//   next?: boolean
-// ) => (args?: Omit<C, "payload" | "body">) => Promise<C["payload"]>;
-
-// type MutationFunction = <C extends ControllerConfig>(
-//   path: string,
-//   next?: boolean
-// ) => (args?: Omit<C, "payload">) => Promise<C["payload"]>;
 
 export const query: APIRequest = (path, next) => {
   const executionClient = next ? nextClient : client;

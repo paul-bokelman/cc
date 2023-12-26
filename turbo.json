@@ -4,8 +4,19 @@
   "pipeline": {
     "build": {
       "dependsOn": ["^build"],
+      "outputs": ["dist/**"]
+    },
+    "web#build": {
+      "dependsOn": ["^build"],
+      "env": ["SOME_OTHER_ENV_VAR"],
       "outputs": [".next/**", "!.next/cache/**"]
     },
+    "server#build": {
+      "dependsOn": ["^build"],
+      "env": ["SOME_OTHER_ENV_VAR"],
+      "outputs": ["dist/**"]
+    },
+
     "lint": {},
     "dev": {
       "cache": false,

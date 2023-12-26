@@ -10,7 +10,8 @@ const handler: Controller<DeleteClub> = async (req, res) => {
 
   try {
     const club = await prisma.club.findUnique({
-      where: { [method]: identifier } as { slug: string } | { id: string } | { name: string }, // todo: same issue as get club
+      //@ts-ignore
+      where: { AND: { [method]: identifier, school: { name: req.school } } }, // todo: same issue as get club
       select: { id: true },
     });
 

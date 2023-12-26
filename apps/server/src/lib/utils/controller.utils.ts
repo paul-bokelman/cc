@@ -3,7 +3,7 @@ import type { ControllerConfig, ServerError, ValidationErrors } from "cc-common"
 import { getReasonPhrase } from "http-status-codes";
 import { Prisma } from "@prisma/client";
 import { StatusCodes } from "http-status-codes";
-import { cookieOptions } from "~/lib/session";
+import type { GenerateSessionPayload } from "~/lib/session";
 
 export const handleControllerError = (e: unknown, res: Response) => {
   const { error } = formatResponse(res as Response<ServerError>);
@@ -17,15 +17,15 @@ export const handleControllerError = (e: unknown, res: Response) => {
 
 export const formatResponse = <C extends ControllerConfig>(res: Response) => {
   return {
-    success: (status: number, payload: C["payload"], cookie?: string | { clear: true }) => {
+    success: (status: number, payload: C["payload"], cookie?: GenerateSessionPayload | { clear: true }) => {
       if (cookie) {
-        if (typeof cookie === "string") {
-          return res.status(status).cookie("cc.sid", cookie, cookieOptions).json(payload);
+        if (typeof cookie === "object" && "clear" in cookie) {
+          return res
+            .status(status)
+            .cookie("cc.sid", "", { expires: new Date(0) })
+            .json(payload);
         }
-        return res
-          .status(status)
-          .cookie("cc.sid", "", { expires: new Date(0) })
-          .json(payload);
+        return res.status(status).cookie("cc.sid", cookie.signature, cookie.options).json(payload);
       }
 
       return res.status(status).json(payload);

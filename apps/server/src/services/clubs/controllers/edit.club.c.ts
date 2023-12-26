@@ -8,6 +8,8 @@ const handler: Controller<EditClub> = async (req, res) => {
   const club = req.body;
 
   try {
+    // todo: check if in same school
+    //? ok for now since we only have one school have fields are still unique
     const existingClub = await prisma.club.findFirst({
       where: { [req.query.method]: req.params.identifier },
     });
@@ -33,7 +35,7 @@ const handler: Controller<EditClub> = async (req, res) => {
     const { id } = await prisma.club.update({
       // todo: fix
       //@ts-ignore
-      where: { [req.query.method]: req.params.identifier },
+      where: { AND: { school: { name: req.school }, [req.query.method]: req.params.identifier } },
       data: {
         slug: club?.name ? generate.slug(club.name) : undefined,
         ...rest,

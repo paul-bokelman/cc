@@ -9,7 +9,8 @@ import { toFormikValidationSchema } from "zod-formik-adapter";
 import { toast } from "react-hot-toast";
 import { TbBrandFacebook, TbBrandInstagram, TbBrandTwitter, TbCheck, TbLink } from "react-icons/tb";
 import { queryClient, useGetTags, useEditClub, useDeleteClub } from "~/lib/queries";
-import { handleFormError, handleResponseError, withUser } from "~/shared/utils";
+import { withUser } from "~/shared/utils";
+import { handleFormError, handleResponseError } from "~/lib/utils";
 import { DashboardContainer as Page, TextInput, InputLabel, FieldError, Tag, Button } from "~/shared/components";
 import { useGetClub } from "~/lib/queries";
 
@@ -224,7 +225,7 @@ const AdminDashboardClub: NextPageWithConfig = () => {
                   <Field name="applicationLink" component={TextInput} placeholder="https://docs.google.com/forms/..." />
                 </InputLabel>
               ) : null}
-              <InputLabel value={`Tags (${values.tags.length}/3`} edited={initialValues.tags !== values.tags}>
+              <InputLabel value={`Tags (${values.tags.length}/3)`} edited={initialValues.tags !== values.tags}>
                 <div className="flex w-full flex-wrap items-center gap-2">
                   {tagsQuery.data?.map(({ name: tag }) => (
                     <Tag

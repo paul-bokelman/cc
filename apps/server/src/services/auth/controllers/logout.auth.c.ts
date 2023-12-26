@@ -3,12 +3,6 @@ import { StatusCodes } from "http-status-codes";
 import { destroySession } from "~/lib/session";
 import { formatResponse, handleControllerError } from "~/lib/utils";
 
-//   args: undefined;
-//   payload: {
-//     success: boolean;
-//   };
-// };
-
 const handler: Controller<Logout> = async (req, res) => {
   const { error, success } = formatResponse(res);
   const sid = req.sid;

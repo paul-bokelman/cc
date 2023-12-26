@@ -14,7 +14,7 @@ out/
 build
 
 # express
-dist/**
+dist
 
 # misc
 .DS_Store
@@ -37,8 +37,3 @@ yarn-error.log*
 
 # vercel
 .vercel
-apps/server/context.json
-
-# hardware
-.vscode
-hardware/environment.h

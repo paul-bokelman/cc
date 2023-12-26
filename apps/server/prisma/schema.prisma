@@ -8,39 +8,34 @@ datasource db {
     url      = env("DB_URL")
 }
 
-model User {
-    id       String  @id @default(cuid())
-    ccid     String  @unique
-    username String  @unique
-    email    String  @unique
-    password String
-    avatar   String?
-    role     Role    @default(MEMBER)
-    // clubs    ClubUser[]
+model School {
+    id   String @id @default(cuid())
+    name String @unique
+
+    users User[] @relation("school-users")
+    clubs Club[] @relation("school-clubs")
+    // tags Tag[] @relation("school-tags") // is this needed?
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 }
 
-// model ClubUser {
-//     id        String   @id @default(cuid())
-//     user      User     @relation(fields: [userId], references: [id])
-//     userId    String
-//     club      Club     @relation(fields: [clubId], references: [id])
-//     clubId    String
-//     clubRole  ClubRole @default(MEMBER)
-//     createdAt DateTime @default(now())
-//     updatedAt DateTime @updatedAt
-// }
+model User {
+    id       String  @id @default(cuid())
+    // username and email don't need to be unique only unique to school
+    ccid     String  @unique
+    username String  @unique
+    email    String  @unique
+    password String
+    avatar   String?
+    role     Role    @default(STUDENT)
 
-// model ClubMember {
-//     id   String   @id @default(cuid())
-//     name String
-//     role ClubRole @default(MEMBER)
+    school   School @relation("school-users", fields: [schoolId], references: [id])
+    schoolId String
 
-//     clubId String
-//     club   Club   @relation(fields: [clubId], references: [id])
-// }
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
 
 model Club {
     id   String @id @default(cuid())
@@ -67,16 +62,17 @@ model Club {
     website      String?
 
     // Members
-    // members ClubUser[] // v2
     president     String
     vicePresident String
     secretary     String
     treasurer     String
     advisor       String
 
+    school   School @relation("school-clubs", fields: [schoolId], references: [id])
+    schoolId String
+
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
-    // ClubMember ClubMember[]
 }
 
 model Tag {
@@ -96,7 +92,7 @@ enum Availability {
 
 enum Role {
     ADMIN
-    MEMBER
+    STUDENT
 }
 
 enum ClubRole {

@@ -16,9 +16,7 @@ export const getSession: GetSession = async (sid) => {
     }
 
     const user = await prisma.user.findUnique({
-      where: {
-        id: userId,
-      },
+      where: { id: userId },
       select: {
         id: true,
         ccid: true,
@@ -33,6 +31,6 @@ export const getSession: GetSession = async (sid) => {
 
     return user;
   } catch (error) {
-    throw new Error("Malformed session data");
+    throw error;
   }
 };

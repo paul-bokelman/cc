@@ -33,12 +33,13 @@ export const AuthProvider: FC<{ children: Children }> = ({ children }) => {
     { params: undefined, query: undefined, body: undefined },
     { initialData: null }
   );
+
   const { mutateAsync: logout } = useLogout({
     onError: (e) => handleResponseError(e, "Unable to logout"),
     onSuccess: async () => {
       await queryClient.resetQueries({ queryKey: ["user"] });
-      await router.push("/clubs");
       toast.success("Logged out");
+      await router.push("/clubs");
     },
   });
 

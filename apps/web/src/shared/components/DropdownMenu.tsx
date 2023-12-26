@@ -55,7 +55,7 @@ export const DropdownMenu: React.FunctionComponent<DropdownMenuProps> & {
 
 export const DropdownMenuButton: React.FC<ButtonProps> = ({ children: text, ...props }) => (
   <Menu.Button>
-    <Button asChild {...props}>
+    <Button child={true} {...props}>
       {text}
     </Button>
   </Menu.Button>

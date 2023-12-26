@@ -1,6 +1,6 @@
 import type { NextPageWithConfig } from "~/shared/types";
-import { withUser } from "~/shared/utils";
 import { DashboardContainer as Page } from "~/shared/components";
+import { withUser } from "~/shared/utils";
 
 type Props = {};
 
@@ -10,9 +10,7 @@ const AdminDashboard: NextPageWithConfig<Props> = () => {
       <Page.Header
         title="Dashboard"
         description="Admin Dashboard"
-        // actions={[
-        //   { variant: 'primary', children: 'New Club', iconLeft: TbPlus },
-        // ]}
+        // actions={[ { variant: 'primary', children: 'New Club', iconLeft: TbPlus } ]}
       />
       <Page.Section title="Notice" description="Page is unavailable">
         This page is currently under construction

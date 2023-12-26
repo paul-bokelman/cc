@@ -9,6 +9,7 @@ const handler: Controller<GetAdminClubs> = async (req, res) => {
 
   try {
     const clubs = await prisma.club.findMany({
+      where: { school: { name: req.school } },
       take: int(limit),
       skip: int(offset),
       select: {

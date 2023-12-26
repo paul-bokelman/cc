@@ -14,6 +14,7 @@ const variables = [
   "PORT",
   "REDIS_URL",
   "DB_URL",
+  "SUBDOMAINS",
 ] as const;
 
 type Variables = (typeof variables)[number];
