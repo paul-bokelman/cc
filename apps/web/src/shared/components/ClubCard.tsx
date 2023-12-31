@@ -18,7 +18,11 @@ export const ClubCard: React.FC<ClubCardProps> = (club) => {
         </div>
         {/* truncating to 140 characters (should find another solution) */}
         <p className="text-base md:text-sm text-black-60">
-          {club.description.length > 140 ? `${club.description.substring(0, 140)}...` : club.description}
+          {!club.description
+            ? "No description provided."
+            : club.description.length > 140
+            ? `${club.description.substring(0, 140)}...`
+            : club.description}
         </p>
       </div>
       <div className="flex flex-col gap-2">

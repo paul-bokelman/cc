@@ -31,9 +31,13 @@ yarn-error.log*
 .env.development.local
 .env.test.local
 .env.production.local
+.env.staging.local
+*.csv
 
 # turbo
 .turbo
 
 # vercel
 .vercel
+
+# apps/server/prisma/data/schools/beckman

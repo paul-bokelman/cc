@@ -3,7 +3,8 @@ import type { GetAdminClubs } from "cc-common";
 import Link from "next/link";
 import { TbPlus, TbFileText, TbUserCheck, TbUserX } from "react-icons/tb";
 import { useGetAdminClubs } from "~/lib/queries";
-import { handleResponseError, withUser } from "~/shared/utils";
+import { handleResponseError } from "~/lib/utils";
+import { withUser } from "~/shared/utils";
 import { tags as tagList, DashboardContainer as Page, Button } from "~/shared/components";
 
 const AdminDashboardClubs: NextPageWithConfig = () => {

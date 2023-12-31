@@ -20,7 +20,9 @@ const handler: Controller<GetClub> = async (req, res) => {
     const similarClubs = bool(includeSimilar)
       ? (
           await prisma.club.findMany({
-            where: { tags: { some: { id: { in: club.tags.map((tag) => tag.id) } } } },
+            where: {
+              AND: { school: { name: req.school }, tags: { some: { id: { in: club.tags.map((tag) => tag.id) } } } },
+            },
             include: { tags: true },
           })
         )

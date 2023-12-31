@@ -2,7 +2,7 @@ import { Prisma, Role } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { customAlphabet as nanoid } from "nanoid";
 import { faker } from "@faker-js/faker";
-import { prisma } from "../db.seed";
+import { prisma } from "../../db.seed";
 
 // can't use bc of tsconfig
 const generateCCID = async (): Promise<string> => {

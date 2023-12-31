@@ -6,7 +6,7 @@ import { TbChevronDown, TbFilter, TbSearchOff, TbMoodConfuzed } from "react-icon
 import { ClubCard, ClubCardSkeleton, Button, DropdownMenu, ClubsFilterModal } from "~/shared/components";
 import { useQ } from "~/shared/hooks";
 import { useGetClubs } from "~/lib/queries";
-import { handleResponseError } from "~/shared/utils";
+import { handleResponseError } from "~/lib/utils";
 
 const Clubs: NextPageWithConfig = () => {
   const router = useRouter();

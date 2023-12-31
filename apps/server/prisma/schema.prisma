@@ -38,21 +38,23 @@ model User {
 }
 
 model Club {
-    id   String @id @default(cuid())
-    slug String @unique
+    id     String     @id @default(cuid())
+    slug   String     @unique
+    type   ClubType   @default(CLUB)
+    status ClubStatus @default(INACTIVE)
 
     // General
     name            String       @unique
-    description     String
+    description     String?
     availability    Availability @default(OPEN)
     applicationLink String?
     tags            Tag[]
 
     // Meeting Information
-    meetingFrequency String
-    meetingTime      String
-    meetingDays      String
-    meetingLocation  String
+    meetingFrequency String?
+    meetingTime      String?
+    meetingDays      String?
+    meetingLocation  String?
 
     // Contact Information
     contactEmail String
@@ -63,9 +65,9 @@ model Club {
 
     // Members
     president     String
-    vicePresident String
-    secretary     String
-    treasurer     String
+    vicePresident String?
+    secretary     String?
+    treasurer     String?
     advisor       String
 
     school   School @relation("school-clubs", fields: [schoolId], references: [id])
@@ -102,4 +104,15 @@ enum ClubRole {
     TREASURER
     ADVISOR
     MEMBER
+}
+
+enum ClubType {
+    CLUB
+    ORGANIZATION
+}
+
+enum ClubStatus {
+    ACTIVE
+    INTEREST
+    INACTIVE
 }

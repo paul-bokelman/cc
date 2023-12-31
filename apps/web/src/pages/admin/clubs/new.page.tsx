@@ -1,7 +1,6 @@
 import type { NextPageWithConfig } from "~/shared/types";
-import type { NewClub } from "cc-common";
 import type { IconType } from "react-icons";
-import { newClubSchema } from "cc-common";
+import { NewClub, newClubSchema } from "cc-common";
 import { useState } from "react";
 import { useRouter } from "next/router";
 import { type FormikHelpers, Formik, Field, Form } from "formik";
@@ -9,14 +8,31 @@ import cn from "classnames";
 import { toast } from "react-hot-toast";
 import { toFormikValidationSchema } from "zod-formik-adapter";
 import { TbBrandFacebook, TbBrandInstagram, TbBrandTwitter, TbCheck, TbLink } from "react-icons/tb";
-import { useGetTags } from "~/lib/queries";
-import { useNewClub } from "~/lib/queries";
-import { handleFormError, handleResponseError, withUser } from "~/shared/utils";
+import { useGetTags, useNewClub } from "~/lib/queries";
+import { withUser } from "~/shared/utils";
+import { handleResponseError, handleFormError } from "~/lib/utils";
 import { DashboardContainer as Page, TextInput, InputLabel, FieldError, Tag, Button } from "~/shared/components";
 
 type SupportedPlatforms = (typeof supportedPlatforms)[number]; // duplicate code
 
 const supportedPlatforms = ["instagram", "facebook", "twitter", "website"] as const;
+
+export const availabilityOptions = [
+  {
+    value: "OPEN",
+    description: "Club is open to anyone who wants to join, there are no requirements or restrictions on who can join.",
+  },
+  {
+    value: "APPLICATION",
+    description:
+      "Interested users must fill out an application then be invited by the club president through their ccid.",
+  },
+  {
+    value: "CLOSED",
+    description:
+      "Club is not currently accepting new members. This could be because the club is full, or because it is not currently active.",
+  },
+];
 
 const AdminDashboardNewClub: NextPageWithConfig = () => {
   const router = useRouter();
@@ -41,24 +57,6 @@ const AdminDashboardNewClub: NextPageWithConfig = () => {
       handleFormError(e, { toast: "Unable to create club", setFieldError });
     }
   };
-
-  const availabilityOptions = [
-    {
-      value: "OPEN",
-      description:
-        "An open availability for a club means that the club is open to anyone who wants to join. There are no requirements or restrictions on who can join.",
-    },
-    {
-      value: "APPLICATION",
-      description:
-        "An application availability for a club means interested users must fill out an application then be invited by the club president through their ccid.",
-    },
-    {
-      value: "CLOSED",
-      description:
-        "A closed availability for a club means that the club is not currently accepting new  This could be because the club is full, or because it is not currently active.",
-    },
-  ];
 
   const socialMediaOptions: {
     [key in SupportedPlatforms]: { icon: IconType };
@@ -98,7 +96,7 @@ const AdminDashboardNewClub: NextPageWithConfig = () => {
         validationSchema={toFormikValidationSchema(newClubSchema.shape.body)}
       >
         {({ values, touched, errors, dirty, isValid, isSubmitting, setFieldValue, setFieldTouched }) => (
-          <Form className="grid w-full grid-cols-1 gap-10 lg:grid-cols-2">
+          <Form placeholder="new club" className="grid w-full grid-cols-1 gap-10 lg:grid-cols-2">
             <Page.Section
               title="General Club Information"
               description="Basic and required information for the club"
@@ -190,18 +188,18 @@ const AdminDashboardNewClub: NextPageWithConfig = () => {
                 childClass="flex flex-col gap-4"
               >
                 {/* MEETING DATE AND INFORMATION */}
-                <InputLabel value="Meeting Location" required>
+                <InputLabel value="Meeting Location">
                   <Field name="meetingLocation" component={TextInput} placeholder="A101" />
                 </InputLabel>
-                <InputLabel value="Meeting Date and Time" required>
+                <InputLabel value="Meeting Date and Time">
                   <div className="flex items-start gap-2">
                     <InputLabel value="Days">
                       <Field name="meetingDays" component={TextInput} placeholder="Tuesday, Thursday" />
                     </InputLabel>
-                    <InputLabel value="Frequency" required>
+                    <InputLabel value="Frequency">
                       <Field name="meetingFrequency" component={TextInput} placeholder="Weekly" />
                     </InputLabel>
-                    <InputLabel value="Time" required>
+                    <InputLabel value="Time">
                       <Field name="meetingTime" component={TextInput} placeholder="7-8:30 PM" />
                     </InputLabel>
                   </div>
@@ -245,7 +243,7 @@ const AdminDashboardNewClub: NextPageWithConfig = () => {
                           name={platform}
                           component={TextInput}
                           placeholder={`${
-                            platform === "website" ? "https://www.dnhsengineering.com/" : "dnhsengineering"
+                            platform === "website" ? "https://www.school-engineering.com/" : "school-engineering"
                           }`}
                           accessory={socialMediaOptions[platform].icon}
                         />
@@ -257,12 +255,19 @@ const AdminDashboardNewClub: NextPageWithConfig = () => {
                 </InputLabel>
               </Page.Section>
               <Page.Section
-                title="Leadership and Members"
-                description="All members of the club and their roles"
+                title="Leadership Information"
+                description="Members in leadership positions for the club"
                 childClass="flex flex-col gap-4"
               >
                 <InputLabel value="Leadership" required>
-                  <Field name="president" component={TextInput} placeholder="First Last" accessory="President" />
+                  <Field name="advisor" required component={TextInput} placeholder="First Last" accessory="Advisor" />
+                  <Field
+                    name="president"
+                    required
+                    component={TextInput}
+                    placeholder="First Last"
+                    accessory="President"
+                  />
                   <Field
                     name="vicePresident"
                     component={TextInput}
@@ -271,7 +276,6 @@ const AdminDashboardNewClub: NextPageWithConfig = () => {
                   />
                   <Field name="secretary" component={TextInput} placeholder="First Last" accessory="Secretary" />
                   <Field name="treasurer" component={TextInput} placeholder="First Last" accessory="Treasurer" />
-                  <Field name="advisor" component={TextInput} placeholder="First Last" accessory="Advisor" />
                 </InputLabel>
               </Page.Section>
             </div>

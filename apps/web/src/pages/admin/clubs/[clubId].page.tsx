@@ -13,6 +13,7 @@ import { withUser } from "~/shared/utils";
 import { handleFormError, handleResponseError } from "~/lib/utils";
 import { DashboardContainer as Page, TextInput, InputLabel, FieldError, Tag, Button } from "~/shared/components";
 import { useGetClub } from "~/lib/queries";
+import { availabilityOptions } from "./new.page";
 
 type SupportedPlatforms = (typeof supportedPlatforms)[number];
 
@@ -61,18 +62,18 @@ const AdminDashboardClub: NextPageWithConfig = () => {
     tags: club?.tags.map((tag) => tag.name),
     availability: club?.availability,
     applicationLink: club?.applicationLink,
-    description: club?.description,
+    description: club?.description ?? undefined,
 
     president: club?.president,
-    vicePresident: club?.vicePresident,
-    secretary: club?.secretary,
-    treasurer: club?.treasurer,
+    vicePresident: club?.vicePresident ?? undefined,
+    secretary: club?.secretary ?? undefined,
+    treasurer: club?.treasurer ?? undefined,
     advisor: club?.advisor,
 
-    meetingFrequency: club?.meetingFrequency,
-    meetingTime: club?.meetingTime,
-    meetingDays: club?.meetingDays,
-    meetingLocation: club?.meetingLocation,
+    meetingFrequency: club?.meetingFrequency ?? undefined,
+    meetingTime: club?.meetingTime ?? undefined,
+    meetingDays: club?.meetingDays ?? undefined,
+    meetingLocation: club?.meetingLocation ?? undefined,
 
     contactEmail: club?.contactEmail,
     website: club?.website ?? undefined,
@@ -121,24 +122,6 @@ const AdminDashboardClub: NextPageWithConfig = () => {
     });
   };
 
-  const availabilityOptions = [
-    {
-      value: "OPEN",
-      description:
-        "An open availability for a club means that the club is open to anyone who wants to join. There are no requirements or restrictions on who can join.",
-    },
-    {
-      value: "APPLICATION",
-      description:
-        "An application availability for a club means interested users must fill out an application then be invited by the club president through their ccid.",
-    },
-    {
-      value: "CLOSED",
-      description:
-        "A closed availability for a club means that the club is not currently accepting new members. This could be because the club is full, or because it is not currently active.",
-    },
-  ];
-
   const socialMediaOptions: {
     [key in SupportedPlatforms]: { icon: IconType };
   } = {
@@ -167,7 +150,7 @@ const AdminDashboardClub: NextPageWithConfig = () => {
         enableReinitialize
       >
         {({ values, initialValues, touched, errors, dirty, isValid, isSubmitting, setFieldValue, setFieldTouched }) => (
-          <Form className="grid w-full grid-cols-1 gap-10 lg:grid-cols-2">
+          <Form placeholder="edit club" className="grid w-full grid-cols-1 gap-10 lg:grid-cols-2">
             <Page.Section
               title="General Club Information"
               description="Basic and required information for the club"
@@ -225,34 +208,43 @@ const AdminDashboardClub: NextPageWithConfig = () => {
                   <Field name="applicationLink" component={TextInput} placeholder="https://docs.google.com/forms/..." />
                 </InputLabel>
               ) : null}
-              <InputLabel value={`Tags (${values.tags.length}/3)`} edited={initialValues.tags !== values.tags}>
-                <div className="flex w-full flex-wrap items-center gap-2">
-                  {tagsQuery.data?.map(({ name: tag }) => (
-                    <Tag
-                      key={tag}
-                      name={tag}
-                      active={values.tags.includes(tag)}
-                      variant="inline"
-                      size="lg"
-                      onClick={() => {
-                        if (!touched?.tags) {
-                          setFieldTouched("tags", true);
-                        }
-                        if (values.tags.length >= 3 && !values.tags.includes(tag)) return;
-                        if (values.tags.includes(tag)) {
-                          setFieldValue(
-                            "tags",
-                            values.tags.filter((t) => t !== tag)
-                          );
-                        } else {
-                          setFieldValue("tags", [...values.tags, tag]);
-                        }
-                      }}
-                    />
-                  ))}
-                </div>
-                <FieldError touched={touched?.tags} error={errors?.tags} />
-              </InputLabel>
+              {/* had to declare value.tags as defined like 6 times... fix... */}
+              {values.tags !== undefined ? (
+                <InputLabel
+                  value={`Tags (${values.tags.length}/3)`}
+                  edited={JSON.stringify(initialValues.tags) !== JSON.stringify(values.tags)}
+                >
+                  <div className="flex w-full flex-wrap items-center gap-2">
+                    {tagsQuery.data?.map(({ name: tag }) =>
+                      values.tags ? (
+                        <Tag
+                          key={tag}
+                          name={tag}
+                          active={values.tags.includes(tag)}
+                          variant="inline"
+                          size="lg"
+                          onClick={() => {
+                            if (values.tags === undefined) return;
+                            if (!touched?.tags) {
+                              setFieldTouched("tags", true);
+                            }
+                            if (values.tags.length >= 3 && !values.tags.includes(tag)) return;
+                            if (values.tags.includes(tag)) {
+                              setFieldValue(
+                                "tags",
+                                values.tags.filter((t) => t !== tag)
+                              );
+                            } else {
+                              setFieldValue("tags", [...values.tags, tag]);
+                            }
+                          }}
+                        />
+                      ) : null
+                    )}
+                  </div>
+                  <FieldError touched={touched?.tags} error={errors?.tags} />
+                </InputLabel>
+              ) : null}
             </Page.Section>
             <div className="flex flex-col">
               <Page.Section
@@ -325,7 +317,7 @@ const AdminDashboardClub: NextPageWithConfig = () => {
                           name={platform}
                           component={TextInput}
                           placeholder={`${
-                            platform === "website" ? "https://www.dnhsengineering.com/" : "dnhsengineering"
+                            platform === "website" ? "https://www.school-engineering.com/" : "school-engineering"
                           }`}
                           accessory={socialMediaOptions[platform].icon}
                         />
@@ -337,8 +329,8 @@ const AdminDashboardClub: NextPageWithConfig = () => {
                 </InputLabel>
               </Page.Section>
               <Page.Section
-                title="Leadership and Members"
-                description="All members of the club and their roles"
+                title="Leadership Information"
+                description="Members in leadership positions for the club"
                 childClass="flex flex-col gap-4"
               >
                 <InputLabel

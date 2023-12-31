@@ -9,9 +9,19 @@ const handler: Controller<DeleteClub> = async (req, res) => {
   const { identifier } = req.params;
 
   try {
+    const existingClub = await prisma.club.findFirst({
+      //@ts-ignore
+      where: { [method]: identifier },
+      select: { school: { select: { name: true } } },
+    });
+
+    if (!existingClub) return error(StatusCodes.NOT_FOUND, "Club not found");
+    if (existingClub.school.name !== req.school)
+      return error(StatusCodes.FORBIDDEN, "You do not have permission to delete this club");
+
     const club = await prisma.club.findUnique({
       //@ts-ignore
-      where: { AND: { [method]: identifier, school: { name: req.school } } }, // todo: same issue as get club
+      where: { [method]: identifier }, // todo: same type issue as get club
       select: { id: true },
     });
 

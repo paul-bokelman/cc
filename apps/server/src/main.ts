@@ -59,7 +59,7 @@ app.use(async (req, res, next) => {
   if (!subdomains.includes(subdomain)) return error(400, "Invalid subdomain");
 
   const school = await prisma.school.findUnique({ where: { name: subdomain }, select: { name: true } });
-  if (!school) return error(400, "Invalid subdomain");
+  if (!school) return error(400, "School not found");
 
   req.school = school.name;
 

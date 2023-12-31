@@ -5,16 +5,23 @@
   "keywords": [],
   "license": "ISC",
   "author": "",
-  "main": "main.ts",
+  "main": "src/main.ts",
   "scripts": {
-    "build": "tsc -p tsconfig.json",
+    "dev": "ts-node -r tsconfig-paths/register ./src/main.ts",
+    "start": "node dist/main.js",
+    "watch": "nodemon ./src/main.ts",
+    "build": "tsup && tsc-alias -p tsconfig.json",
     "db:generate": "npx prisma generate",
     "db:push": "npx prisma db push",
-    "db:reset": "ts-node prisma/db.reset.ts",
-    "db:seed": "npx prisma db seed",
-    "dev": " ts-node -r tsconfig-paths/register ./src/main.ts",
-    "start": "node main.js",
-    "watch": "nodemon ./src/main.ts"
+    "db:seed": "ts-node prisma/db.seed.ts",
+    "db:reset": "npx prisma db push --force-reset && ts-node prisma/db.seed.ts",
+    "db:wipe": "npx prisma migrate reset --skip-seed",
+    "scripts:import": "ts-node ./scripts/import-data.ts",
+    "db:push:staging": "dotenv -e .env.staging.local -- npx prisma db push --force-reset",
+    "db:seed:staging": "dotenv -e .env.staging.local -- ts-node prisma/db.seed.ts",
+    "db:reset:staging": "npm run db:push:staging && npm run db:seed:staging",
+    "db:wipe:staging": "dotenv -e .env.staging.local -- npx prisma migrate reset --skip-seed",
+    "scripts:import:staging": "dotenv -e .env.staging.local -- ts-node ./scripts/import-data.ts"
   },
   "prisma": {
     "seed": "ts-node prisma/db.seed.ts"
@@ -33,6 +40,9 @@
   },
   "devDependencies": {
     "@faker-js/faker": "^8.1.0",
+    "@inquirer/prompts": "^3.3.0",
+    "@swc/cli": "^0.1.63",
+    "@swc/core": "^1.3.101",
     "@types/bcryptjs": "^2.4.6",
     "@types/body-parser": "^1.19.3",
     "@types/cookie-parser": "^1.4.6",
@@ -40,9 +50,13 @@
     "@types/express": "^4.17.19",
     "@types/node": "^20.8.4",
     "@types/ws": "^8.5.8",
+    "csv": "^6.3.6",
+    "dotenv-cli": "^7.3.0",
     "nodemon": "^3.0.1",
     "prisma": "^5.5.2",
+    "tsc-alias": "^1.8.8",
     "tsconfig-paths": "^4.2.0",
+    "tsup": "^8.0.1",
     "typescript": "^5.2.2"
   }
 }

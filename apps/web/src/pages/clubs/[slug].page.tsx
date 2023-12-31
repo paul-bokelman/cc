@@ -17,7 +17,7 @@ import {
 } from "react-icons/tb";
 import { Tag, Button, ClubCard, ClubCompassLogo } from "~/shared/components";
 import { useGetClub } from "~/lib/queries";
-import { handleResponseError } from "~/shared/utils";
+import { handleResponseError } from "~/lib/utils";
 
 const Club: NextPageWithConfig = () => {
   const router = useRouter();
@@ -145,7 +145,7 @@ const Club: NextPageWithConfig = () => {
       <div className="grid w-full grid-cols-1 items-start border-t border-b border-black-20 py-10 md:grid-cols-2 ">
         <div className="flex w-full flex-col items-center justify-center gap-6 md:w-3/4 md:items-start md:justify-start">
           <h2 className="text-xl font-semibold">Description</h2>
-          <p className="w-3/4 text-sm text-black-70 md:w-full">{cq.data.description}</p>
+          <p className="w-3/4 text-sm text-black-70 md:w-full">{cq.data.description || "No description"}</p>
         </div>
         <div className="mt-8 flex w-full flex-col items-center justify-center gap-6 md:mt-0 md:w-3/4 md:items-start md:justify-start">
           <h2 className="text-xl font-semibold">Leadership</h2>
@@ -153,8 +153,8 @@ const Club: NextPageWithConfig = () => {
             {Object.entries(leadership).map(([role, name]) => (
               <div key={name} className="flex">
                 <div className="flex flex-col gap-1">
-                  <span className="text-black-70">{name}</span>
                   <span className="text-xs italic text-black-50 capitalize">{role}</span>
+                  <span className="text-black-70">{name ?? "Not assigned"}</span>
                 </div>
               </div>
             ))}
@@ -172,10 +172,16 @@ const Club: NextPageWithConfig = () => {
           <h2 className="text-xl font-semibold">Meeting Information</h2>
           <div className="flex flex-col gap-2">
             <TextWithIcon
-              element={`${cq.data.meetingDays}, ${cq.data.meetingTime}, ${cq.data.meetingFrequency}`}
+              element={
+                !cq.data.meetingDays && !cq.data.meetingTime && !cq.data.meetingFrequency
+                  ? "Meeting dates not assigned"
+                  : `${cq.data.meetingDays || "N/A"}, ${cq.data.meetingTime || "N/A"}, ${
+                      cq.data.meetingFrequency || "N/A"
+                    }`
+              }
               icon={TbCalendarTime}
             />
-            <TextWithIcon element={cq.data.meetingLocation} icon={TbLocation} />
+            <TextWithIcon element={cq.data.meetingLocation || "Location not assigned"} icon={TbLocation} />
           </div>
         </div>
         <div className="mt-8 flex w-full flex-col items-center justify-center gap-6 md:mt-0 md:w-3/4 md:items-start md:justify-start">

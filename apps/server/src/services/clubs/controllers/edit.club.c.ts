@@ -12,9 +12,12 @@ const handler: Controller<EditClub> = async (req, res) => {
     //? ok for now since we only have one school have fields are still unique
     const existingClub = await prisma.club.findFirst({
       where: { [req.query.method]: req.params.identifier },
+      select: { name: true, school: { select: { name: true } } },
     });
 
     if (!existingClub) return error(StatusCodes.NOT_FOUND, "Club not found");
+    if (existingClub.school.name !== req.school)
+      return error(StatusCodes.FORBIDDEN, "You do not have permission to edit this club");
 
     // check if club name is taken
     if (club.name && existingClub && existingClub.name !== club.name) {
@@ -35,7 +38,7 @@ const handler: Controller<EditClub> = async (req, res) => {
     const { id } = await prisma.club.update({
       // todo: fix
       //@ts-ignore
-      where: { AND: { school: { name: req.school }, [req.query.method]: req.params.identifier } },
+      where: { [req.query.method]: req.params.identifier },
       data: {
         slug: club?.name ? generate.slug(club.name) : undefined,
         ...rest,

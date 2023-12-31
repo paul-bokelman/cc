@@ -9,7 +9,7 @@ import { TbX } from "react-icons/tb";
 import { useGetTags } from "~/lib/queries";
 import { Button, Switch, Tag } from "~/shared/components";
 import { useQ } from "~/shared/hooks";
-import { handleResponseError } from "~/shared/utils";
+import { handleResponseError } from "~/lib/utils";
 
 type ClubsFilterModalProps = BaseModalProps;
 

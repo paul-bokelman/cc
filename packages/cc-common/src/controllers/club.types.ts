@@ -64,13 +64,13 @@ export const newClubSchema = z.object({
       tags: z
         .string()
         .array() // should get all tags and check if they exist (names)
-        .max(3, "You can only select up to 3 tags")
-        .min(1, "You must select at least 1 tag"),
+        .min(1, "You must select at least 1 tag")
+        .max(3, "You can only select up to 3 tags"),
 
-      meetingFrequency: z.string(),
-      meetingTime: z.string(),
-      meetingDays: z.string(),
-      meetingLocation: z.string(),
+      meetingFrequency: z.string().optional(),
+      meetingTime: z.string().optional(),
+      meetingDays: z.string().optional(),
+      meetingLocation: z.string().optional(),
 
       contactEmail: z.string().email(),
       // check nonempty?
@@ -79,11 +79,20 @@ export const newClubSchema = z.object({
       twitter: z.string().optional().nullable(),
       website: z.string().optional().nullable(),
 
-      president: z.string().min(3, "Name must be at least 3 characters").pipe(nonempty),
-      vicePresident: z.string().min(3, "Name must be at least 3 characters").pipe(nonempty),
-      secretary: z.string().min(3, "Name must be at least 3 characters").pipe(nonempty),
-      treasurer: z.string().min(3, "Name must be at least 3 characters").pipe(nonempty),
       advisor: z.string().min(3, "Name must be at least 3 characters").pipe(nonempty),
+      president: z.string().min(3, "Name must be at least 3 characters").pipe(nonempty),
+      vicePresident: z
+        .union([z.string().length(0), z.string().min(3, "Name must be at least 3 characters")])
+        .optional()
+        .transform((e) => (e === "" ? null : e)),
+      secretary: z
+        .union([z.string().length(0), z.string().min(3, "Name must be at least 3 characters")])
+        .optional()
+        .transform((e) => (e === "" ? null : e)),
+      treasurer: z
+        .union([z.string().length(0), z.string().min(3, "Name must be at least 3 characters")])
+        .optional()
+        .transform((e) => (e === "" ? null : e)),
     })
     .superRefine((input, ctx) => {
       if (input.availability === "APPLICATION" && !input.applicationLink) {
@@ -109,13 +118,16 @@ export const editClubSchema = z.object({
         .max(50, "Club name cannot be longer than 50 characters")
         .min(3, "Club name must be at least 3 characters")
         .optional(),
-      description: z.string().min(10, "Club description must be at least 10 characters").optional(),
+      description: z
+        .union([z.string().length(0), z.string().min(3, "Club description must be at least 10 characters")])
+        .optional()
+        .transform((e) => (e === "" ? null : e)),
       availability: z.nativeEnum(Availability).optional(),
       applicationLink: z.string().optional().nullable(),
       tags: z
         .array(z.string())
         .max(3, "You can only select up to 3 tags")
-        .min(1, "You must select at least 1 tag")
+        // .min(1, "You must select at least 1 tag")
         .optional(),
 
       meetingFrequency: z.string().optional(),
@@ -129,11 +141,20 @@ export const editClubSchema = z.object({
       twitter: z.string().optional().nullable(),
       website: z.string().optional().nullable(),
 
-      president: z.string().min(3, "Name must be at least 3 characters").pipe(nonempty).optional(),
-      vicePresident: z.string().min(3, "Name must be at least 3 characters").pipe(nonempty).optional(),
-      secretary: z.string().min(3, "Name must be at least 3 characters").pipe(nonempty).optional(),
-      treasurer: z.string().min(3, "Name must be at least 3 characters").pipe(nonempty).optional(),
       advisor: z.string().min(3, "Name must be at least 3 characters").pipe(nonempty).optional(),
+      president: z.string().min(3, "Name must be at least 3 characters").pipe(nonempty).optional(),
+      vicePresident: z
+        .union([z.string().length(0), z.string().min(3, "Name must be at least 3 characters")])
+        .optional()
+        .transform((e) => (e === "" ? null : e)),
+      secretary: z
+        .union([z.string().length(0), z.string().min(3, "Name must be at least 3 characters")])
+        .optional()
+        .transform((e) => (e === "" ? null : e)),
+      treasurer: z
+        .union([z.string().length(0), z.string().min(3, "Name must be at least 3 characters")])
+        .optional()
+        .transform((e) => (e === "" ? null : e)),
     })
     .superRefine((input, ctx) => {
       if (!input) return;

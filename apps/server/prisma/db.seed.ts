@@ -1,19 +1,84 @@
 import { PrismaClient } from "@prisma/client";
-import { tags, generateClub, generateUser } from "./data";
+import select from "@inquirer/select";
+import { confirm } from "@inquirer/prompts";
+import { tags } from "./data";
+import { generateUser } from "./data/generate";
+import { get } from "./data/schools";
+
 export const prisma = new PrismaClient();
 
-export const allSchools = ["beckman", "school"];
+export const allSchools = process.env.SUBDOMAINS?.split(",") ?? [];
 
 async function main() {
-  await prisma.tag.createMany({ data: tags.map((tag) => ({ name: tag })), skipDuplicates: true });
+  const addTags = await confirm({ message: "Add tags?" });
 
-  for (const school of allSchools) {
-    await prisma.school.create({ data: { name: school } });
-    for (let i = 0; i < 10; i++) {
-      await prisma.club.create({ data: generateClub(school) });
-      await prisma.user.create({ data: await generateUser(school, i == 0 ? "ADMIN" : undefined) });
+  if (addTags) {
+    await prisma.tag.createMany({ data: tags.map((tag) => ({ name: tag })), skipDuplicates: true });
+  }
+
+  const choice = await select({
+    message: "Choose a seed option",
+    choices: [{ name: "all", value: "all" }, ...allSchools.map((school) => ({ title: school, value: school }))],
+  });
+
+  const addUsers = await confirm({ message: "Add users?" });
+  const generateDummyData = await confirm({ message: "Generate dummy data?" });
+
+  if (choice !== "all") {
+    const schoolExists = await prisma.school.findUnique({ where: { name: choice } });
+
+    if (schoolExists) {
+      const deleteSchool = await confirm({ message: "School already exists, reset clubs and users?" });
+      if (!deleteSchool) return process.exit(0);
     }
-    console.log("Generated data for:", school);
+
+    await prisma.club.deleteMany({ where: { school: { name: choice } } });
+    await prisma.user.deleteMany({ where: { school: { name: choice } } });
+    await prisma.school.deleteMany({ where: { name: choice } });
+    await prisma.school.create({ data: { name: choice } });
+
+    const key = (generateDummyData ? "school" : choice) as keyof typeof get;
+    const clubs = await get[key]();
+
+    for (const club of clubs) {
+      const exists = await prisma.club.findUnique({ where: { slug: club.slug } });
+      if (exists) {
+        console.log(`Club ${club.name} already exists, skipping...`);
+        continue;
+      }
+      await prisma.club.create({ data: club });
+    }
+
+    if (addUsers) {
+      for (let i = 0; i < 10; i++) {
+        await prisma.user.create({ data: await generateUser(choice, i == 0 ? "ADMIN" : undefined) });
+      }
+    }
+  }
+
+  if (choice === "all") {
+    const deleteAll = await confirm({ message: "Action will delete all, continue?" });
+
+    if (!deleteAll) return process.exit(0);
+
+    await prisma.club.deleteMany();
+    await prisma.user.deleteMany();
+    await prisma.school.deleteMany();
+
+    for (const school of allSchools) {
+      const key = (generateDummyData ? "school" : choice) as keyof typeof get;
+      const clubs = await get[key]();
+
+      for (const club of clubs) {
+        await prisma.club.create({ data: club });
+      }
+
+      if (addUsers) {
+        for (let i = 0; i < 10; i++) {
+          await prisma.user.create({ data: await generateUser(school, i == 0 ? "ADMIN" : undefined) });
+        }
+      }
+    }
   }
 }
 

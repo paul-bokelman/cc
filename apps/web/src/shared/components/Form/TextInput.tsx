@@ -4,7 +4,7 @@ import { useField } from "formik";
 import cn from "classnames";
 import { FieldError } from ".";
 
-type Props = { textArea?: boolean; accessory?: string | IconType } & FieldProps;
+type Props = { textArea?: boolean; accessory?: string | IconType; required?: boolean } & FieldProps;
 
 export const TextInput: React.FC<Props> = ({
   textArea,
@@ -35,7 +35,7 @@ export const TextInput: React.FC<Props> = ({
           {Accessory ? (
             <div
               style={{ borderRadius: "0.5rem 0 0 0.5rem" }}
-              className="flex h-full w-fit items-center justify-center border border-r-0 bg-gray-50 px-3 "
+              className="flex h-full w-fit items-center justify-center border border-r-0 bg-gray-50 px-3"
             >
               <span
                 className={cn(
@@ -47,6 +47,7 @@ export const TextInput: React.FC<Props> = ({
                 )}
               >
                 {!accessoryIsString ? <Accessory /> : Accessory}
+                {props.required && <span className="text-red-500 ml-1 relative bottom-1">*</span>}
               </span>
             </div>
           ) : null}

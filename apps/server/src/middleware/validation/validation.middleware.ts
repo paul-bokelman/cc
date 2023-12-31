@@ -1,3 +1,4 @@
+import { ControllerConfig } from "cc-common";
 import type { RequestHandler } from "express";
 import { StatusCodes } from "http-status-codes";
 import { type AnyZodObject, ZodError } from "zod";
@@ -12,7 +13,13 @@ export const validate = (schema: AnyZodObject): RequestHandler => {
   return async (req, res, next) => {
     const { error } = formatResponse(res);
     try {
-      await schema.parseAsync({ body: req.body, query: req.query, params: req.params });
+      const parsed = await schema.parseAsync({ body: req.body, query: req.query, params: req.params });
+
+      //? redefine because of zod transformations
+      req.query = parsed?.query;
+      req.params = parsed?.params;
+      req.body = parsed?.body;
+
       return next();
     } catch (e) {
       console.log(e);

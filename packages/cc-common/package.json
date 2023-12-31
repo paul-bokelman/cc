@@ -4,7 +4,10 @@
   "license": "MIT",
   "main": "./index.ts",
   "types": "./index.ts",
-  "scripts": {},
+  "scripts": {
+    "clean": "rm -rf turbo && rm -rf node_modules",
+    "lint": "eslint . --quiet"
+  },
   "dependencies": {
     "http-status-codes": "^2.3.0"
   },

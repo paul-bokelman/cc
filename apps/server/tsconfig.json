@@ -1,15 +1,30 @@
 {
   "compilerOptions": {
-    "target": "es2016",
-    "module": "NodeNext",
+    "allowJs": true,
+    "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
-    "moduleResolution": "NodeNext",
+    "incremental": true,
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "noImplicitAny": true,
+    "removeComments": true,
+    "resolveJsonModule": true,
     "skipLibCheck": true,
+    "sourceMap": true,
+    "target": "ES2022",
+
     "strict": true,
     "outDir": "dist",
+    "baseUrl": ".",
+    "jsx": "react",
     "paths": {
       "~/*": ["./src/*"]
     }
+  },
+  "include": ["."],
+  "exclude": ["dist", "build"],
+  "ts-node": {
+    "swc": true
   }
 }

@@ -2,11 +2,11 @@ import type { FC } from "react";
 import type { Children } from "~/shared/types";
 import type { AuthenticatedUser } from "cc-common";
 import { createContext, useContext, useEffect, useMemo } from "react";
-import { useQueryClient } from "react-query";
-import { useGetUser, useLogout } from "~/lib/queries";
 import { useRouter } from "next/router";
+import { useQueryClient } from "react-query";
 import { toast } from "react-hot-toast";
-import { handleResponseError } from "../utils";
+import { useGetUser, useLogout } from "~/lib/queries";
+import { handleResponseError } from "~/lib/utils";
 
 interface AuthContext {
   user: AuthenticatedUser | null;
