@@ -32,6 +32,7 @@ const Club: NextPageWithConfig = () => {
     { enabled: !!router.query.slug, onError: (e) => handleResponseError(e, "Unable to fetch club") }
   );
 
+  const hasApplicationLink = cq.data?.applicationLink !== null;
   // check if error is 404, if so club doesn't exist!
 
   if (cq.status !== "success") {
@@ -122,6 +123,7 @@ const Club: NextPageWithConfig = () => {
             ) : null}
           </div>
         </div>
+
         <div className="mt-6 flex items-center gap-2 md:mt-0">
           <Button
             variant="secondary"
@@ -134,11 +136,11 @@ const Club: NextPageWithConfig = () => {
             Share
           </Button>
           {/* students can't join clubs yet so they can only apply */}
-          {cq.data.availability === "APPLICATION" && cq.data.applicationLink ? (
-            <Button variant="primary" link external href={cq.data.applicationLink}>
+          {hasApplicationLink && (
+            <Button variant="primary" disabled={!hasApplicationLink} link external href={cq.data.applicationLink ?? ""}>
               Apply
             </Button>
-          ) : null}
+          )}
         </div>
       </div>
       {/* DESCRIPTION AND MEMBERS */}
@@ -186,6 +188,18 @@ const Club: NextPageWithConfig = () => {
         </div>
         <div className="mt-8 flex w-full flex-col items-center justify-center gap-6 md:mt-0 md:w-3/4 md:items-start md:justify-start">
           <h2 className="text-xl font-semibold">Contact Information</h2>
+          {/* No application link alert */}
+          {!hasApplicationLink && (
+            <div className="p-3 flex gap-2 border border-black-20 rounded-lg">
+              <TbMail className="text-blue-60 text-xl" />
+              <div className="flex flex-col relative">
+                <span className="relative -top-0.5">Interested in joining this club?</span>
+                <p className="text-xs italic text-black-50">
+                  Email the club president at <span className="font-semibold text-black">{cq.data.contactEmail}</span>!
+                </p>
+              </div>
+            </div>
+          )}
           <div className="flex flex-col gap-2">
             <TextWithIcon element={cq.data.contactEmail} icon={TbMail} />
             {media.map((m) => (

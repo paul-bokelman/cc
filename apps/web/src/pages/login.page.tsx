@@ -6,7 +6,7 @@ import { type FormikHelpers, Formik, Form, Field } from "formik";
 import { toast } from "react-hot-toast";
 import { toFormikValidationSchema } from "zod-formik-adapter";
 import { useLogin } from "~/lib/queries";
-import { handleFormError } from "~/shared/utils";
+import { handleFormError } from "~/lib/utils";
 import { Button, FieldError, InputLabel, TextInput, Logo, ClubCompassLogo } from "~/shared/components";
 
 const LoginPage: NextPageWithConfig = () => {
@@ -22,10 +22,7 @@ const LoginPage: NextPageWithConfig = () => {
     },
   });
 
-  const handleSubmit = async (
-    values: Login["body"],
-    { setFieldError }: FormikHelpers<Login["body"]>
-  ): Promise<void> => {
+  const handleSubmit = async (values: Login["body"], { setFieldError }: FormikHelpers<Login["body"]>) => {
     try {
       await loginMutation.mutateAsync({ body: values, params: undefined, query: undefined });
     } catch (e) {
@@ -51,7 +48,7 @@ const LoginPage: NextPageWithConfig = () => {
               validationSchema={toFormikValidationSchema(loginSchema.shape.body)}
             >
               {({ isSubmitting, isValid, dirty }) => (
-                <Form className="flex flex-col gap-4 w-full">
+                <Form placeholder="login" className="flex flex-col gap-4 w-full">
                   <InputLabel value="Username">
                     <Field name="username" component={TextInput} placeholder="Jennifer27" />
                   </InputLabel>

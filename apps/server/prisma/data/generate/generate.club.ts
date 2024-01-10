@@ -20,7 +20,8 @@ const maybe = <T>(d: T): undefined | T => {
 export const generateClub = (school: string): Prisma.ClubCreateInput => {
   const name = faker.company.name();
   const slug = generateSlug(name);
-  const availability = faker.helpers.arrayElement(availabilityOptions);
+  // const availability = faker.helpers.arrayElement(availabilityOptions);
+  const availability = Availability.OPEN; // only open for now
 
   const club_type = faker.helpers.arrayElement(Object.keys(ClubType));
   const club_status =
@@ -42,7 +43,8 @@ export const generateClub = (school: string): Prisma.ClubCreateInput => {
     vicePresident: maybe(faker.person.fullName()),
     treasurer: maybe(faker.person.fullName()),
     secretary: maybe(faker.person.fullName()),
-    applicationLink: availability === "APPLICATION" ? faker.internet.url() : null,
+    applicationLink: faker.datatype.boolean() ? faker.internet.url() : null,
+    // applicationLink: availability === "APPLICATION" ? faker.internet.url() : null,
     meetingDays: maybe(
       Array.from({ length: 2 })
         .map((_) => faker.date.weekday())

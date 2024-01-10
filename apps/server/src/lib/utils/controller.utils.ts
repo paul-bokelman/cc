@@ -5,8 +5,10 @@ import { Prisma } from "@prisma/client";
 import { StatusCodes } from "http-status-codes";
 import type { GenerateSessionPayload } from "~/lib/session";
 
-export const handleControllerError = (e: unknown, res: Response) => {
+export const handleControllerError = (e: unknown, res: Response, message?: string) => {
   const { error } = formatResponse(res as Response<ServerError>);
+
+  if (message) return error(StatusCodes.INTERNAL_SERVER_ERROR, message);
 
   if (e instanceof Prisma.PrismaClientKnownRequestError || e instanceof Error) {
     return error(StatusCodes.INTERNAL_SERVER_ERROR, `Unhandled Exception: ${e.message}`);

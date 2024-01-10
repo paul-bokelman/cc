@@ -38,6 +38,7 @@ async function main() {
     await prisma.school.create({ data: { name: choice } });
 
     const key = (generateDummyData ? "school" : choice) as keyof typeof get;
+
     const clubs = await get[key]();
 
     for (const club of clubs) {
@@ -66,10 +67,17 @@ async function main() {
     await prisma.school.deleteMany();
 
     for (const school of allSchools) {
-      const key = (generateDummyData ? "school" : choice) as keyof typeof get;
+      await prisma.school.create({ data: { name: school } });
+
+      const key = (generateDummyData ? "school" : school) as keyof typeof get;
       const clubs = await get[key]();
 
       for (const club of clubs) {
+        const exists = await prisma.club.findUnique({ where: { slug: club.slug } });
+        if (exists) {
+          console.log(`Club ${club.name} already exists, skipping...`);
+          continue;
+        }
         await prisma.club.create({ data: club });
       }
 
