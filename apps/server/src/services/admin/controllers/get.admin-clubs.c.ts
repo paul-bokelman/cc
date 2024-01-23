@@ -20,13 +20,22 @@ const handler: Controller<GetAdminClubs> = async (req, res) => {
         advisor: true,
         availability: true,
         tags: true,
+        status: true,
       },
       orderBy: { updatedAt: "desc" },
     });
 
-    const totalClubs = await prisma.club.count();
+    const totalClubs = await prisma.club.count({ where: { school: { name: req.school } } });
 
-    const percentageOfOpenClubs = (await prisma.club.count({ where: { availability: "OPEN" } })) / totalClubs;
+    const percentageOfOpenClubs =
+      (await prisma.club.count({
+        where: {
+          AND: {
+            school: { name: req.school },
+            availability: "OPEN",
+          },
+        },
+      })) / totalClubs;
 
     return success(StatusCodes.OK, {
       clubs,

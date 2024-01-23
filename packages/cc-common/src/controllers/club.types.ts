@@ -9,7 +9,7 @@ export const clubIdentifierMethods = ["slug", "id", "name"] as const;
 export type GetClubs = ToControllerConfig<
   typeof getClubsSchema,
   Array<
-    Pick<Club, "id" | "name" | "slug" | "description" | "availability"> & {
+    Pick<Club, "id" | "name" | "slug" | "description" | "availability" | "status"> & {
       tags: (Tag & { active: boolean })[];
     }
   >

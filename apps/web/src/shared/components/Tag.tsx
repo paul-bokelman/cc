@@ -10,7 +10,7 @@ import {
   TbButterfly,
   TbFriends,
   TbHeartHandshake,
-  TbQuestionMark,
+  TbTag,
 } from "react-icons/tb";
 
 type Props = {
@@ -18,8 +18,8 @@ type Props = {
   size?: "sm" | "md" | "lg";
   name: string; // one of defined tags
   active: boolean;
+  className?: string;
   onClick?: () => void;
-  parentStyles?: string;
 };
 
 export type TagNames = (typeof registeredTagNames)[number];
@@ -52,8 +52,8 @@ export const tags: Tags = {
 
 // CLEAN THIS UP
 
-export const Tag: React.FC<Props> = ({ variant, size = "sm", name, active, onClick }) => {
-  const tag = tags[name as keyof Tags] ?? { icon: TbQuestionMark };
+export const Tag: React.FC<Props> = ({ variant, size = "sm", name, active, className, onClick }) => {
+  const tag = tags[name as keyof Tags] ?? { icon: TbTag };
   if (variant === "filter") {
     return (
       <div
@@ -108,12 +108,7 @@ export const Tag: React.FC<Props> = ({ variant, size = "sm", name, active, onCli
   }
 
   if (variant === "icon") {
-    return (
-      <div className="flex h-10 w-10 items-center justify-center gap-1 rounded-lg border bg-white px-1.5 py-0.5">
-        <tag.icon className="stroke-2 text-2xl" />
-      </div>
-    );
+    return <tag.icon className={className} />;
   }
-
   throw new Error("Invalid variant");
 };

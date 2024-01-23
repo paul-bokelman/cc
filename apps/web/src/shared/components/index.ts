@@ -10,4 +10,5 @@ export * from "./ClubCard";
 export * from "./Modal";
 export * from "./DropdownMenu";
 export * from "./Utils";
+export * from "./Pill";
 export * from "./icons";

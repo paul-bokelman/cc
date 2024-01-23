@@ -101,9 +101,7 @@ export const StandardLayout: React.FC<Props> = ({ config, children }) => {
                   <span className="text-sm">Report a Bug</span>
                 </div>
               </div>
-              {user && <Avatar user={user} className="w-9 h-9" />}
-              {/* disabled until phase 2 */}
-              {/* {user ? (
+              {user ? (
                 <div>
                   <Avatar user={user} className="w-9 h-9" />
                 </div>
@@ -116,7 +114,7 @@ export const StandardLayout: React.FC<Props> = ({ config, children }) => {
                     Sign Up
                   </Button>
                 </>
-              )} */}
+              )}
             </div>
 
             <div className="flex md:hidden justify-end">

@@ -13,13 +13,21 @@ async function main() {
   const addTags = await confirm({ message: "Add tags?" });
 
   if (addTags) {
+    await prisma.tag.deleteMany();
     await prisma.tag.createMany({ data: tags.map((tag) => ({ name: tag })), skipDuplicates: true });
+    console.log("Added tags");
   }
 
   const choice = await select({
-    message: "Choose a seed option",
-    choices: [{ name: "all", value: "all" }, ...allSchools.map((school) => ({ title: school, value: school }))],
+    message: "Choose a school",
+    choices: [
+      { name: "all", value: "all" },
+      ...allSchools.map((school) => ({ title: school, value: school })),
+      { name: "exit", value: "exit" },
+    ],
   });
+
+  if (choice === "exit") return process.exit(0);
 
   const addUsers = await confirm({ message: "Add users?" });
   const generateDummyData = await confirm({ message: "Generate dummy data?" });

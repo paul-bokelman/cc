@@ -1,11 +1,11 @@
 import type { NextPageWithConfig } from "~/shared/types";
 import type { GetAdminClubs } from "cc-common";
 import Link from "next/link";
-import { TbPlus, TbFileText, TbUserCheck, TbUserX } from "react-icons/tb";
+import { TbPlus, TbFileText, TbUserCheck, TbUserX, TbTag } from "react-icons/tb";
 import { useGetAdminClubs } from "~/lib/queries";
 import { handleResponseError } from "~/lib/utils";
 import { withUser } from "~/shared/utils";
-import { tags as tagList, DashboardContainer as Page, Button } from "~/shared/components";
+import { DashboardContainer as Page, Button, Pill } from "~/shared/components";
 
 const AdminDashboardClubs: NextPageWithConfig = () => {
   const adminClubsQuery = useGetAdminClubs(
@@ -79,15 +79,15 @@ const DashboardClubCard: React.FC<DashboardClubCardProps> = (club) => {
     CLOSED: TbUserX,
   };
 
-  const joiningInformation = [
+  const additionalInformation = [
     {
       icon: availabilityIcons[club.availability],
       value: club.availability.toLowerCase(),
     },
-    // {
-    //   icon: TbUser,
-    //   value: members.total,
-    // },
+    {
+      icon: TbTag,
+      value: club.tags.length === 0 ? "No tags" : club.tags.map((tag) => tag.name).join(", "),
+    },
   ];
 
   return (
@@ -103,25 +103,17 @@ const DashboardClubCard: React.FC<DashboardClubCardProps> = (club) => {
       </div>
 
       <div className="mt-2 flex items-center gap-4">
-        {joiningInformation.map((info) => {
-          if (!info) return null;
-          return (
-            <div key={info.value} className="flex items-center gap-1">
-              <info.icon className="text-lg text-black" />
-              <span className="text-xs capitalize text-black-60">{info.value}</span>
-            </div>
-          );
-        })}
+        {additionalInformation.map((info) => (
+          <div key={info.value} className="flex items-center gap-1">
+            {info.icon && <info.icon className="text-lg text-black" />}
+            <span className="text-xs capitalize text-black-60">{info.value}</span>
+          </div>
+        ))}
       </div>
 
       <div className="mt-3 mb-2 h-[1px] w-full bg-black-20" />
-      <div className="flex w-full items-center justify-between">
-        <div className="flex items-center gap-2">
-          {club.tags.map(({ name }) => {
-            const Icon = tagList[name as keyof typeof tagList].icon;
-            return <Icon key={name} className="text-lg texPt-black" />;
-          })}
-        </div>
+      <div className="flex items-center w-full justify-between">
+        <Pill type="status" status={club.status} />
         <div className="flex items-center gap-2">
           <Link href={`/clubs/${club.slug}`}>
             <Button variant="secondary" size="small">

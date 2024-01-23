@@ -49,6 +49,12 @@ export const AuthProvider: FC<{ children: Children }> = ({ children }) => {
     const unauthorized = router.query?.unauthorized as string | undefined;
     const callbackURL = router.query?.callbackURL as string | undefined;
     if (unauthorized) {
+      // kinda hacky... (logout from other tab)
+      if (decodeURI(unauthorized).trim() === "Failed to get session" && user !== null) {
+        (async () => {
+          await queryClient.resetQueries({ queryKey: ["user"] });
+        })();
+      }
       const url = callbackURL ? `${router.pathname}?callbackURL=${callbackURL}` : router.pathname;
       toast.error(`Unauthorized: ${decodeURI(unauthorized)}`);
       router.replace(url, undefined, { shallow: true });

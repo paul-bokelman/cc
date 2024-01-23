@@ -6,7 +6,9 @@ import * as z from "zod";
 export type GetAdminClubs = ToControllerConfig<
   typeof getAdminClubsSchema,
   {
-    clubs: Array<Pick<Club, "id" | "name" | "advisor" | "president" | "availability" | "slug"> & { tags: Array<Tag> }>;
+    clubs: Array<
+      Pick<Club, "id" | "name" | "advisor" | "president" | "availability" | "slug" | "status"> & { tags: Array<Tag> }
+    >;
     overview: {
       totalClubs: number;
       totalMembersInClubs: number;

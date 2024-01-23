@@ -1,5 +1,5 @@
 import type { GetClubs } from "cc-common";
-import { Button } from "~/shared/components";
+import { Button, Pill } from "~/shared/components";
 import Link from "next/link";
 import { TbUserCheck, TbFileText, TbUserX } from "react-icons/tb";
 import { Tag } from "~/shared/components";
@@ -29,22 +29,15 @@ export const ClubCard: React.FC<ClubCardProps> = (club) => {
         <div className="mt-3 mb-2 h-[1px] w-full bg-black-20" />
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
+            <Pill type="status" status={club.status} />
             {club.availability === "OPEN" || club.availability === "APPLICATION" ? (
-              <TbUserCheck className="text-xl text-blue-60" />
+              <TbUserCheck className="text-xl text-black-60" />
             ) : null}
             {club.availability === "APPLICATION" ? <TbFileText className="text-xl text-black-60" /> : null}
-            {club.availability === "CLOSED" ? <TbUserX className="text-xl text-red-60" /> : null}
+            {club.availability === "CLOSED" ? <TbUserX className="text-xl text-black-60" /> : null}
           </div>
           <Link href={`/clubs/${club.slug}`}>
-            <Button
-              style={{
-                height: "32px",
-                paddingLeft: "12px",
-                paddingRight: "12px",
-                fontSize: "12px",
-              }}
-              variant="secondary"
-            >
+            <Button size="small" variant="secondary">
               Learn More
             </Button>
           </Link>

@@ -15,7 +15,7 @@ import {
   TbBrandTwitter,
   TbMoodConfuzed,
 } from "react-icons/tb";
-import { Tag, Button, ClubCard, ClubCompassLogo } from "~/shared/components";
+import { Tag, Button, ClubCard, ClubCompassLogo, Pill } from "~/shared/components";
 import { useGetClub } from "~/lib/queries";
 import { handleResponseError } from "~/lib/utils";
 
@@ -31,6 +31,15 @@ const Club: NextPageWithConfig = () => {
     },
     { enabled: !!router.query.slug, onError: (e) => handleResponseError(e, "Unable to fetch club") }
   );
+
+  const formatMeetingInfo = (days: string | null, time: string | null, frequency: string | null) => {
+    if (!days && !time && !frequency) return "Meeting dates not assigned";
+
+    const formattedDays = days ? (days.includes(",") ? days.split(",").join(", ") : days) : "N/A";
+    const formattedTime = time || "N/A";
+    const formattedFrequency = frequency || "N/A";
+    return `${formattedDays}; ${formattedTime}; ${formattedFrequency}`;
+  };
 
   const hasApplicationLink = cq.data?.applicationLink !== null;
   // check if error is 404, if so club doesn't exist!
@@ -109,6 +118,7 @@ const Club: NextPageWithConfig = () => {
             ))}
           </div>
           <div className="flex items-center gap-3">
+            <Pill type="status" status={cq.data.status} />
             {cq.data.availability === "OPEN" || cq.data.availability === "APPLICATION" ? (
               <div className="flex items-center gap-1">
                 <TbUserCheck className="text-xl text-black" />
@@ -174,13 +184,7 @@ const Club: NextPageWithConfig = () => {
           <h2 className="text-xl font-semibold">Meeting Information</h2>
           <div className="flex flex-col gap-2">
             <TextWithIcon
-              element={
-                !cq.data.meetingDays && !cq.data.meetingTime && !cq.data.meetingFrequency
-                  ? "Meeting dates not assigned"
-                  : `${cq.data.meetingDays || "N/A"}, ${cq.data.meetingTime || "N/A"}, ${
-                      cq.data.meetingFrequency || "N/A"
-                    }`
-              }
+              element={formatMeetingInfo(cq.data.meetingDays, cq.data.meetingTime, cq.data.meetingFrequency)}
               icon={TbCalendarTime}
             />
             <TextWithIcon element={cq.data.meetingLocation || "Location not assigned"} icon={TbLocation} />
@@ -224,7 +228,11 @@ const Club: NextPageWithConfig = () => {
               <ClubCard key={cq.data.name} {...club} tags={tags.map((tag) => ({ ...tag, active: false }))} />
             ))
           ) : (
-            <p className="text-sm text-black-60">Could not find any similar clubs</p>
+            <p className="text-sm text-black-60">
+              {cq.data.tags.length === 0
+                ? "Club has no tags, no similar clubs found"
+                : "Could not find any similar clubs"}
+            </p>
           )}
         </div>
       </div>

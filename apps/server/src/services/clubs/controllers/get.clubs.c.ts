@@ -30,6 +30,7 @@ const handler: Controller<GetClubs> = async (req, res) => {
         description: true,
         availability: true,
         tags: true,
+        status: true,
       },
       orderBy: {
         name: sort === "name-asc" ? "asc" : sort === "name-desc" ? "desc" : undefined,

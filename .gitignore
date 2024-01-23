@@ -41,3 +41,4 @@ yarn-error.log*
 .vercel
 
 # apps/server/prisma/data/schools/beckman
+apps/server/.vscode/settings.json
