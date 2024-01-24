@@ -1,0 +1,11 @@
+[build]
+builder = "NIXPACKS"
+buildCommand = "turbo build --filter=server"
+watchPatterns = ["/apps/server/**,/packages/cc-common/**"]
+
+[deploy]
+numReplicas = 1
+startCommand = "cd apps/server/ && npm run start"
+sleepApplication = false
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 10
