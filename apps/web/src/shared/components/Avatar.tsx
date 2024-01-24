@@ -3,7 +3,7 @@ import type { AuthenticatedUser } from "cc-common";
 import cn from "classnames";
 
 type Props = {
-  user: AuthenticatedUser;
+  user: AuthenticatedUser | null;
   className?: React.ComponentProps<"div">["className"];
 };
 
@@ -14,7 +14,7 @@ export const Avatar: React.FC<Props> = ({ user, className }) => {
         <Image src={user.avatar} width={48} height={48} alt="avatar" className="h-full w-full rounded-full" />
       ) : (
         <div className="flex justify-center p-2 items-center h-full w-full rounded-full bg-black-20 text-black capitalize">
-          {user?.username[0]}
+          {user ? user?.username[0] : "?"}
         </div>
       )}
     </div>

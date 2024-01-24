@@ -26,7 +26,7 @@ type DashboardLink = {
   disabled?: boolean;
 };
 
-export const DashboardLayout: React.FC<Props> = ({ config, children }) => {
+export const DashboardLayout: React.FC<Props> = ({ children }) => {
   const router = useRouter();
   const { user, logout } = useAuthContext();
 
@@ -64,7 +64,7 @@ export const DashboardLayout: React.FC<Props> = ({ config, children }) => {
           <div className="h-[1px] w-12 bg-black-20" />
           <div className="flex h-full flex-col justify-between">
             <div className="flex flex-col gap-1">
-              {links.map((link, i) => (
+              {links.map((link) => (
                 <SidebarItem
                   key={link.label}
                   {...link}
@@ -73,7 +73,7 @@ export const DashboardLayout: React.FC<Props> = ({ config, children }) => {
               ))}
             </div>
             <div className="flex flex-col gap-1">
-              {standardLinks.map((link, i) => (
+              {standardLinks.map((link) => (
                 <SidebarItem key={link.label} {...link} active={router.pathname.includes(link.dest)} />
               ))}
             </div>

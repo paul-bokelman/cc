@@ -106,12 +106,12 @@ export const ClubSearchModal: React.FC<ClubSearchModalProps> = ({ isOpen, clubs,
                           )}
                         >
                           <div className="flex items-start gap-3">
-                            <Tag name={club.tags[0]!} active={false} variant="icon" />
+                            <Tag name={club.tags[0].name!} active={false} variant="icon" />
                             <div className="-mt-1 flex flex-col">
                               <p className="text-lg font-medium text-black">{club.name}</p>
                               <p className="w-3/4 text-sm text-black-40">
-                                {club.description.length > 140
-                                  ? `${club.description.substring(0, 140)}...`
+                                {club.description?.length && club?.description?.length > 140
+                                  ? `${club.description?.substring(0, 140)}...`
                                   : club.description}
                               </p>
                             </div>

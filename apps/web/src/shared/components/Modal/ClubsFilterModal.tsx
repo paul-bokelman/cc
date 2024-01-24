@@ -14,7 +14,7 @@ import { handleResponseError } from "~/lib/utils";
 type ClubsFilterModalProps = BaseModalProps;
 
 export const ClubsFilterModal: React.FC<ClubsFilterModalProps> = ({ isOpen, closeModal }) => {
-  const { query, append: appendToQuery } = useQ<GetClubs["query"]>();
+  const { query, append: appendToQuery, clear: clearQuery } = useQ<GetClubs["query"]>();
   const [selectedAvailabilities, setSelectedAvailabilities] = useState<Availability[]>([]);
   const [selectedTags, setSelectedTags] = useState<string[]>(query?.filter?.tags ?? []);
   const [tagFilteringMethod, setTagFilteringMethod] = useState<"exclusive" | "inclusive">(
@@ -53,7 +53,8 @@ export const ClubsFilterModal: React.FC<ClubsFilterModalProps> = ({ isOpen, clos
     setSelectedTags([]);
     setTagFilteringMethod("inclusive");
     setSelectedAvailabilities([]);
-    appendToQuery({ filter: null });
+    // appendToQuery({ filter: null });
+    clearQuery("filter");
     closeModal(); // should close?
   };
 

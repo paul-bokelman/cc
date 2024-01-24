@@ -119,7 +119,7 @@ export const DashboardNavigation: React.FC<DashboardNavigationProps> = ({ links 
 
   useEffect(() => {
     const link = links.find((link) => link.active);
-    if (link.query) {
+    if (link?.query) {
       router.push({ query: { ...router.query, location: link.query } }, undefined, { shallow: true });
     }
   }, []);

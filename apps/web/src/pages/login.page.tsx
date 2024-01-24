@@ -35,7 +35,7 @@ const LoginPage: NextPageWithConfig = () => {
       <div className="flex w-full justify-center items-center">
         <div className="w-[30rem] grid grid-rows-[180px_1fr_1fr] py-8 h-screen">
           <div className="flex items-center">
-            <Logo withText />
+            <Logo withText beta />
           </div>
           <div className="flex flex-col gap-6">
             <div className="flex flex-col gap-4">

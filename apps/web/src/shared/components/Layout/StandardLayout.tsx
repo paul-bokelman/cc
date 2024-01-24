@@ -19,7 +19,7 @@ export type StandardLayoutConfig = {
 
 type Props = { config: StandardLayout["config"] } & { children: Children };
 
-export const StandardLayout: React.FC<Props> = ({ config, children }) => {
+export const StandardLayout: React.FC<Props> = ({ children }) => {
   const [menuOpen, setMenuOpen] = useState<boolean>(false);
   const router = useRouter();
   const { user } = useAuthContext();
