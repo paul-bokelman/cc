@@ -1,7 +1,7 @@
 [build]
 builder = "NIXPACKS"
 buildCommand = "turbo build --filter=server"
-watchPatterns = ["/apps/server/**,/packages/cc-common/**"]
+watchPatterns = ["!/apps/web/**"]
 
 [deploy]
 numReplicas = 1
