@@ -144,7 +144,7 @@ const getBeckmanClubs = async (): Promise<typeof beckman_clubs> => {
   });
 };
 
-export const getTestClubs = async (school: string = "school") => {
+export const getTestClubs = async (school: string = "staging") => {
   const test_clubs: Prisma.ClubCreateInput[] = [];
   for (let i = 0; i < 10; i++) {
     test_clubs.push(generateClub(school));
@@ -155,5 +155,5 @@ export const getTestClubs = async (school: string = "school") => {
 
 export const get = {
   beckman: getBeckmanClubs,
-  school: getTestClubs,
+  staging: getTestClubs,
 };
