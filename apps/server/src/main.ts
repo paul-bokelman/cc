@@ -29,45 +29,49 @@ client.on("connect", () => console.log("Redis client connected"));
 
 export const app: Express = express();
 
-app.set("subdomain offset", isProduction ? 2 : 1);
+app.set("subdomain offset", 2);
 
 app.use(bodyParser.json());
 app.use(cookies());
 app.use(cors({ origin: true, credentials: true }));
 
-//? Is this needed?
-// app.options("/*", function (req, res, next) {
-//   // catch options
-//   res.header("Access-Control-Allow-Origin", "*");
-//   res.header("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,OPTIONS");
-//   res.header("Access-Control-Allow-Headers", "Content-Type, *");
-//   res.header("Access-Control-Allow-Credentials", "true");
-//   res.send(200);
-// });
-
 const subdomains = env("SUBDOMAINS").split(","); // should come from db?
 
 // reject invalid subdomains
+// app.use(async (req, res, next) => {
+//   const { error } = formatResponse(res);
+
+//   if (req.subdomains.length === 0) return error(400, "No subdomains");
+//   if (req.subdomains.length !== 1) return error(400, "Too many subdomains");
+
+//   const subdomain = req.subdomains[0];
+
+//   if (!subdomains.includes(subdomain)) return error(400, "Invalid subdomain");
+
+//   const school = await prisma.school.findUnique({ where: { name: subdomain }, select: { name: true } });
+//   if (!school) return error(400, "School not found");
+
+//   req.school = school.name;
+
+//   next();
+// });
+
 app.use(async (req, res, next) => {
+  // get school from first route param (e.g. /:school/users)
   const { error } = formatResponse(res);
+  const school = req.path.split("/")[1];
+  if (!school) return error(400, "No school");
+  if (!subdomains.includes(school)) return error(400, "Invalid school");
 
-  if (req.subdomains.length === 0) return error(400, "No subdomains");
-  if (req.subdomains.length !== 1) return error(400, "Too many subdomains");
-
-  const subdomain = req.subdomains[0];
-
-  if (!subdomains.includes(subdomain)) return error(400, "Invalid subdomain");
-
-  const school = await prisma.school.findUnique({ where: { name: subdomain }, select: { name: true } });
-  if (!school) return error(400, "School not found");
-
-  req.school = school.name;
+  req.school = school;
 
   next();
 });
 
-app.use(isProduction ? "/" : "/api", services);
+app.use("/:school/", services);
 
 const port = env("PORT") || 8000;
 
-app.listen(port, () => console.log(isProduction ? `\n${env("SERVER_URL")}` : `\nServer: http://localhost:${port} 🚀`));
+app.listen(port, () =>
+  console.log(isProduction ? `\n${env("SERVER_URL")}` : `\nServer: http://api.localhost:${port} 🚀`)
+);

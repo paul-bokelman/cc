@@ -9,6 +9,7 @@ import { QueryClient } from "react-query";
 import type { ControllerConfig, ServerError } from "cc-common";
 import axios, { type AxiosError } from "axios";
 import qs from "qs";
+import { parseSubdomain } from "~/lib/utils";
 
 // todo: restructure file, it's a mess
 
@@ -36,31 +37,18 @@ export type MutationHook<C extends ControllerConfig> = (
   options?: UseMutationOptions<C["payload"], Error, Omit<C, "payload">>
 ) => UseMutationResult<C["payload"], Error, Omit<C, "payload">>;
 
-export const appendSubdomain = (subdomain: string | "current", base: "client" | "server"): string => {
-  if (typeof window === "undefined") return "";
-  const url = new URL(
-    base === "server" ? (process.env.NEXT_PUBLIC_SERVER_URL as string) : (process.env.NEXT_PUBLIC_CLIENT_URL as string)
-  );
-
-  if (subdomain === "current") {
-    subdomain = location.hostname.split(".")[0].replace(location.protocol, "");
-  }
-
-  const host = `${subdomain}.${url.host}`;
-
-  return url.href.replace(url.host, host);
-};
-
 axios.defaults.withCredentials = true; //? remove `defaultHeaders` if works
-
 const defaultHeaders = { withCredentials: true, headers: { "Content-Type": "application/json" } };
 
+// baseUrl computation is really weird here, but it works so I'm not touching it
 export const client = axios.create({
-  baseURL: appendSubdomain("current", "server"), //! needs to be tested more
+  baseURL: `/api/${(() => {
+    const p = parseSubdomain();
+    if (!p.valid) return "";
+    return p.subdomain;
+  })()}`,
   ...defaultHeaders,
 });
-
-export const nextClient = axios.create({ baseURL: "/api", ...defaultHeaders });
 
 // doesn't really make sense here
 const pathFromArgs = (initialPath: string, args?: { query?: unknown; params?: unknown }): any => {
@@ -89,28 +77,23 @@ const pathFromArgs = (initialPath: string, args?: { query?: unknown; params?: un
 
 /* ------------------------- API Request Abstraction ------------------------ */
 
-type APIRequest = <C extends ControllerConfig>(
-  path: string,
-  next?: boolean
-) => (args?: Omit<C, "payload">) => Promise<C["payload"]>; //? do return function need to be async?
+type APIRequest = <C extends ControllerConfig>(path: string) => (args?: Omit<C, "payload">) => Promise<C["payload"]>;
 
-export const query: APIRequest = (path, next) => {
-  const executionClient = next ? nextClient : client;
+export const query: APIRequest = (path) => {
   return async (args) => {
     const { body, ...rest } = args ?? { body: undefined };
     if (body) throw new Error("Body not processed in query operation, use mutation");
     const formattedPath = pathFromArgs(path, rest);
-    const { data } = await executionClient.get(formattedPath);
+    const { data } = await client.get(formattedPath);
     return data;
   };
 };
 
-export const mutation: APIRequest = (path, next) => {
-  const executionClient = next ? nextClient : client;
+export const mutation: APIRequest = (path) => {
   return async (args) => {
     const { body, ...rest } = args ?? {};
     const formattedPath = pathFromArgs(path, rest);
-    const { data } = await executionClient.post(formattedPath, body ?? undefined);
+    const { data } = await client.post(formattedPath, body ?? undefined);
     return data;
   };
 };

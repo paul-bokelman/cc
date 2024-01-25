@@ -20,7 +20,7 @@ const handler: Controller<Login> = async (req, res) => {
     if (!match) return error(StatusCodes.UNAUTHORIZED, "Invalid username or password");
 
     // todo: school should come from user
-    const cookie = await generateSession({ userId: user.id, school: req.subdomains[0] });
+    const cookie = await generateSession({ userId: user.id, school: req.school });
     const { password: _, ...userWithoutPassword } = user;
     return success(StatusCodes.OK, userWithoutPassword, cookie);
   } catch (e) {

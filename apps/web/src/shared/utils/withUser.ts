@@ -1,7 +1,7 @@
 import type { GetServerSideProps, GetServerSidePropsContext, GetServerSidePropsResult } from "next";
 import type { ServerError, Authorization } from "cc-common";
 import axios from "axios";
-import { parseSubdomain, appendSubdomain } from "~/lib/utils";
+import { parseSubdomain } from "~/lib/utils";
 
 type AuthorizationOptions = Omit<Authorization["query"], "sid"> & {
   fail?: string;
@@ -17,21 +17,21 @@ export const withUser: WithUser = (options, ssp) => {
     const { role = "STUDENT", fail = "/" } = options;
     const sid = ctx.req.cookies?.["cc.sid"] ?? "";
 
-    const url = new URL(ctx.req.headers["x-forwarded-proto"] + "://" + ctx.req.headers.host);
-    const parseResult = parseSubdomain(url, process.env.NODE_ENV === "production");
+    const url = new URL(ctx.req.headers["x-forwarded-proto"] + "://" + ctx.req.headers.host); // uh... what?
+    const parseResult = parseSubdomain(url);
     if (!parseResult.valid)
       return { redirect: { permanent: false, destination: `${fail}?unauthorized=Invalid school` } };
 
     try {
-      const baseURL = appendSubdomain(parseResult.subdomain);
-
-      await axios.get(`${baseURL}/api/auth/authorized`, { params: { role, sid }, withCredentials: true });
+      await axios.get(`${url}/api/${parseResult.subdomain}/auth/authorized`, {
+        params: { role, sid },
+        withCredentials: true,
+      });
 
       if (!ssp) return { props: {} };
 
       return await ssp(ctx);
     } catch (e) {
-      console.log(e);
       if (axios.isAxiosError<ServerError>(e)) {
         if (e.response?.data.code === 401) {
           // separated because there may be conditional logic later...

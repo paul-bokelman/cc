@@ -8,6 +8,12 @@ const nextConfig = {
   pageExtensions: ["page.tsx", "page.ts", "page.jsx", "page.js"],
   images: { remotePatterns: [{ protocol: "https", hostname: "**" }] },
   i18n: { locales: ["en"], defaultLocale: "en" },
+  rewrites: async () => [
+    {
+      source: "/api/:path*",
+      destination: `${process.env.NEXT_PUBLIC_SERVER_URL}/:path*`,
+    },
+  ],
 };
 
 export default nextConfig;

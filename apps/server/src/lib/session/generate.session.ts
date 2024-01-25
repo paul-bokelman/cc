@@ -13,7 +13,7 @@ export const generateSession: GenerateSession = async ({ userId, school }) => {
   const sid = nanoid();
 
   const cookieOptions: CookieOptions = {
-    domain: `.${school}.${env("CLIENT_DOMAIN")}`,
+    // domain: `.${school}.${env("CLIENT_DOMAIN")}`,
     httpOnly: true,
     expires: new Date(Date.now() + 24 * 60 * 60 * 1000),
     // maxage: 24 * 60 * 60 * 1000, // https://stackoverflow.com/questions/61386688/safari-not-include-cookie-to-second-cors-request

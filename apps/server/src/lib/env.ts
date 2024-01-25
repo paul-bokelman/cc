@@ -6,7 +6,6 @@ dotenv.config({ path: ".env", debug: true });
 
 const variables = [
   "NODE_ENV",
-  "CLIENT_URL",
   "CLIENT_DOMAIN",
   "SERVER_URL",
   "JWT_SECRET",

@@ -2,11 +2,11 @@ import type { ExtendedAppProps } from "~/shared/types";
 import * as React from "react";
 import { QueryClientProvider } from "react-query";
 import { Toaster } from "react-hot-toast";
-import { queryClient, appendSubdomain } from "~/lib/queries";
+import { queryClient } from "~/lib/queries";
 import { subdomains } from "~/lib/utils";
 import { AuthProvider, ClubCompassLogo } from "~/shared/components";
 import { Layout } from "~/shared/components";
-import { parseSubdomain } from "~/lib/utils";
+import { parseSubdomain, appendSubdomain } from "~/lib/utils";
 import "../styles/global.css";
 
 const ClubCompass = ({ Component, pageProps: { session, ...pageProps } }: ExtendedAppProps) => {
@@ -15,7 +15,7 @@ const ClubCompass = ({ Component, pageProps: { session, ...pageProps } }: Extend
 
   React.useEffect(() => {
     if (typeof window === "undefined") return setValidSubdomain(null);
-    const parseResult = parseSubdomain(window.location.href, process.env.NODE_ENV === "production");
+    const parseResult = parseSubdomain(window.location.href);
     setValidSubdomain(parseResult.valid);
   }, []);
 
@@ -36,7 +36,7 @@ const ClubCompass = ({ Component, pageProps: { session, ...pageProps } }: Extend
             <div key={sd}>
               <span
                 onClick={() => {
-                  window.location.href = appendSubdomain(sd, "client");
+                  window.location.href = appendSubdomain(sd, process.env.NEXT_PUBLIC_CLIENT_URL as string);
                 }}
                 className="text-blue-500 hover:underline cursor-pointer"
               >
