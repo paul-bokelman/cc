@@ -13,6 +13,8 @@ export const generateSession: GenerateSession = async ({ userId, school }) => {
   const sid = nanoid();
 
   const cookieOptions: CookieOptions = {
+    //! domain issue
+    domain: isProduction ? `.${env("CLIENT_DOMAIN")}` : undefined,
     // domain: `.${school}.${env("CLIENT_DOMAIN")}`,
     httpOnly: true,
     expires: new Date(Date.now() + 24 * 60 * 60 * 1000),
