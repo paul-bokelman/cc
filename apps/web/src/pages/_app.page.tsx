@@ -1,14 +1,18 @@
 import type { ExtendedAppProps } from "~/shared/types";
 import * as React from "react";
+import Router from "next/router";
 import { Analytics } from "@vercel/analytics/react";
 import { QueryClientProvider } from "react-query";
 import { Toaster } from "react-hot-toast";
+import NProgress from "nprogress";
 import { queryClient } from "~/lib/queries";
 import { subdomains } from "~/lib/utils";
 import { AuthProvider, ClubCompassLogo } from "~/shared/components";
 import { Layout } from "~/shared/components";
 import { parseSubdomain, appendSubdomain } from "~/lib/utils";
 import "../styles/global.css";
+
+NProgress.configure({ easing: "ease", speed: 500 });
 
 const ClubCompass = ({ Component, pageProps: { session, ...pageProps } }: ExtendedAppProps) => {
   const { layout } = Component;
@@ -18,6 +22,12 @@ const ClubCompass = ({ Component, pageProps: { session, ...pageProps } }: Extend
     if (typeof window === "undefined") return setValidSubdomain(null);
     const parseResult = parseSubdomain(window.location.href);
     setValidSubdomain(parseResult.valid);
+  }, []);
+
+  React.useEffect(() => {
+    Router.events.on("routeChangeStart", () => NProgress.start());
+    Router.events.on("routeChangeComplete", () => NProgress.done());
+    Router.events.on("routeChangeError", () => NProgress.done());
   }, []);
 
   if (validSubdomain === null)

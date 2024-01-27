@@ -1,4 +1,5 @@
 import type { NextPageWithConfig } from "~/shared/types";
+import * as React from "react";
 
 const Home: NextPageWithConfig = () => {
   return (
