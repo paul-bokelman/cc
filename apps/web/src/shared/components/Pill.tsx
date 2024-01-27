@@ -23,8 +23,8 @@ export const Pill: React.FC<PillProps> = (props) => {
 
   if (props.type === "status") {
     if (props.status === "ACTIVE") color = "green";
-    else if (props.status === "INACTIVE") color = "orange";
-    else if (props.status === "INTEREST") color = "red";
+    else if (props.status === "INTEREST") color = "orange";
+    else if (props.status === "INACTIVE") color = "red";
 
     text = props.status;
   } else if (props.type === "color") {
