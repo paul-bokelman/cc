@@ -1,7 +1,7 @@
 import type { GetClubs } from "cc-common";
 import { Button, Pill } from "~/shared/components";
 import Link from "next/link";
-import { TbUserCheck, TbFileText, TbUserX } from "react-icons/tb";
+import { TbUserCheck, TbFileText, TbUserX, TbTag } from "react-icons/tb";
 import { Tag } from "~/shared/components";
 
 export type ClubCardProps = GetClubs["payload"][number];
@@ -12,9 +12,14 @@ export const ClubCard: React.FC<ClubCardProps> = (club) => {
       <div className="flex flex-col gap-2">
         <h2 className="text-xl md:text-lg font-semibold">{club.name}</h2>
         <div className="flex items-center gap-1">
-          {club.tags.map(({ name, active }) => (
-            <Tag key={name} name={name} variant="inline" active={active} />
-          ))}
+          {club.tags?.length === 0 ? (
+            <div className="flex items-center gap-2 text-sm text-black-70">
+              <TbTag className />
+              <span>No tags</span>
+            </div>
+          ) : (
+            club.tags?.map(({ name, active }) => <Tag key={name} variant="inline" name={name} active={active} />)
+          )}
         </div>
         {/* truncating to 140 characters (should find another solution) */}
         <p className="text-base md:text-sm text-black-60">

@@ -11,26 +11,43 @@ import { TbBrandFacebook, TbBrandInstagram, TbBrandTwitter, TbCheck, TbLink } fr
 import { useGetTags, useNewClub } from "~/lib/queries";
 import { withUser } from "~/shared/utils";
 import { handleResponseError, handleFormError } from "~/lib/utils";
-import { DashboardContainer as Page, TextInput, InputLabel, FieldError, Tag, Button } from "~/shared/components";
+import {
+  DashboardContainer as Page,
+  TextInput,
+  InputLabel,
+  FieldError,
+  OptionSelect,
+  Tag,
+  Button,
+} from "~/shared/components";
 
 type SupportedPlatforms = (typeof supportedPlatforms)[number]; // duplicate code
 
 const supportedPlatforms = ["instagram", "facebook", "twitter", "website"] as const;
 
-export const availabilityOptions = [
+export const typeOptions = [
   {
-    value: "OPEN",
-    description: "Club is open to anyone who wants to join, there are no requirements or restrictions on who can join.",
+    value: "CLUB",
+    description: "Club is a student organization that is not affiliated with a department or school.",
   },
   {
-    value: "APPLICATION",
-    description:
-      "Interested users must fill out an application then be invited by the club president through their ccid.",
+    value: "ORGANIZATION",
+    description: "Club is a student organization that is affiliated with a department or school.",
+  },
+];
+
+export const statusOptions = [
+  {
+    value: "ACTIVE",
+    description: "Club is currently active and accepting new members.",
   },
   {
-    value: "CLOSED",
-    description:
-      "Club is not currently accepting new members. This could be because the club is full, or because it is not currently active.",
+    value: "INTEREST",
+    description: "Club is not active, but is accepting interest forms.",
+  },
+  {
+    value: "INACTIVE",
+    description: "Club is not active and is not accepting interest forms.",
   },
 ];
 
@@ -74,7 +91,8 @@ const AdminDashboardNewClub: NextPageWithConfig = () => {
         initialValues={{
           name: "",
           description: "",
-          availability: "OPEN",
+          type: "CLUB",
+          status: "INTEREST",
           applicationLink: null,
           tags: [],
           meetingFrequency: "",
@@ -102,9 +120,12 @@ const AdminDashboardNewClub: NextPageWithConfig = () => {
               description="Basic and required information for the club"
               childClass="flex flex-col gap-4"
             >
+              {/* -------------------------------- CLUB NAME -------------------------------  */}
               <InputLabel value="Club Name" required>
                 <Field name="name" component={TextInput} placeholder="Engineering" />
               </InputLabel>
+
+              {/* -------------------------------- DESCRIPTION -------------------------------  */}
               <InputLabel value="Description" required>
                 <Field
                   name="description"
@@ -113,45 +134,38 @@ const AdminDashboardNewClub: NextPageWithConfig = () => {
                   placeholder="To identify a real-world problem and develop a solution to it. Equips students to become tech entrepreneurs and leaders."
                 />
               </InputLabel>
-              <InputLabel value="Availability" required>
-                {availabilityOptions.map(({ value: option, description }) => {
-                  const isActive = values.availability === option;
-                  return (
-                    <div
-                      key={option}
-                      className={cn("box-border flex cursor-pointer flex-col gap-4 rounded-lg p-6 pr-24", {
-                        "border border-black-20": !isActive,
-                        "border-[2px] border-blue-70": isActive,
-                      })}
-                      onClick={() => {
-                        if (!touched?.availability) {
-                          setFieldTouched("availability", true);
-                        }
-                        setFieldValue("availability", option);
-                      }}
-                    >
-                      <div className="flex items-center gap-2">
-                        <div
-                          className={cn("flex h-6 w-6 items-center justify-center rounded-md", {
-                            "bg-black-20": !isActive,
-                            "bg-blue-70": isActive,
-                          })}
-                        >
-                          {isActive ? <TbCheck className="stroke-[3px] text-sm text-white" /> : null}
-                        </div>
-                        <div className="font-medium capitalize">{option.toLowerCase()}</div>
-                      </div>
-                      <p className="text-sm text-black-70">{description}</p>
-                    </div>
-                  );
-                })}
-                <FieldError touched={touched?.availability} error={errors?.availability} />
+
+              {/* -------------------------------- TYPE -------------------------------  */}
+              <InputLabel value="Type" required>
+                <OptionSelect
+                  name="type"
+                  options={typeOptions}
+                  selected={values.type}
+                  touched={touched?.type}
+                  errors={errors?.type}
+                  setFieldValue={setFieldValue}
+                  setFieldTouched={setFieldTouched}
+                />
               </InputLabel>
-              {values.availability === "APPLICATION" ? (
-                <InputLabel value="Application Link" required>
-                  <Field name="applicationLink" component={TextInput} placeholder="https://docs.google.com/forms/..." />
-                </InputLabel>
-              ) : null}
+
+              {/* -------------------------------- STATUS -------------------------------  */}
+              <InputLabel value="Status" required>
+                <OptionSelect
+                  name="status"
+                  options={statusOptions}
+                  selected={values.status}
+                  touched={touched?.status}
+                  errors={errors?.status}
+                  setFieldValue={setFieldValue}
+                  setFieldTouched={setFieldTouched}
+                />
+              </InputLabel>
+
+              <InputLabel value="Application Link">
+                <Field name="applicationLink" component={TextInput} placeholder="https://docs.google.com/forms/..." />
+              </InputLabel>
+
+              {/* -------------------------------- TAGS -------------------------------  */}
               <InputLabel value={`Tags (${values.tags?.length ?? 0}/3)`} required>
                 <div className="flex w-full flex-wrap items-center gap-2">
                   {tagsQuery.data?.map(({ name: tag }) => (

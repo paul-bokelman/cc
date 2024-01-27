@@ -22,7 +22,6 @@ export const withUser: WithUser = (options, ssp) => {
     if (!parseResult.valid)
       return { redirect: { permanent: false, destination: `${fail}?unauthorized=Invalid school` } };
 
-    console.log(`${url}/api/${parseResult.subdomain}/auth/authorized`, sid);
     try {
       await axios.get(`${url}/api/${parseResult.subdomain}/auth/authorized`, {
         params: { role, sid },
@@ -34,7 +33,6 @@ export const withUser: WithUser = (options, ssp) => {
       return await ssp(ctx);
     } catch (e) {
       if (axios.isAxiosError<ServerError>(e)) {
-        console.log(e.response?.data);
         if (typeof e.response?.data?.message !== "string") {
           return { redirect: { permanent: false, destination: `${fail}?unauthorized=Something went wrong` } };
         }

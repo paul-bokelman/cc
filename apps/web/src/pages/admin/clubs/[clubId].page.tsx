@@ -11,9 +11,17 @@ import { TbBrandFacebook, TbBrandInstagram, TbBrandTwitter, TbCheck, TbLink } fr
 import { queryClient, useGetTags, useEditClub, useDeleteClub } from "~/lib/queries";
 import { withUser } from "~/shared/utils";
 import { handleFormError, handleResponseError } from "~/lib/utils";
-import { DashboardContainer as Page, TextInput, InputLabel, FieldError, Tag, Button } from "~/shared/components";
+import {
+  DashboardContainer as Page,
+  TextInput,
+  InputLabel,
+  FieldError,
+  OptionSelect,
+  Tag,
+  Button,
+} from "~/shared/components";
 import { useGetClub } from "~/lib/queries";
-import { availabilityOptions } from "./new.page";
+import { statusOptions, typeOptions } from "./new.page";
 
 type SupportedPlatforms = (typeof supportedPlatforms)[number];
 
@@ -56,11 +64,12 @@ const AdminDashboardClub: NextPageWithConfig = () => {
 
   const club = cq.data; // geez...
 
+  //
   const initialValues: EditClub["body"] = {
     // type will be club
     name: club?.name,
     tags: club?.tags.map((tag) => tag.name),
-    availability: club?.availability,
+    status: club?.status,
     applicationLink: club?.applicationLink,
     description: club?.description ?? undefined,
 
@@ -156,9 +165,14 @@ const AdminDashboardClub: NextPageWithConfig = () => {
               description="Basic and required information for the club"
               childClass="flex flex-col gap-4"
             >
+              {/* -------------------------------- CLUB NAME -------------------------------  */}
+
               <InputLabel value="Club Name" edited={initialValues.name !== values.name}>
                 <Field name="name" component={TextInput} placeholder="Engineering" />
               </InputLabel>
+
+              {/* -------------------------------- DESCRIPTION -------------------------------  */}
+
               <InputLabel value="Description" edited={initialValues.description !== values.description}>
                 <Field
                   name="description"
@@ -167,47 +181,41 @@ const AdminDashboardClub: NextPageWithConfig = () => {
                   placeholder="To identify a real-world problem and develop a solution to it. Equips students to become tech entrepreneurs and leaders."
                 />
               </InputLabel>
-              <InputLabel value="Availability" edited={initialValues.availability !== values.availability}>
-                {availabilityOptions.map(({ value: option, description }) => {
-                  const isActive = values.availability === option;
-                  return (
-                    <div
-                      key={option}
-                      className={cn("box-border flex cursor-pointer flex-col gap-4 rounded-lg p-6 pr-24", {
-                        "border border-black-20": !isActive,
-                        "border-[2px] border-blue-70": isActive,
-                      })}
-                      onClick={() => {
-                        if (!touched?.availability) {
-                          setFieldTouched("availability", true);
-                        }
 
-                        setFieldValue("availability", option);
-                        // if (option !== 'APPLICATION') setFieldValue('applicationLink', null); //! NO REASON THIS SHOULDNT WORK
-                      }}
-                    >
-                      <div className="flex items-center gap-2">
-                        <div
-                          className={cn("flex h-6 w-6 items-center justify-center rounded-md", {
-                            "bg-black-20": !isActive,
-                            "bg-blue-70": isActive,
-                          })}
-                        >
-                          {isActive ? <TbCheck className="stroke-[3px] text-sm text-white" /> : null}
-                        </div>
-                        <div className="font-medium capitalize">{option.toLowerCase()}</div>
-                      </div>
-                      <p className="text-sm text-black-70">{description}</p>
-                    </div>
-                  );
-                })}
-                <FieldError touched={touched?.availability} error={errors?.availability} />
+              {/* -------------------------------- CLUB TYPE -------------------------------  */}
+
+              <InputLabel value="Type">
+                <OptionSelect
+                  name="type"
+                  options={typeOptions}
+                  selected="CLUB"
+                  touched={false}
+                  errors={undefined}
+                  disabled
+                  setFieldValue={() => {}}
+                  setFieldTouched={() => {}}
+                />
               </InputLabel>
-              {values.availability === "APPLICATION" ? (
-                <InputLabel value="Application Link" edited={initialValues.applicationLink !== values.applicationLink}>
-                  <Field name="applicationLink" component={TextInput} placeholder="https://docs.google.com/forms/..." />
-                </InputLabel>
-              ) : null}
+
+              {/* -------------------------------- STATUS -------------------------------  */}
+
+              <InputLabel value="Status" edited={initialValues.status !== values.status}>
+                <OptionSelect
+                  name="status"
+                  options={statusOptions}
+                  selected={values.status as string}
+                  touched={touched?.status}
+                  errors={errors?.status}
+                  setFieldValue={setFieldValue}
+                  setFieldTouched={setFieldTouched}
+                />
+              </InputLabel>
+
+              {/* -------------------------------- APPLICATION LINK -------------------------------  */}
+              <InputLabel value="Application Link" edited={initialValues.applicationLink !== values.applicationLink}>
+                <Field name="applicationLink" component={TextInput} placeholder="https://docs.google.com/forms/..." />
+              </InputLabel>
+
               {/* had to declare value.tags as defined like 6 times... fix... */}
               {values.tags !== undefined ? (
                 <InputLabel

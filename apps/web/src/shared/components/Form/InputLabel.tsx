@@ -16,7 +16,7 @@ export const InputLabel: React.FC<Props> = (props) => {
         <span className="text-sm text-black">
           {props.value} {props.required ? <span className="text-xs text-red-500">*</span> : null}
         </span>{" "}
-        {props.edited ? <span className="text-xs text-[#FFAA47]">EDITED</span> : null}
+        {props.edited ? <span className="text-xs text-orange-500 font-semibold">EDITED</span> : null}
       </label>
       {props.children}
     </div>

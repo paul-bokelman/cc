@@ -19,7 +19,7 @@ export const Logo: React.FC<Props> = ({ withText = false, beta = false, dest, mo
         {mobile && beta && <span className="text-xs font-bold text-gray-400">BETA</span>}
         {withText && (
           <span className={cn({ "text-4xl": mobile }, "ml-2 text-lg font-semibold")}>
-            Club Compass {beta && <span className="text-xs text-gray-400">BETA</span>}
+            ClubCompass {beta && <span className="text-xs text-gray-400">BETA</span>}
           </span>
         )}
       </div>

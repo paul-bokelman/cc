@@ -1,5 +1,6 @@
 import type { ExtendedAppProps } from "~/shared/types";
 import * as React from "react";
+import { Analytics } from "@vercel/analytics/react";
 import { QueryClientProvider } from "react-query";
 import { Toaster } from "react-hot-toast";
 import { queryClient } from "~/lib/queries";
@@ -60,6 +61,7 @@ const ClubCompass = ({ Component, pageProps: { session, ...pageProps } }: Extend
           />
         </Layout>
       </AuthProvider>
+      <Analytics />
     </QueryClientProvider>
   );
 };

@@ -1,4 +1,4 @@
-import { type Club, type Tag, Availability } from "@prisma/client";
+import { type Club, type Tag, Availability, ClubStatus, ClubType } from "@prisma/client";
 import type { ToControllerConfig } from "../utils.types";
 import * as z from "zod";
 import { nonempty } from "../zod.utils";
@@ -52,57 +52,53 @@ export const getClubSchema = z.object({
 
 export type NewClub = ToControllerConfig<typeof newClubSchema, { id: string }>;
 export const newClubSchema = z.object({
-  body: z
-    .object({
-      name: z
-        .string()
-        .max(50, "Club name cannot be longer than 50 characters")
-        .min(3, "Club name must be at least 3 characters"),
-      description: z.string().min(10, "Club description must be at least 10 characters"),
-      availability: z.nativeEnum(Availability),
-      applicationLink: z.string().optional().nullable(),
-      tags: z
-        .string()
-        .array() // should get all tags and check if they exist (names)
-        .min(1, "You must select at least 1 tag")
-        .max(3, "You can only select up to 3 tags"),
+  body: z.object({
+    name: z
+      .string()
+      .max(50, "Club name cannot be longer than 50 characters")
+      .min(3, "Club name must be at least 3 characters"),
+    description: z.string().min(10, "Club description must be at least 10 characters"),
+    // availability: z.nativeEnum(Availability),
+    type: z.nativeEnum(ClubType),
+    status: z.nativeEnum(ClubStatus),
+    applicationLink: z
+      .string()
+      .optional()
+      .nullable()
+      .transform((e) => (e === "" ? null : e)),
+    tags: z
+      .string()
+      .array() // should get all tags and check if they exist (names)
+      .min(1, "You must select at least 1 tag")
+      .max(3, "You can only select up to 3 tags"),
 
-      meetingFrequency: z.string().optional(),
-      meetingTime: z.string().optional(),
-      meetingDays: z.string().optional(),
-      meetingLocation: z.string().optional(),
+    meetingFrequency: z.string().optional(),
+    meetingTime: z.string().optional(),
+    meetingDays: z.string().optional(),
+    meetingLocation: z.string().optional(),
 
-      contactEmail: z.string().email(),
-      // check nonempty?
-      instagram: z.string().optional().nullable(),
-      facebook: z.string().optional().nullable(),
-      twitter: z.string().optional().nullable(),
-      website: z.string().optional().nullable(),
+    contactEmail: z.string().email(),
+    // check nonempty?
+    instagram: z.string().optional().nullable(),
+    facebook: z.string().optional().nullable(),
+    twitter: z.string().optional().nullable(),
+    website: z.string().optional().nullable(),
 
-      advisor: z.string().min(3, "Name must be at least 3 characters").pipe(nonempty),
-      president: z.string().min(3, "Name must be at least 3 characters").pipe(nonempty),
-      vicePresident: z
-        .union([z.string().length(0), z.string().min(3, "Name must be at least 3 characters")])
-        .optional()
-        .transform((e) => (e === "" ? null : e)),
-      secretary: z
-        .union([z.string().length(0), z.string().min(3, "Name must be at least 3 characters")])
-        .optional()
-        .transform((e) => (e === "" ? null : e)),
-      treasurer: z
-        .union([z.string().length(0), z.string().min(3, "Name must be at least 3 characters")])
-        .optional()
-        .transform((e) => (e === "" ? null : e)),
-    })
-    .superRefine((input, ctx) => {
-      if (input.availability === "APPLICATION" && !input.applicationLink) {
-        ctx.addIssue({
-          path: ["applicationLink"],
-          code: z.ZodIssueCode.custom,
-          message: "Required if the club requires an application",
-        });
-      }
-    }),
+    advisor: z.string().min(3, "Name must be at least 3 characters").pipe(nonempty),
+    president: z.string().min(3, "Name must be at least 3 characters").pipe(nonempty),
+    vicePresident: z
+      .union([z.string().length(0), z.string().min(3, "Name must be at least 3 characters")])
+      .optional()
+      .transform((e) => (e === "" ? null : e)),
+    secretary: z
+      .union([z.string().length(0), z.string().min(3, "Name must be at least 3 characters")])
+      .optional()
+      .transform((e) => (e === "" ? null : e)),
+    treasurer: z
+      .union([z.string().length(0), z.string().min(3, "Name must be at least 3 characters")])
+      .optional()
+      .transform((e) => (e === "" ? null : e)),
+  }),
 });
 
 /* -------------------------------- EDIT CLUB ------------------------------- */
@@ -111,61 +107,55 @@ export type EditClub = ToControllerConfig<typeof editClubSchema, { id: string }>
 export const editClubSchema = z.object({
   query: z.object({ method: z.enum(["slug", "id", "name"]) }),
   params: z.object({ identifier: z.string() }),
-  body: z
-    .object({
-      name: z
-        .string()
-        .max(50, "Club name cannot be longer than 50 characters")
-        .min(3, "Club name must be at least 3 characters")
-        .optional(),
-      description: z
-        .union([z.string().length(0), z.string().min(3, "Club description must be at least 10 characters")])
-        .optional()
-        .transform((e) => (e === "" ? null : e)),
-      availability: z.nativeEnum(Availability).optional(),
-      applicationLink: z.string().optional().nullable(),
-      tags: z
-        .array(z.string())
-        .max(3, "You can only select up to 3 tags")
-        // .min(1, "You must select at least 1 tag")
-        .optional(),
+  body: z.object({
+    name: z
+      .string()
+      .max(50, "Club name cannot be longer than 50 characters")
+      .min(3, "Club name must be at least 3 characters")
+      .optional(),
+    description: z
+      .union([z.string().length(0), z.string().min(3, "Club description must be at least 10 characters")])
+      .optional()
+      .transform((e) => (e === "" ? null : e)),
+    // availability: z.nativeEnum(Availability).optional(),
+    status: z.nativeEnum(ClubStatus).optional(),
+    applicationLink: z
+      .string()
+      .optional()
+      .nullable()
+      .transform((e) => (e === "" ? null : e)),
+    tags: z
+      .array(z.string())
+      .max(3, "You can only select up to 3 tags")
+      // .min(1, "You must select at least 1 tag")
+      .optional(),
 
-      meetingFrequency: z.string().optional(),
-      meetingTime: z.string().optional(),
-      meetingDays: z.string().optional(), // should be array of days
-      meetingLocation: z.string().optional(),
+    meetingFrequency: z.string().optional(),
+    meetingTime: z.string().optional(),
+    meetingDays: z.string().optional(), // should be array of days
+    meetingLocation: z.string().optional(),
 
-      contactEmail: z.string().email().optional(),
-      instagram: z.string().optional().nullable(),
-      facebook: z.string().optional().nullable(),
-      twitter: z.string().optional().nullable(),
-      website: z.string().optional().nullable(),
+    contactEmail: z.string().email().optional(),
+    instagram: z.string().optional().nullable(),
+    facebook: z.string().optional().nullable(),
+    twitter: z.string().optional().nullable(),
+    website: z.string().optional().nullable(),
 
-      advisor: z.string().min(3, "Name must be at least 3 characters").pipe(nonempty).optional(),
-      president: z.string().min(3, "Name must be at least 3 characters").pipe(nonempty).optional(),
-      vicePresident: z
-        .union([z.string().length(0), z.string().min(3, "Name must be at least 3 characters")])
-        .optional()
-        .transform((e) => (e === "" ? null : e)),
-      secretary: z
-        .union([z.string().length(0), z.string().min(3, "Name must be at least 3 characters")])
-        .optional()
-        .transform((e) => (e === "" ? null : e)),
-      treasurer: z
-        .union([z.string().length(0), z.string().min(3, "Name must be at least 3 characters")])
-        .optional()
-        .transform((e) => (e === "" ? null : e)),
-    })
-    .superRefine((input, ctx) => {
-      if (!input) return;
-      if (input.availability === "APPLICATION" && !input.applicationLink) {
-        ctx.addIssue({
-          path: ["applicationLink"],
-          code: z.ZodIssueCode.custom,
-          message: "Required if the club requires an application",
-        });
-      }
-    }),
+    advisor: z.string().min(3, "Name must be at least 3 characters").pipe(nonempty).optional(),
+    president: z.string().min(3, "Name must be at least 3 characters").pipe(nonempty).optional(),
+    vicePresident: z
+      .union([z.string().length(0), z.string().min(3, "Name must be at least 3 characters")])
+      .optional()
+      .transform((e) => (e === "" ? null : e)),
+    secretary: z
+      .union([z.string().length(0), z.string().min(3, "Name must be at least 3 characters")])
+      .optional()
+      .transform((e) => (e === "" ? null : e)),
+    treasurer: z
+      .union([z.string().length(0), z.string().min(3, "Name must be at least 3 characters")])
+      .optional()
+      .transform((e) => (e === "" ? null : e)),
+  }),
 });
 
 /* ------------------------------- DELETE CLUB ------------------------------ */

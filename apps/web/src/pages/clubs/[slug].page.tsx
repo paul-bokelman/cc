@@ -14,6 +14,8 @@ import {
   TbBrandFacebook,
   TbBrandTwitter,
   TbMoodConfuzed,
+  TbUserX,
+  TbTag,
 } from "react-icons/tb";
 import { Tag, Button, ClubCard, ClubCompassLogo, Pill } from "~/shared/components";
 import { useGetClub } from "~/lib/queries";
@@ -113,9 +115,14 @@ const Club: NextPageWithConfig = () => {
         <div className="flex w-full flex-col items-center gap-4 md:items-start ">
           <h1 className="text-4xl font-semibold">{cq.data.name}</h1>
           <div className="flex items-center gap-2">
-            {cq.data.tags?.map(({ name }) => (
-              <Tag key={name} variant="inline" name={name} active={false} />
-            ))}
+            {cq.data.tags?.length === 0 ? (
+              <div className="flex items-center gap-2 text-sm text-black-70">
+                <TbTag className />
+                <span>Club doesn't have any tags</span>
+              </div>
+            ) : (
+              cq.data.tags?.map(({ name }) => <Tag key={name} variant="inline" name={name} active={false} />)
+            )}
           </div>
           <div className="flex items-center gap-3">
             <Pill type="status" status={cq.data.status} />
@@ -123,6 +130,12 @@ const Club: NextPageWithConfig = () => {
               <div className="flex items-center gap-1">
                 <TbUserCheck className="text-xl text-black" />
                 <span className="text-sm text-black-70">Accepting Members</span>
+              </div>
+            ) : null}
+            {cq.data.availability === "CLOSED" ? (
+              <div className="flex items-center gap-1">
+                <TbUserX className="text-xl text-black" />
+                <span className="text-sm text-black-70">Not Accepting Members</span>
               </div>
             ) : null}
             {cq.data.availability === "APPLICATION" ? (
@@ -157,7 +170,9 @@ const Club: NextPageWithConfig = () => {
       <div className="grid w-full grid-cols-1 items-start border-t border-b border-black-20 py-10 md:grid-cols-2 ">
         <div className="flex w-full flex-col items-center justify-center gap-6 md:w-3/4 md:items-start md:justify-start">
           <h2 className="text-xl font-semibold">Description</h2>
-          <p className="w-3/4 text-sm text-black-70 md:w-full">{cq.data.description || "No description"}</p>
+          <p className="w-3/4 text-sm text-black-70 md:w-full">
+            {cq.data.description || "No description, this club hasn't provided a description yet."}
+          </p>
         </div>
         <div className="mt-8 flex w-full flex-col items-center justify-center gap-6 md:mt-0 md:w-3/4 md:items-start md:justify-start">
           <h2 className="text-xl font-semibold">Leadership</h2>
@@ -170,11 +185,6 @@ const Club: NextPageWithConfig = () => {
                 </div>
               </div>
             ))}
-            {/* {cq.data.members.total > cq.data.members.leadership.length ? (
-              <span className="my-auto text-sm font-medium text-black-60">
-                + {cq.data.members.total - cq.data.members.leadership.length} more
-              </span>
-            ) : null} */}
           </div>
         </div>
       </div>
@@ -199,7 +209,7 @@ const Club: NextPageWithConfig = () => {
               <div className="flex flex-col relative">
                 <span className="relative -top-0.5">Interested in joining this club?</span>
                 <p className="text-xs italic text-black-50">
-                  Email the club president at <span className="font-semibold text-black">{cq.data.contactEmail}</span>!
+                  Email the club president at <span className="font-semibold text-black">{cq.data.contactEmail}</span>
                 </p>
               </div>
             </div>
@@ -222,7 +232,7 @@ const Club: NextPageWithConfig = () => {
       {/* SIMILAR CLUBS */}
       <div className="flex w-full flex-col items-center justify-center gap-6 md:items-start md:justify-start">
         <h2 className="text-xl font-semibold">Similar Clubs</h2>
-        <div className="grid grid-cols-1 gap-2 md:grid-cols-2 lg:grid-cols-3">
+        <div className="w-full grid grid-cols-1 gap-2 md:grid-cols-2 lg:grid-cols-3">
           {cq.data.similarClubs && cq.data.similarClubs?.length !== 0 ? (
             cq.data.similarClubs?.map(({ tags, ...club }) => (
               <ClubCard key={cq.data.name} {...club} tags={tags.map((tag) => ({ ...tag, active: false }))} />

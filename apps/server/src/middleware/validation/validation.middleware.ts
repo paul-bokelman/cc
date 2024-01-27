@@ -22,7 +22,6 @@ export const validate = (schema: AnyZodObject): RequestHandler => {
 
       return next();
     } catch (e) {
-      console.log(e);
       if (e instanceof ZodError) {
         return error(
           StatusCodes.BAD_REQUEST,
