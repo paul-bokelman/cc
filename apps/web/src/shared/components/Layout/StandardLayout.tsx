@@ -91,15 +91,15 @@ export const StandardLayout: React.FC<Props> = ({ children }) => {
 
             <div className="hidden items-center gap-2 md:flex justify-end">
               <div className="flex items-center gap-2 text-red-500">
-                <div
-                  className={cn(
-                    { "mr-2": user },
-                    "flex items-center gap-2 py-1 px-2 hover:bg-red-100/50 rounded-md cursor-pointer"
-                  )}
+                <a
+                  href="https://docs.google.com/forms/d/e/1FAIpQLSeOCpVR9gMrJdmiWxldIzWXKRrcg_iUMLeGxMWsSJ1PjTElmQ/viewform?usp=sf_link"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={cn({ "mr-2": user }, "flex items-center gap-2 hover:underline hover:text-red-600")}
                 >
-                  <TbBugFilled className="cursor-pointer text-lg " />
-                  <span className="text-sm">Report a Bug</span>
-                </div>
+                  <TbBugFilled className="text-lg" />
+                  <span className="text-sm">Report Bug</span>
+                </a>
               </div>
               {user ? (
                 <div>
