@@ -103,7 +103,7 @@ const Clubs: NextPageWithConfig = () => {
         </p>
       )}
 
-      <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 w-full">
+      <div className="w-full grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
         {cq.isSuccess ? (
           cq.data.clubs.length !== 0 ? (
             cq.data.clubs.map((club, i) => <ClubCard key={i} {...club} />)
@@ -112,7 +112,7 @@ const Clubs: NextPageWithConfig = () => {
               <div className="flex flex-col items-center justify-center w-full">
                 <TbSearchOff className="text-black-30 w-8 h-8 mb-3" />
                 <h1 className="text-2xl font-bold">No clubs found</h1>
-                <p className="text-black-60 text-sm">Try changing your filters or sorting.</p>
+                <p className="text-black-60 text-sm">Try changing or clearing your filters.</p>
               </div>
             </div>
           )
@@ -123,7 +123,9 @@ const Clubs: NextPageWithConfig = () => {
             <div className="flex flex-col items-center justify-center w-full">
               <TbMoodConfuzed className="text-red-30 w-8 h-8 mb-3" />
               <h1 className="text-2xl font-bold text-red-70">Something went wrong</h1>
-              <p className="text-red-70 text-sm">An error occurred getting the clubs, please try again later.</p>
+              <p className="text-red-70 text-sm mx-6 text-center">
+                An error occurred getting the clubs, please try again later.
+              </p>
             </div>
           </div>
         )}
