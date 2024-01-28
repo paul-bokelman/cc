@@ -4,7 +4,7 @@ import Link from "next/link";
 import { TbUserCheck, TbFileText, TbUserX, TbTag } from "react-icons/tb";
 import { Tag } from "~/shared/components";
 
-export type ClubCardProps = GetClubs["payload"][number];
+export type ClubCardProps = GetClubs["payload"]["clubs"][number];
 
 export const ClubCard: React.FC<ClubCardProps> = (club) => {
   return (
