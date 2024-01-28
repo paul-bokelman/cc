@@ -75,7 +75,7 @@ export const ClubsFilterModal: React.FC<ClubsFilterModalProps> = ({ isOpen, clos
           <div className="fixed inset-0 bg-black bg-opacity-25" />
         </Transition.Child>
 
-        <div className="fixed inset-0 overflow-y-auto">
+        <div className="fixed inset-0 overflow-y-auto mx-4">
           <div className="flex min-h-full items-center justify-center text-center">
             <Transition.Child
               as={Fragment}
@@ -94,7 +94,7 @@ export const ClubsFilterModal: React.FC<ClubsFilterModalProps> = ({ isOpen, clos
                       onClick={closeModal}
                     />
                   </div>
-                  <p className="font-semibold w-full flex justify-center items-center">Filters</p>
+                  <p className="font-semibold w-full flex justify-center items-center">Club Filters</p>
                 </div>
                 <div className="max-h-96 flex flex-col gap-8 overflow-y-scroll px-8">
                   <FilterSection title="Tags" description="Inclusively or exclusively filter by selected tags">

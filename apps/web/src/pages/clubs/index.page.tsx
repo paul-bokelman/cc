@@ -14,14 +14,18 @@ import {
 import { useQ } from "~/shared/hooks";
 import { useGetClubs } from "~/lib/queries";
 import { handleResponseError } from "~/lib/utils";
+import { useWindowSize } from "@uidotdev/usehooks";
 
 const Clubs: NextPageWithConfig = () => {
   const router = useRouter();
+  const { width } = useWindowSize();
   const { query, append: appendToQuery, parse: parseQ } = useQ<GetClubs["query"]>();
 
   const [activeSortIndex, setActiveSortIndex] = useState<number>(0);
   const [showFilterModal, setShowFilterModal] = useState<boolean>(false);
   const [showSearchModal, setShowSearchModal] = useState<boolean>(false);
+
+  const isMobile = width && width < 640;
 
   const cq = useGetClubs(
     { query: parseQ(router.asPath), params: undefined, body: undefined },
@@ -50,17 +54,17 @@ const Clubs: NextPageWithConfig = () => {
   return (
     <div className="mt-12 flex w-full flex-col items-start justify-center gap-8">
       <h1 className="text-3xl font-bold leading-3">Discover Clubs</h1>
-      <p className="leading-3 text-black-60 ">Select your interests and find the perfect club for you.</p>
+      <p className="-my-2 text-black-60 ">Select your interests and find the perfect club for you.</p>
       <div className="flex w-full flex-col items-center justify-between gap-4 md:flex-row">
         <div className="flex w-full items-center justify-between">
           <div className="flex items-center gap-2">
             <Button
               variant="secondary"
               iconLeft={TbFilter}
-              style={{ width: "fit-content", height: "3rem" }}
+              style={{ width: "fit-content", height: "3rem", paddingLeft: isMobile ? "30px" : undefined }}
               onClick={() => setShowFilterModal(true)}
             >
-              Filters
+              {!isMobile ? "Filters" : null}
             </Button>
             <ClubsFilterModal isOpen={showFilterModal} closeModal={() => setShowFilterModal(false)} />
             <DropdownMenu
@@ -75,17 +79,17 @@ const Clubs: NextPageWithConfig = () => {
                 iconRight={TbChevronDown}
                 style={{ width: "fit-content", height: "3rem" }}
               >
-                Sort by {sortMenuItems[activeSortIndex]?.label}
+                {!isMobile ? `Sort by ${sortMenuItems[activeSortIndex]?.label}` : "Sort"}
               </DropdownMenu.Button>
             </DropdownMenu>
           </div>
           <Button
             variant="secondary"
             iconLeft={TbSearch}
-            style={{ width: "fit-content", height: "3rem" }}
+            style={{ width: "fit-content", height: "3rem", paddingLeft: isMobile ? "30px" : undefined }}
             onClick={() => setShowSearchModal(true)}
           >
-            Search...
+            {!isMobile ? "Search..." : null}
           </Button>
           <ClubSearchModal isOpen={showSearchModal} closeModal={() => setShowSearchModal(false)} />
         </div>

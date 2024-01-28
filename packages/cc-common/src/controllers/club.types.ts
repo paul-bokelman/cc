@@ -79,7 +79,9 @@ export const newClubSchema = z.object({
     status: z.nativeEnum(ClubStatus),
     applicationLink: z
       .string()
+      .url()
       .optional()
+      .or(z.string().length(0))
       .nullable()
       .transform((e) => (e === "" ? null : e)),
     tags: z
@@ -98,7 +100,13 @@ export const newClubSchema = z.object({
     instagram: z.string().optional().nullable(),
     facebook: z.string().optional().nullable(),
     twitter: z.string().optional().nullable(),
-    website: z.string().optional().nullable(),
+    website: z
+      .string()
+      .url()
+      .optional()
+      .or(z.string().length(0))
+      .nullable()
+      .transform((e) => (e === "" ? null : e)),
 
     advisor: z.string().min(3, "Name must be at least 3 characters").pipe(nonempty),
     president: z.string().min(3, "Name must be at least 3 characters").pipe(nonempty),
@@ -137,7 +145,9 @@ export const editClubSchema = z.object({
     status: z.nativeEnum(ClubStatus).optional(),
     applicationLink: z
       .string()
+      .url()
       .optional()
+      .or(z.string().length(0))
       .nullable()
       .transform((e) => (e === "" ? null : e)),
     tags: z
@@ -155,7 +165,13 @@ export const editClubSchema = z.object({
     instagram: z.string().optional().nullable(),
     facebook: z.string().optional().nullable(),
     twitter: z.string().optional().nullable(),
-    website: z.string().optional().nullable(),
+    website: z
+      .string()
+      .url()
+      .optional()
+      .or(z.string().length(0))
+      .nullable()
+      .transform((e) => (e === "" ? null : e)),
 
     advisor: z.string().min(3, "Name must be at least 3 characters").pipe(nonempty).optional(),
     president: z.string().min(3, "Name must be at least 3 characters").pipe(nonempty).optional(),
