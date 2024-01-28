@@ -88,7 +88,7 @@ export const ClubsFilterModal: React.FC<ClubsFilterModalProps> = ({ isOpen, clos
             >
               <Dialog.Panel className="flex w-full max-w-2xl transform flex-col gap-4 overflow-hidden rounded-2xl bg-white py-6 text-left align-middle shadow-xl transition-all">
                 <div className="border-b border-gray-200 w-full grid grid-cols-3 pb-3 px-8">
-                  <div className="flex w-full items-center h-full">
+                  <div className="flex w-full items-center">
                     <TbX
                       className="text-lg cursor-pointer hover:text-black-60 transition-colors"
                       onClick={closeModal}
