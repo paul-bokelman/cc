@@ -1,4 +1,4 @@
-import { type Club, type Tag, Availability, ClubStatus, ClubType } from "@prisma/client";
+import { type Club, type Tag, ClubStatus, ClubType } from "@prisma/client";
 import type { ToControllerConfig } from "../utils.types";
 import * as z from "zod";
 import { nonempty } from "../zod.utils";
