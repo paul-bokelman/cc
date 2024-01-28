@@ -8,7 +8,7 @@ export type ClubCardProps = GetClubs["payload"]["clubs"][number];
 
 export const ClubCard: React.FC<ClubCardProps> = (club) => {
   return (
-    <div className="flex w-full lg:max-w-md flex-col gap-2 rounded-md border border-black-20 p-4 h-full justify-between">
+    <div className="flex min-w-0 w-full lg:max-w-md flex-col gap-2 rounded-md border border-black-20 p-4 h-full justify-between">
       <div className="flex flex-col gap-2">
         <h2 className="text-xl lg:text-lg font-semibold">{club.name}</h2>
         <div className="flex items-center gap-1 overflow-scroll">
