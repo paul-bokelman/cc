@@ -81,10 +81,7 @@ export const ClubSearchModal: React.FC<ClubSearchModalProps> = ({ isOpen, closeM
                   </Button>
                 </div>
                 {debouncedSearchQuery.length > 0 && (
-                  <div
-                    // style={{ maxHeight: height ? height - 800 : undefined }}
-                    className="-mx-4 flex max-h-[34rem] lg:max-h-[28rem] flex-col overflow-y-scroll pb-6 px-8"
-                  >
+                  <div className="-mx-4 flex max-h-[34rem] lg:max-h-[28rem] flex-col overflow-y-scroll pb-6 px-8">
                     {/* CLUB PREVIEWS */}
                     {status === "error" && (
                       <p className="ml-4 text-red-60">Something went wrong, please try again later.</p>
