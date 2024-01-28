@@ -60,11 +60,13 @@ export const StandardLayout: React.FC<Props> = ({ children }) => {
         className="flex h-full w-full flex-col items-center justify-between gap-6 py-12 px-4 md:px-12 lg:max-w-[85rem] lg:px-4"
       >
         <div className="flex h-full w-full flex-col gap-6">
-          <div className="w-full grid md:grid-cols-3 grid-cols-2">
+          <div className="w-full grid grid-cols-3">
             {/* LOGO */}
-            <Logo withText beta />
+            <div className="col-span-2 lg:col-span-1">
+              <Logo withText beta />
+            </div>
             {/* NAV */}
-            <div className="hidden items-center gap-6 md:flex justify-center">
+            <div className="hidden items-center gap-6 lg:flex justify-center">
               {links.map((link) => {
                 const isActive = link.dest === "/" ? router.pathname === "/" : router.pathname.includes(link.dest);
                 return (
@@ -89,7 +91,7 @@ export const StandardLayout: React.FC<Props> = ({ children }) => {
             </div>
             {/* USER */}
 
-            <div className="hidden items-center gap-2 md:flex justify-end">
+            <div className="hidden items-center gap-2 lg:flex justify-end">
               <div className="flex items-center gap-2 text-red-500">
                 <a
                   href="https://docs.google.com/forms/d/e/1FAIpQLSeOCpVR9gMrJdmiWxldIzWXKRrcg_iUMLeGxMWsSJ1PjTElmQ/viewform?usp=sf_link"
@@ -111,13 +113,13 @@ export const StandardLayout: React.FC<Props> = ({ children }) => {
                     Login
                   </Button>
                   <Button disabled variant="primary">
-                    Sign Up
+                    Register
                   </Button>
                 </>
               )}
             </div>
 
-            <div className="flex md:hidden justify-end">
+            <div className="flex lg:hidden justify-end col-span-1">
               <TbMenu2 className="cursor-pointer text-2xl text-black" onClick={() => setMenuOpen(true)} />
               <MobileNavigationModal isOpen={menuOpen} links={links} closeModal={() => setMenuOpen(false)} />
             </div>
@@ -125,12 +127,12 @@ export const StandardLayout: React.FC<Props> = ({ children }) => {
         </div>
         <div className="flex h-full w-full justify-start">{children}</div>
         {/* FOOTER */}
-        <div className="mt-12 flex md:flex-row flex-col w-full items-center justify-between">
+        <div className="mt-12 flex lg:flex-row flex-col w-full items-center justify-between">
           <div className="flex items-center gap-2">
             <Logo withText={false} size={14} />
             <span className="text-sm">Club Compass - Redefining Club Discovery</span>
           </div>
-          <div className="flex items-center gap-3 md:mt-0 mt-2">
+          <div className="flex items-center gap-3 lg:mt-0 mt-2">
             {footerLinks.map((link) => (
               <Link key={link.label} href={link.dest}>
                 <span className="text-sm text-black transition-colors hover:text-blue-60">{link.label}</span>

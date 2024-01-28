@@ -8,9 +8,9 @@ export type ClubCardProps = GetClubs["payload"]["clubs"][number];
 
 export const ClubCard: React.FC<ClubCardProps> = (club) => {
   return (
-    <div className="flex w-full md:max-w-md flex-col gap-2 rounded-md border border-black-20 p-4 h-full justify-between">
+    <div className="flex w-full lg:max-w-md flex-col gap-2 rounded-md border border-black-20 p-4 h-full justify-between">
       <div className="flex flex-col gap-2">
-        <h2 className="text-xl md:text-lg font-semibold">{club.name}</h2>
+        <h2 className="text-xl lg:text-lg font-semibold">{club.name}</h2>
         <div className="flex items-center gap-1">
           {club.tags?.length === 0 ? (
             <div className="flex items-center gap-2 text-sm text-black-70">
@@ -22,7 +22,7 @@ export const ClubCard: React.FC<ClubCardProps> = (club) => {
           )}
         </div>
         {/* truncating to 140 characters (should find another solution) */}
-        <p className="text-base md:text-sm text-black-60">
+        <p className="text-base lg:text-sm text-black-60">
           {!club.description
             ? "No description provided."
             : club.description.length > 140
@@ -54,7 +54,7 @@ export const ClubCard: React.FC<ClubCardProps> = (club) => {
 
 export const ClubCardSkeleton: React.FC = () => {
   return (
-    <div className="flex w-full md:max-w-md flex-col gap-2 rounded-md border border-black-20 p-4 h-full justify-between animate-pulse">
+    <div className="flex w-full lg:max-w-md flex-col gap-2 rounded-md border border-black-20 p-4 h-full justify-between animate-pulse">
       <div className="flex flex-col gap-2">
         <div className="h-8 w-2/3 bg-black-15 rounded-md" />
         <div className="h-4 w-1/3 bg-black-15 rounded-md" />

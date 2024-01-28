@@ -73,13 +73,15 @@ export const MobileNavigationModal: React.FC<MobileNavigationModalProps> = ({ is
                     );
                   })}
                 </div>
-                <Link
-                  href=""
+                <a
+                  href="https://docs.google.com/forms/d/e/1FAIpQLSeOCpVR9gMrJdmiWxldIzWXKRrcg_iUMLeGxMWsSJ1PjTElmQ/viewform?usp=sf_link"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="flex items-center gap-2 mt-8 cursor-pointer text-2xl text-red-500 transition-colors underline"
                 >
                   <TbBugFilled />
-                  <span>Report a bug</span>
-                </Link>
+                  <span>Report bug</span>
+                </a>
               </Dialog.Panel>
             </Transition.Child>
           </div>

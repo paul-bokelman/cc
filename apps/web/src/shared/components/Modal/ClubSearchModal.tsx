@@ -45,7 +45,7 @@ export const ClubSearchModal: React.FC<ClubSearchModalProps> = ({ isOpen, closeM
           <div className="fixed inset-0 bg-black bg-opacity-25" />
         </Transition.Child>
 
-        <div className="fixed md:top-36 inset-0 overflow-y-auto">
+        <div className="fixed lg:top-32 inset-0 overflow-y-auto">
           <div className="flex min-h-full items-start justify-center p-4 text-center">
             <Transition.Child
               as={Fragment}
@@ -81,7 +81,10 @@ export const ClubSearchModal: React.FC<ClubSearchModalProps> = ({ isOpen, closeM
                   </Button>
                 </div>
                 {debouncedSearchQuery.length > 0 && (
-                  <div className="-mx-4 flex max-h-96 flex-col overflow-y-scroll pb-6 px-8">
+                  <div
+                    // style={{ maxHeight: height ? height - 800 : undefined }}
+                    className="-mx-4 flex max-h-[34rem] lg:max-h-[28rem] flex-col overflow-y-scroll pb-6 px-8"
+                  >
                     {/* CLUB PREVIEWS */}
                     {status === "error" && (
                       <p className="ml-4 text-red-60">Something went wrong, please try again later.</p>
