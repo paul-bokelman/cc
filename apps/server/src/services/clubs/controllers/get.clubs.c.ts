@@ -11,7 +11,7 @@ const handler: Controller<GetClubs> = async (req, res) => {
   // exclusive is flawed, because it will return clubs that include all tags, but not necessarily all tags
 
   try {
-    let filteredClubs: GetClubs["payload"] = [];
+    let filteredClubs: GetClubs["payload"]["clubs"] = [];
 
     const clubs = await prisma.club.findMany({
       where: {
@@ -19,7 +19,7 @@ const handler: Controller<GetClubs> = async (req, res) => {
         AND: filter
           ? {
               tags: filter.tags ? { [method]: { name: { in: filter.tags } } } : undefined,
-              availability: filter.availability ? { in: filter.availability } : undefined,
+              status: filter.status ? { in: filter.status } : undefined,
             }
           : undefined,
       },
@@ -50,7 +50,9 @@ const handler: Controller<GetClubs> = async (req, res) => {
       filteredClubs = filteredClubs.filter((club) => club.tags.length !== 0);
     }
 
-    return success(StatusCodes.OK, filteredClubs);
+    const totalClubs = await prisma.club.count({ where: { school: { name: req.school } } });
+
+    return success(StatusCodes.OK, { totalClubs, clubs: filteredClubs });
   } catch (e) {
     return handleControllerError(e, res);
   }

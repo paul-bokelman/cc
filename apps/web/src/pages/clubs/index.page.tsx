@@ -2,8 +2,15 @@ import type { NextPageWithConfig } from "~/shared/types";
 import type { GetClubs } from "cc-common";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import { TbChevronDown, TbFilter, TbSearchOff, TbMoodConfuzed } from "react-icons/tb";
-import { ClubCard, ClubCardSkeleton, Button, DropdownMenu, ClubsFilterModal } from "~/shared/components";
+import { TbChevronDown, TbFilter, TbSearchOff, TbMoodConfuzed, TbSearch } from "react-icons/tb";
+import {
+  ClubCard,
+  ClubCardSkeleton,
+  Button,
+  DropdownMenu,
+  ClubsFilterModal,
+  ClubSearchModal,
+} from "~/shared/components";
 import { useQ } from "~/shared/hooks";
 import { useGetClubs } from "~/lib/queries";
 import { handleResponseError } from "~/lib/utils";
@@ -14,8 +21,9 @@ const Clubs: NextPageWithConfig = () => {
 
   const [activeSortIndex, setActiveSortIndex] = useState<number>(0);
   const [showFilterModal, setShowFilterModal] = useState<boolean>(false);
+  const [showSearchModal, setShowSearchModal] = useState<boolean>(false);
 
-  const { data: clubs, ...clubsQuery } = useGetClubs(
+  const cq = useGetClubs(
     { query: parseQ(router.asPath), params: undefined, body: undefined },
     {
       keepPreviousData: true,
@@ -44,39 +52,57 @@ const Clubs: NextPageWithConfig = () => {
       <h1 className="text-3xl font-bold leading-3">Discover Clubs</h1>
       <p className="leading-3 text-black-60 ">Select your interests and find the perfect club for you.</p>
       <div className="flex w-full flex-col items-center justify-between gap-4 md:flex-row">
-        <div className="flex w-full items-center gap-2 md:w-auto">
+        <div className="flex w-full items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Button
+              variant="secondary"
+              iconLeft={TbFilter}
+              style={{ width: "fit-content", height: "3rem" }}
+              onClick={() => setShowFilterModal(true)}
+            >
+              Filters
+            </Button>
+            <ClubsFilterModal isOpen={showFilterModal} closeModal={() => setShowFilterModal(false)} />
+            <DropdownMenu
+              items={sortMenuItems.map((item, i) => ({
+                active: i === activeSortIndex,
+                onClick: () => handleApplySort(i),
+                ...item,
+              }))}
+            >
+              <DropdownMenu.Button
+                variant="secondary"
+                iconRight={TbChevronDown}
+                style={{ width: "fit-content", height: "3rem" }}
+              >
+                Sort by {sortMenuItems[activeSortIndex]?.label}
+              </DropdownMenu.Button>
+            </DropdownMenu>
+          </div>
           <Button
             variant="secondary"
-            iconLeft={TbFilter}
+            iconLeft={TbSearch}
             style={{ width: "fit-content", height: "3rem" }}
-            onClick={() => setShowFilterModal(true)}
+            onClick={() => setShowSearchModal(true)}
           >
-            Filters
+            Search...
           </Button>
-
-          <ClubsFilterModal isOpen={showFilterModal} closeModal={() => setShowFilterModal(false)} />
-
-          <DropdownMenu
-            items={sortMenuItems.map((item, i) => ({
-              active: i === activeSortIndex,
-              onClick: () => handleApplySort(i),
-              ...item,
-            }))}
-          >
-            <DropdownMenu.Button
-              variant="secondary"
-              iconRight={TbChevronDown}
-              style={{ width: "fit-content", height: "3rem" }}
-            >
-              Sort by {sortMenuItems[activeSortIndex]?.label}
-            </DropdownMenu.Button>
-          </DropdownMenu>
+          <ClubSearchModal isOpen={showSearchModal} closeModal={() => setShowSearchModal(false)} />
         </div>
       </div>
-      <div className="mt-2 grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 w-full">
-        {clubsQuery.isSuccess ? (
-          clubs?.length !== 0 ? (
-            clubs?.map((club, i) => <ClubCard key={i} {...club} />)
+      {/* <div className="flex w-full border-b border-black-20 pb-4">
+        <h1 className="text-2xl font-bold">Clubs</h1>
+      </div> */}
+      {cq.isSuccess && (
+        <p className="text-sm text-black-60 -my-4">
+          Showing {cq.data.clubs!.length} out of {cq.data.totalClubs} total clubs
+        </p>
+      )}
+
+      <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 w-full">
+        {cq.isSuccess ? (
+          cq.data.clubs.length !== 0 ? (
+            cq.data.clubs.map((club, i) => <ClubCard key={i} {...club} />)
           ) : (
             <div className="flex w-full border border-black-20 h-60 col-span-3 rounded-md">
               <div className="flex flex-col items-center justify-center w-full">
@@ -86,7 +112,7 @@ const Clubs: NextPageWithConfig = () => {
               </div>
             </div>
           )
-        ) : clubsQuery.isLoading ? (
+        ) : cq.isLoading ? (
           Array.from({ length: 9 }).map((_, i) => <ClubCardSkeleton key={i} />)
         ) : (
           <div className="flex w-full border border-red-20 bg-red-10/50 h-60 col-span-3 rounded-md">

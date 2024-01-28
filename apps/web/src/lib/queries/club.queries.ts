@@ -1,4 +1,4 @@
-import type { GetClubs, GetClub, NewClub, EditClub, DeleteClub } from "cc-common";
+import type { GetClubs, GetClub, SearchClubs, NewClub, EditClub, DeleteClub } from "cc-common";
 import type { QueryHook, MutationHook, Error } from "./query.utils";
 import { useMutation, useQuery } from "react-query";
 import { query, mutation } from "./query.utils";
@@ -15,6 +15,16 @@ export const useGetClub: QueryHook<GetClub> = (args, options) => {
   return useQuery<GetClub["payload"], Error>(
     ["club", { [args.query.method]: args.params.identifier }],
     async () => await getClub(args),
+    options
+  );
+};
+
+/* ------------------------------ SEARCH CLUBS ------------------------------ */
+const searchClubs = query<SearchClubs>("/clubs/search");
+export const useSearchClubs: QueryHook<SearchClubs> = (args, options) => {
+  return useQuery<SearchClubs["payload"], Error>(
+    ["search-clubs", { searchQuery: args.query.searchQuery }],
+    async () => await searchClubs(args),
     options
   );
 };

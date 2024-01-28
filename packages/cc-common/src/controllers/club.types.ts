@@ -8,11 +8,14 @@ export const clubIdentifierMethods = ["slug", "id", "name"] as const;
 /* -------------------------------- GET CLUBS ------------------------------- */
 export type GetClubs = ToControllerConfig<
   typeof getClubsSchema,
-  Array<
-    Pick<Club, "id" | "name" | "slug" | "description" | "availability" | "status"> & {
-      tags: (Tag & { active: boolean })[];
-    }
-  >
+  {
+    totalClubs: number;
+    clubs: Array<
+      Pick<Club, "id" | "name" | "slug" | "description" | "availability" | "status"> & {
+        tags: (Tag & { active: boolean })[];
+      }
+    >;
+  }
 >;
 export const getClubsSchema = z.object({
   query: z.object({
@@ -22,7 +25,9 @@ export const getClubsSchema = z.object({
       .object({
         tags: z.array(z.string()).optional(),
         tagMethod: z.enum(["inclusive", "exclusive"]).optional(),
-        availability: z.array(z.nativeEnum(Availability)).optional(),
+        status: z.array(z.nativeEnum(ClubStatus)).optional(),
+        // availability: z.array(z.nativeEnum(Availability)).optional(),
+        // type: z.array(z.nativeEnum(ClubType)).optional(),
       })
       .optional(),
     sort: z.enum(["new", "old", "name-desc", "name-asc"]).optional(),
@@ -46,6 +51,17 @@ export const getClubSchema = z.object({
       }),
   }),
   params: z.object({ identifier: z.string() }),
+});
+
+/* ------------------------------- SEARCH CLUBS ------------------------------ */
+export type SearchClubs = ToControllerConfig<
+  typeof searchClubsSchema,
+  Array<
+    Pick<Club, "id" | "name" | "slug" | "description" | "status" | "availability"> & { tags: Array<Pick<Tag, "name">> }
+  >
+>;
+export const searchClubsSchema = z.object({
+  query: z.object({ searchQuery: z.string() }),
 });
 
 /* -------------------------------- NEW CLUB -------------------------------- */

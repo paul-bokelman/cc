@@ -7,7 +7,7 @@ import { type FormikHelpers, Formik, Field, Form } from "formik";
 import cn from "classnames";
 import { toFormikValidationSchema } from "zod-formik-adapter";
 import { toast } from "react-hot-toast";
-import { TbBrandFacebook, TbBrandInstagram, TbBrandTwitter, TbCheck, TbLink } from "react-icons/tb";
+import { TbBrandFacebook, TbBrandInstagram, TbBrandTwitter, TbLink } from "react-icons/tb";
 import { queryClient, useGetTags, useEditClub, useDeleteClub } from "~/lib/queries";
 import { withUser } from "~/shared/utils";
 import { handleFormError, handleResponseError } from "~/lib/utils";
@@ -145,6 +145,13 @@ const AdminDashboardClub: NextPageWithConfig = () => {
       <Page.Header
         title={`Manage ${club?.name}`} // conditional name
         description={`Edit and get an overview of the ${club?.name} club`}
+        actions={[
+          {
+            children: "View Club Page",
+            onClick: () => router.push(`/clubs/${club?.slug}`),
+            variant: "secondary",
+          },
+        ]}
       />
       <Page.Navigation
         links={[

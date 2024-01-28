@@ -35,7 +35,7 @@ export const Pill: React.FC<PillProps> = (props) => {
   return (
     <div
       className={cn(
-        `flex gap-2 items-center py-2 rounded-md border`,
+        `flex gap-2 items-center py-2 rounded-md border w-fit`,
         {
           "border-green-500/40 bg-green-500/10": color === "green",
           "border-orange-500/40 bg-orange-500/10": color === "orange",

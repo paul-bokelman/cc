@@ -1,7 +1,7 @@
 import type { BaseModalProps } from "."; // should be on base modal
 import type { Children } from "~/shared/types";
 import type { GetClubs } from "cc-common";
-import { Availability } from "@prisma/client"; // technically type
+import { ClubStatus } from "@prisma/client"; // technically type
 import { useState, Fragment } from "react";
 import cn from "classnames";
 import { Dialog, Transition } from "@headlessui/react";
@@ -15,7 +15,7 @@ type ClubsFilterModalProps = BaseModalProps;
 
 export const ClubsFilterModal: React.FC<ClubsFilterModalProps> = ({ isOpen, closeModal }) => {
   const { query, append: appendToQuery, clear: clearQuery } = useQ<GetClubs["query"]>();
-  const [selectedAvailabilities, setSelectedAvailabilities] = useState<Availability[]>([]);
+  const [selectedStatuses, setSelectedStatuses] = useState<ClubStatus[]>([]);
   const [selectedTags, setSelectedTags] = useState<string[]>(query?.filter?.tags ?? []);
   const [tagFilteringMethod, setTagFilteringMethod] = useState<"exclusive" | "inclusive">(
     query?.filter?.tagMethod ?? "inclusive"
@@ -34,17 +34,17 @@ export const ClubsFilterModal: React.FC<ClubsFilterModalProps> = ({ isOpen, clos
     }
   };
 
-  const handleSelectAvailability = (availability: Availability) => {
-    if (!selectedAvailabilities.includes(availability) && selectedAvailabilities.length !== 2) {
-      setSelectedAvailabilities((prev) => [...prev, availability]);
+  const handleSelectStatus = (status: ClubStatus) => {
+    if (!selectedStatuses.includes(status) && selectedStatuses.length !== 2) {
+      setSelectedStatuses((prev) => [...prev, status]);
     } else {
-      setSelectedAvailabilities((prev) => prev.filter((curr) => curr !== availability));
+      setSelectedStatuses((prev) => prev.filter((curr) => curr !== status));
     }
   };
 
   const handleApplyFilter = () => {
     appendToQuery({
-      filter: { tags: selectedTags, tagMethod: tagFilteringMethod, availability: selectedAvailabilities },
+      filter: { tags: selectedTags, tagMethod: tagFilteringMethod, status: selectedStatuses },
     });
     closeModal();
   };
@@ -52,7 +52,7 @@ export const ClubsFilterModal: React.FC<ClubsFilterModalProps> = ({ isOpen, clos
   const clearFilter = () => {
     setSelectedTags([]);
     setTagFilteringMethod("inclusive");
-    setSelectedAvailabilities([]);
+    setSelectedStatuses([]);
     // appendToQuery({ filter: null });
     clearQuery("filter");
     closeModal(); // should close?
@@ -137,23 +137,23 @@ export const ClubsFilterModal: React.FC<ClubsFilterModalProps> = ({ isOpen, clos
                       />
                     </div>
                   </FilterSection>
-                  <FilterSection title="Availability" description="Filter by 1-2 of the 3 availability options">
+                  <FilterSection title="Status" description="Filter by 1-2 of the 3 status options">
                     <div className="w-full grid grid-cols-3 gap-4">
-                      {(Object.keys(Availability) as Array<keyof typeof Availability>).map((availability) => (
+                      {(Object.keys(ClubStatus) as Array<keyof typeof ClubStatus>).map((status) => (
                         <div
-                          key={availability}
+                          key={status}
                           className={cn(
                             {
                               "bg-blue-10 border-blue-60 text-blue-60 hover:bg-blue-10":
-                                selectedAvailabilities.includes(availability),
+                                selectedStatuses.includes(status),
                               "opacity-50 pointer-events-none":
-                                !selectedAvailabilities.includes(availability) && selectedAvailabilities.length === 2,
+                                !selectedStatuses.includes(status) && selectedStatuses.length === 2,
                             },
                             "flex capitalize justify-center border p-2 rounded-md border-black-20 hover:bg-black-10 cursor-pointer"
                           )}
-                          onClick={() => handleSelectAvailability(availability)}
+                          onClick={() => handleSelectStatus(status)}
                         >
-                          <span>{availability.toLowerCase()}</span>
+                          <span>{status.toLowerCase()}</span>
                         </div>
                       ))}
                     </div>
@@ -171,7 +171,7 @@ export const ClubsFilterModal: React.FC<ClubsFilterModalProps> = ({ isOpen, clos
                   </div>
                   <div className="w-full flex justify-end">
                     <Button variant="primary" style={{ width: "fit-content" }} onClick={handleApplyFilter}>
-                      Apply Filter
+                      Show Clubs
                     </Button>
                   </div>
                 </div>

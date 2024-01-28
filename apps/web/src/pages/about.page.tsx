@@ -1,7 +1,7 @@
 import type { NextPageWithConfig } from "~/shared/types";
 import * as React from "react";
 
-const Home: NextPageWithConfig = () => {
+const About: NextPageWithConfig = () => {
   return (
     <div className="mt-40 flex w-full flex-col items-start justify-center gap-8">
       <h1>WIP</h1>
@@ -9,6 +9,6 @@ const Home: NextPageWithConfig = () => {
   );
 };
 
-Home.layout = { view: "standard", config: {} };
+About.layout = { view: "standard", config: {} };
 
-export default Home;
+export default About;

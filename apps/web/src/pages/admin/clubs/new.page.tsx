@@ -7,7 +7,7 @@ import { type FormikHelpers, Formik, Field, Form } from "formik";
 import cn from "classnames";
 import { toast } from "react-hot-toast";
 import { toFormikValidationSchema } from "zod-formik-adapter";
-import { TbBrandFacebook, TbBrandInstagram, TbBrandTwitter, TbCheck, TbLink } from "react-icons/tb";
+import { TbBrandFacebook, TbBrandInstagram, TbBrandTwitter, TbLink } from "react-icons/tb";
 import { useGetTags, useNewClub } from "~/lib/queries";
 import { withUser } from "~/shared/utils";
 import { handleResponseError, handleFormError } from "~/lib/utils";
