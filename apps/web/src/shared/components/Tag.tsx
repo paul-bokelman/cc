@@ -3,7 +3,6 @@ import cn from "classnames";
 import {
   TbAtom,
   TbBallAmericanFootball,
-  TbBook,
   TbMath,
   TbBuildingCastle,
   TbBuildingPavilion,
@@ -11,6 +10,14 @@ import {
   TbFriends,
   TbHeartHandshake,
   TbTag,
+  TbMusic,
+  TbPalette,
+  TbWriting,
+  TbCpu,
+  TbBriefcase,
+  TbShieldHeart,
+  TbSpeakerphone,
+  TbMessages,
 } from "react-icons/tb";
 
 type Props = {
@@ -29,25 +36,46 @@ type Tags = { [name in TagNames]: { icon: IconType } };
 export const registeredTagNames = [
   "sports",
   "science",
-  "reading",
-  "math",
   "history",
   "culture",
-  "nature",
-  "social",
-  "charity",
+  "volunteering",
+  "social justice",
+  "debate",
+  "health",
+  "community",
+  "environment",
+  // "faith",
+  "career",
+  "technology",
+  "art",
+  "problem solving",
+  "music",
+  "writing",
+  "awareness",
+  // "dance",
 ] as const;
 
 export const tags: Tags = {
   sports: { icon: TbBallAmericanFootball },
   science: { icon: TbAtom },
-  reading: { icon: TbBook },
-  math: { icon: TbMath },
   history: { icon: TbBuildingCastle },
   culture: { icon: TbBuildingPavilion },
-  nature: { icon: TbButterfly },
-  social: { icon: TbFriends },
-  charity: { icon: TbHeartHandshake },
+  environment: { icon: TbButterfly },
+  music: { icon: TbMusic },
+  volunteering: { icon: TbHeartHandshake },
+  "problem solving": { icon: TbMath },
+  art: { icon: TbPalette },
+  community: { icon: TbFriends },
+
+  "social justice": { icon: TbHeartHandshake },
+  awareness: { icon: TbSpeakerphone },
+  debate: { icon: TbMessages },
+  health: { icon: TbShieldHeart },
+  // faith: { icon: TbHeartHandshake },
+  career: { icon: TbBriefcase },
+  // dance: { icon: TbHeartHandshake },
+  technology: { icon: TbCpu },
+  writing: { icon: TbWriting },
 };
 
 // CLEAN THIS UP
@@ -83,7 +111,7 @@ export const Tag: React.FC<Props> = ({ variant, size = "sm", name, active, class
             "border-blue-70 bg-blue-10/50 text-blue-70": active,
             "border-black-20 text-black-70": !active,
           },
-          "inline-flex w-fit items-center justify-center gap-2  rounded-full border"
+          "inline-flex w-fit items-center justify-center gap-2 rounded-md border"
         )}
         onClick={onClick}
       >
@@ -95,7 +123,7 @@ export const Tag: React.FC<Props> = ({ variant, size = "sm", name, active, class
           })}
         />
         <span
-          className={cn("font-medium capitalize", {
+          className={cn("font-medium capitalize whitespace-nowrap", {
             "text-xs": size === "sm",
             "text-sm": size === "md",
             "text-base": size === "lg",

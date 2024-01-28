@@ -11,10 +11,10 @@ export const ClubCard: React.FC<ClubCardProps> = (club) => {
     <div className="flex w-full lg:max-w-md flex-col gap-2 rounded-md border border-black-20 p-4 h-full justify-between">
       <div className="flex flex-col gap-2">
         <h2 className="text-xl lg:text-lg font-semibold">{club.name}</h2>
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1 overflow-scroll">
           {club.tags?.length === 0 ? (
             <div className="flex items-center gap-2 text-sm text-black-70">
-              <TbTag className />
+              <TbTag />
               <span>No tags</span>
             </div>
           ) : (
