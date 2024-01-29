@@ -29,10 +29,10 @@ export type ButtonProps = (
   BaseButtonProps;
 
 const variantStyles: { [key in Variants]: string } = {
-  primary: "bg-blue-70 text-white hover:bg-blue-50 shadow-sm",
-  secondary: "border border-black-20 bg-white text-black-70 shadow-sm hover:bg-black-10/40",
-  danger: "bg-red-50 text-white hover:bg-red-70",
-  ghost: "bg-transparent text-black hover:text-black-60",
+  primary: "bg-blue-70 text-white hover:bg-blue-50 disabled:hover:bg-blue-70 shadow-sm",
+  secondary: "border border-black-20 bg-white text-black-70 shadow-sm hover:bg-black-10/40 disabled:hover:bg-white",
+  danger: "bg-red-50 text-white hover:bg-red-70 disabled:hover:bg-red-50 shadow-sm",
+  ghost: "bg-transparent text-black hover:text-black-60 disabled:hover:text-black",
 };
 const sizeStyles: { [key in Sizes]: string } = {
   small: "h-[36px] px-5 text-xs",
@@ -41,7 +41,7 @@ const sizeStyles: { [key in Sizes]: string } = {
 };
 const stateStyles: { [key in State]: string } = {
   default: "",
-  disabled: "pointer-events-none opacity-50 shadow-none",
+  disabled: "cursor-not-allowed opacity-50 shadow-none",
   loading: "pointer-events-none opacity-50",
 };
 

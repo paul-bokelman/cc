@@ -1,5 +1,6 @@
 import type { NextPageWithConfig } from "~/shared/types";
 import * as React from "react";
+import { GetServerSideProps } from "next";
 
 const Home: NextPageWithConfig = () => {
   return (
@@ -10,5 +11,14 @@ const Home: NextPageWithConfig = () => {
 };
 
 Home.layout = { view: "standard", config: {} };
+
+export const getServerSideProps: GetServerSideProps = async () => {
+  return {
+    redirect: {
+      destination: "/clubs",
+      permanent: false,
+    },
+  };
+};
 
 export default Home;

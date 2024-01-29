@@ -28,17 +28,19 @@ export const StandardLayout: React.FC<Props> = ({ children }) => {
 
   // two arrays for scale
   const adminLinks = [
-    { label: "Home", dest: "/" },
+    // { label: "Home", dest: "/" },
     { label: "Clubs", dest: "/clubs" },
     { label: "Dashboard", dest: "/admin/clubs" }, // defaults to clubs for now
-    { label: "About", dest: "/about" },
+    // { label: "About", dest: "/about" },
   ];
 
   const memberLinks = [
-    { label: "Home", dest: "/" },
     { label: "Clubs", dest: "/clubs" },
+    // { label: "Home", dest: "/" },
     // { label: "Dashboard", dest: "/dashboard" }, // no dash rn
-    { label: "About", dest: "/about" },
+    // { label: "About", dest: "/about" },
+    // { label: "Beckman News", dest: "/news" }, // updates on clubs, events, etc.
+    // { label: "Events", dest: "/events" }, // events page
   ];
 
   const links = user?.role === "ADMIN" ? adminLinks : memberLinks; // if more roles are added this logic needs to be changed
