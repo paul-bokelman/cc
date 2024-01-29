@@ -13,7 +13,7 @@ type Props = {
 
 export const Logo: React.FC<Props> = ({ withText = false, beta = false, dest, mobile = false, size = 24 }) => {
   return (
-    <Link href={dest || "/"} className={cn({ "focus:outline-none": mobile })}>
+    <Link href={dest || "/clubs"} className={cn({ "focus:outline-none": mobile })}>
       <div className="flex items-center gap-2">
         <ClubCompassLogo style={{ fontSize: `${size}px` }} />
         {mobile && beta && <span className="text-xs font-bold text-gray-400">BETA</span>}
