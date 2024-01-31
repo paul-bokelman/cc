@@ -1,5 +1,6 @@
 import type { NextPageWithConfig } from "~/shared/types";
 import type { IconType } from "react-icons";
+import * as React from "react";
 import { useRouter } from "next/router";
 import { toast } from "react-hot-toast";
 import {
@@ -24,7 +25,6 @@ import { handleResponseError } from "~/lib/utils";
 const Club: NextPageWithConfig = () => {
   const router = useRouter();
 
-  // todo: convert to just "cq" instead of destructuring
   const cq = useGetClub(
     {
       query: { method: "slug", includeSimilar: "true" },
@@ -33,6 +33,9 @@ const Club: NextPageWithConfig = () => {
     },
     { enabled: !!router.query.slug, onError: (e) => handleResponseError(e, "Unable to fetch club") }
   );
+
+  const [readingMore, setReadingMore] = React.useState(false);
+  const canReadMore = cq.data?.description?.length ? cq.data?.description?.length > 600 : false;
 
   const formatMeetingInfo = (days: string | null, time: string | null, frequency: string | null) => {
     if (!days && !time && !frequency) return "Meeting dates not assigned";
@@ -170,8 +173,25 @@ const Club: NextPageWithConfig = () => {
       <div className="grid w-full grid-cols-1 items-start border-t border-b border-black-20 py-10 md:grid-cols-2 ">
         <div className="flex w-full flex-col items-center justify-center gap-6 md:w-3/4 md:items-start md:justify-start">
           <h2 className="text-xl font-semibold">Description</h2>
-          <p className="w-3/4 text-sm text-black-70 md:w-full">
-            {cq.data.description || "No description, this club hasn't provided a description yet."}
+          <p className="w-3/4 text-sm text-black-70 md:w-full overflow-x-scroll">
+            {cq.data.description ? (
+              !canReadMore ? (
+                cq.data.description
+              ) : (
+                <>
+                  {cq.data.description?.slice(0, readingMore ? cq.data.description.length : 600)}
+                  {!readingMore && "..."}
+                  <span
+                    onClick={() => setReadingMore((prev) => !prev)}
+                    className="text-blue-60 ml-2 font-semibold cursor-pointer"
+                  >
+                    Show {readingMore ? "Less" : "More"}
+                  </span>
+                </>
+              )
+            ) : (
+              "No description, this club hasn't provided a description yet."
+            )}
           </p>
         </div>
         <div className="mt-8 flex w-full flex-col items-center justify-center gap-6 md:mt-0 md:w-3/4 md:items-start md:justify-start">
@@ -219,7 +239,12 @@ const Club: NextPageWithConfig = () => {
             {media.map((m) => (
               <TextWithIcon
                 element={
-                  <a href={`${m.prefix}${m.handle}`} className="text-blue-60 underline">
+                  <a
+                    href={`${m.prefix}${m.handle}`}
+                    className="text-blue-60 underline"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
                     {!m.prefix ? "Website" : `@${m.handle}`}
                   </a>
                 }

@@ -3,13 +3,21 @@ import select from "@inquirer/select";
 import { confirm } from "@inquirer/prompts";
 import { tags } from "./data";
 import { generateUser } from "./data/generate";
-import { get } from "./data/schools";
+import { getSchoolClubs, getTestClubs } from "./data/schools";
+import schools from "./data/schools/schools.json";
 
 export const prisma = new PrismaClient();
 
-export const allSchools = process.env.SUBDOMAINS?.split(",") ?? [];
+export const subdomains = process.env.SUBDOMAINS?.split(",") ?? [];
 
 async function main() {
+  const isProduction = process.env.NODE_ENV === "production";
+
+  const schoolNames = Object.keys(schools).filter((school) => subdomains.includes(school));
+
+  console.log("Running seed script...");
+  if (isProduction) console.log("RUNNING IN PRODUCTION MODE, PROCEED WITH CAUTION");
+
   const addTags = await confirm({ message: "Add tags?" });
 
   if (addTags) {
@@ -22,21 +30,20 @@ async function main() {
     message: "Choose a school",
     choices: [
       { name: "all", value: "all" },
-      ...allSchools.map((school) => ({ title: school, value: school })),
+      ...schoolNames.map((school) => ({ title: school, value: school })),
       { name: "exit", value: "exit" },
     ],
   });
 
   if (choice === "exit") return process.exit(0);
 
-  const addUsers = await confirm({ message: "Add users?" });
-  const generateDummyData = await confirm({ message: "Generate dummy data?" });
+  const addAdmin = await confirm({ message: "Add admin?" });
 
   if (choice !== "all") {
     const schoolExists = await prisma.school.findUnique({ where: { name: choice } });
 
     if (schoolExists) {
-      const deleteSchool = await confirm({ message: "School already exists, reset clubs and users?" });
+      const deleteSchool = await confirm({ message: "School already exists, reset school (school, clubs and users)?" });
       if (!deleteSchool) return process.exit(0);
     }
 
@@ -45,9 +52,7 @@ async function main() {
     await prisma.school.deleteMany({ where: { name: choice } });
     await prisma.school.create({ data: { name: choice } });
 
-    const key = (generateDummyData ? "school" : choice) as keyof typeof get;
-
-    const clubs = await get[key]();
+    const clubs = await getSchoolClubs(choice);
 
     for (const club of clubs) {
       const exists = await prisma.club.findUnique({ where: { slug: club.slug } });
@@ -58,10 +63,8 @@ async function main() {
       await prisma.club.create({ data: club });
     }
 
-    if (addUsers) {
-      for (let i = 0; i < 10; i++) {
-        await prisma.user.create({ data: await generateUser(choice, i == 0 ? "ADMIN" : undefined) });
-      }
+    if (addAdmin) {
+      await prisma.user.create({ data: await generateUser(choice, "ADMIN") });
     }
   }
 
@@ -74,11 +77,11 @@ async function main() {
     await prisma.user.deleteMany();
     await prisma.school.deleteMany();
 
-    for (const school of allSchools) {
+    for (const school of schoolNames) {
       await prisma.school.create({ data: { name: school } });
 
-      const key = (generateDummyData ? "school" : school) as keyof typeof get;
-      const clubs = await get[key]();
+      const clubs =
+        school === "staging" || school === "testing" ? await getTestClubs(school) : await getSchoolClubs(school);
 
       for (const club of clubs) {
         const exists = await prisma.club.findUnique({ where: { slug: club.slug } });
@@ -89,11 +92,7 @@ async function main() {
         await prisma.club.create({ data: club });
       }
 
-      if (addUsers) {
-        for (let i = 0; i < 10; i++) {
-          await prisma.user.create({ data: await generateUser(school, i == 0 ? "ADMIN" : undefined) });
-        }
-      }
+      await prisma.user.create({ data: await generateUser(school, "ADMIN") });
     }
   }
 }
