@@ -42,3 +42,4 @@ yarn-error.log*
 
 # apps/server/prisma/data/schools/beckman
 apps/server/.vscode/settings.json
+apps/server/prisma/data/schools/schools.json
