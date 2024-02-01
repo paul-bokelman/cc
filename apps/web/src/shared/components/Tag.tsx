@@ -18,6 +18,7 @@ import {
   TbShieldHeart,
   TbSpeakerphone,
   TbMessages,
+  TbBooks,
 } from "react-icons/tb";
 
 type Props = {
@@ -52,6 +53,7 @@ export const registeredTagNames = [
   "music",
   "writing",
   "awareness",
+  "education",
   // "dance",
 ] as const;
 
@@ -69,6 +71,7 @@ export const tags: Tags = {
 
   "social justice": { icon: TbHeartHandshake },
   awareness: { icon: TbSpeakerphone },
+  education: { icon: TbBooks },
   debate: { icon: TbMessages },
   health: { icon: TbShieldHeart },
   // faith: { icon: TbHeartHandshake },

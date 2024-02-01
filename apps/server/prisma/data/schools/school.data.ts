@@ -39,9 +39,6 @@ export const getSchoolClubs = async (school_name: string): Promise<Prisma.ClubCr
       .pipe(parse({ delimiter: ",", skipEmptyLines: true, from_line: 2 }))
       .on("data", (row: string[]) => {
         let [
-          timestamp,
-          name,
-          position,
           club_name,
           type,
           status,
@@ -61,7 +58,6 @@ export const getSchoolClubs = async (school_name: string): Promise<Prisma.ClubCr
           instagram,
           twitter,
           facebook,
-          using_application,
           application_link,
         ] = row;
 
@@ -82,13 +78,13 @@ export const getSchoolClubs = async (school_name: string): Promise<Prisma.ClubCr
           description,
           advisor,
           president,
-          vicePresident: vice_president,
-          secretary,
-          treasurer,
+          vicePresident: vice_president || undefined,
+          secretary: secretary || undefined,
+          treasurer: treasurer || undefined,
           meetingLocation: location,
           meetingFrequency: frequency,
           meetingDays: days.split(";").join(","),
-          applicationLink: using_application.toUpperCase() === "YES" ? application_link : undefined,
+          applicationLink: application_link || undefined,
           meetingTime: times,
           availability: (status.toUpperCase() as ClubStatus) === "INACTIVE" ? "CLOSED" : "OPEN",
           website: website || undefined,

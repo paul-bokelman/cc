@@ -40,10 +40,12 @@ const handler: Controller<GetClubs> = async (req, res) => {
       },
     });
 
-    filteredClubs = clubs.map((club) => ({
-      ...club,
-      tags: club.tags.map((tag) => ({ ...tag, active: filter?.tags ? filter.tags.includes(tag.name) : false })),
-    }));
+    filteredClubs = clubs
+      .map((club) => ({
+        ...club,
+        tags: club.tags.map((tag) => ({ ...tag, active: filter?.tags ? filter.tags.includes(tag.name) : false })),
+      }))
+      .sort((a, b) => (!a.description && b.description ? 1 : a.description && !b.description ? -1 : 0));
 
     // temporary fix for exclusive tag filtering
     if (filter?.tagMethod === "exclusive") {
