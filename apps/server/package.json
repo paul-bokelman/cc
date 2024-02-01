@@ -20,10 +20,10 @@
     "db:seed:staging": "dotenv -e .env.staging.local -- ts-node prisma/db.seed.ts",
     "db:reset:staging": "npm run db:push:staging && npm run db:seed:staging",
     "db:wipe:staging": "dotenv -e .env.staging.local -- npx prisma migrate reset --skip-seed",
-    "db:push:prod": "dotenv -e .env.prod.local -- npx prisma db push --force-reset",
-    "db:seed:prod": "dotenv -e .env.prod.local -- ts-node prisma/db.seed.ts",
-    "db:reset:prod": "npm run db:push:prod && npm run db:seed:prod",
-    "db:wipe:prod": "dotenv -e .env.prod.local -- npx prisma migrate reset --skip-seed"
+    "db:push:production": "dotenv -e .env.production.local -- npx prisma db push --force-reset",
+    "db:seed:production": "dotenv -e .env.production.local -- ts-node prisma/db.seed.ts",
+    "db:reset:production": "npm run db:push:production && npm run db:seed:production",
+    "db:wipe:production": "dotenv -e .env.production.local -- npx prisma migrate reset --skip-seed"
   },
   "prisma": {
     "seed": "ts-node prisma/db.seed.ts"

@@ -8,7 +8,6 @@ const variables = [
   "NODE_ENV",
   "CLIENT_DOMAIN",
   "SERVER_URL",
-  "JWT_SECRET",
   "SESSION_SECRET",
   "PORT",
   "REDIS_URL",

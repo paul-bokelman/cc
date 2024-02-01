@@ -64,7 +64,6 @@ const AdminDashboardClub: NextPageWithConfig = () => {
 
   const club = cq.data; // geez...
 
-  //
   const initialValues: EditClub["body"] = {
     // type will be club
     name: club?.name,

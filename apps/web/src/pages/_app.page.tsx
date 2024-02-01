@@ -49,7 +49,7 @@ const ClubCompass = ({ Component, pageProps: { session, ...pageProps } }: Extend
                 onClick={() => {
                   window.location.href = appendSubdomain(sd, process.env.NEXT_PUBLIC_CLIENT_URL as string);
                 }}
-                className="text-blue-500 hover:underline cursor-pointer"
+                className="font-semibold text-blue-70 hover:underline cursor-pointer"
               >
                 {sd}
               </span>
