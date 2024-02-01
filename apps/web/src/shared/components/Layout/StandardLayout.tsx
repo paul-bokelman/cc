@@ -49,6 +49,11 @@ export const StandardLayout: React.FC<Props> = ({ children }) => {
     //! Icons for mobile
     { label: "Twitter", icon: TbBrandTwitter, dest: "https://twitter.com/clubcompass_" },
     { label: "Instagram", icon: TbBrandInstagram, dest: "https://www.instagram.com/clubcompassofficial/" },
+    { label: "Feedback", dest: "https://forms.gle/r7FVFR7orVnCEkdU8" },
+    {
+      label: "Report Bug",
+      dest: "https://docs.google.com/forms/d/e/1FAIpQLSeOCpVR9gMrJdmiWxldIzWXKRrcg_iUMLeGxMWsSJ1PjTElmQ/viewform?usp=sf_link",
+    },
     // { label: "About Us", dest: "/about" }, // random icon
     // { label: "Contact Us", dest: "/link" }, // func
   ];
@@ -136,7 +141,7 @@ export const StandardLayout: React.FC<Props> = ({ children }) => {
           </div>
           <div className="flex items-center gap-3 lg:mt-0 mt-2">
             {footerLinks.map((link) => (
-              <Link key={link.label} href={link.dest}>
+              <Link key={link.label} href={link.dest} target="_blank" rel="noopener noreferrer">
                 <span className="text-sm text-black transition-colors hover:text-blue-60">{link.label}</span>
               </Link>
             ))}

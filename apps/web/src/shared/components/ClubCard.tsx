@@ -1,7 +1,7 @@
 import type { GetClubs } from "cc-common";
 import { Button, Pill } from "~/shared/components";
 import Link from "next/link";
-import { TbUserCheck, TbFileText, TbUserX, TbTag } from "react-icons/tb";
+import { TbUserCheck, TbFileText, TbUserX, TbTag, TbAlertTriangle } from "react-icons/tb";
 import { Tag } from "~/shared/components";
 
 export type ClubCardProps = GetClubs["payload"]["clubs"][number];
@@ -36,6 +36,11 @@ export const ClubCard: React.FC<ClubCardProps> = (club) => {
         <div className="mt-3 mb-2 h-[1px] w-full bg-black-20" />
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
+            {!club.description ? (
+              <div className="p-1.5 border border-orange-500/40 bg-orange-500/10 rounded-md">
+                <TbAlertTriangle className="text-orange-600 text-xl" />
+              </div>
+            ) : null}
             <Pill type="status" status={club.status} />
             {club.availability === "OPEN" || club.availability === "APPLICATION" ? (
               <TbUserCheck className="text-xl text-black-60" />

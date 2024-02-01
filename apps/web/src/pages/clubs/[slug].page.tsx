@@ -17,6 +17,7 @@ import {
   TbMoodConfuzed,
   TbUserX,
   TbTag,
+  TbAlertTriangle,
 } from "react-icons/tb";
 import { Tag, Button, ClubCard, ClubCompassLogo, Pill } from "~/shared/components";
 import { useGetClub } from "~/lib/queries";
@@ -148,6 +149,17 @@ const Club: NextPageWithConfig = () => {
               </div>
             ) : null}
           </div>
+          {!cq.data.description && (
+            <div className="p-3 flex gap-2 border border-orange-500/40 bg-orange-500/10 rounded-lg">
+              <TbAlertTriangle className="text-orange-600 text-xl" />
+              <div className="flex flex-col relative">
+                <span className="relative -top-0.5">Club Incomplete</span>
+                <p className="text-xs text-black-60">
+                  If this is your club please contact the Club Commissioner to update your club information.
+                </p>
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="mt-6 flex items-center gap-2 md:mt-0">

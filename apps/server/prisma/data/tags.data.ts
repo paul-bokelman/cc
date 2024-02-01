@@ -32,4 +32,5 @@ export const tags: Tag["name"][] = [
   "writing",
   "awareness",
   "dance",
+  "education",
 ];
