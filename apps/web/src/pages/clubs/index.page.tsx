@@ -94,9 +94,6 @@ const Clubs: NextPageWithConfig = () => {
           <ClubSearchModal isOpen={showSearchModal} closeModal={() => setShowSearchModal(false)} />
         </div>
       </div>
-      {/* <div className="flex w-full border-b border-black-20 pb-4">
-        <h1 className="text-2xl font-bold">Clubs</h1>
-      </div> */}
       {cq.isSuccess && (
         <p className="text-sm text-black-60 -my-4">
           Showing {cq.data.clubs!.length} out of {cq.data.totalClubs} total clubs

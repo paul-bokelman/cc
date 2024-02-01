@@ -88,11 +88,8 @@ export const ClubsFilterModal: React.FC<ClubsFilterModalProps> = ({ isOpen, clos
             >
               <Dialog.Panel className="flex w-full max-w-2xl transform flex-col gap-4 overflow-hidden rounded-2xl bg-white py-6 text-left align-middle shadow-xl transition-all">
                 <div className="border-b border-gray-200 w-full grid grid-cols-3 pb-3 px-8">
-                  <div className="flex w-full items-center">
-                    <TbX
-                      className="text-lg cursor-pointer hover:text-black-60 transition-colors"
-                      onClick={closeModal}
-                    />
+                  <div className="cursor-pointer flex box-content w-fit items-center p-[7px] rounded-full border border-transparent hover:border-black-60/50 transition-colors">
+                    <TbX className="text-lg" onClick={closeModal} />
                   </div>
                   <p className="font-semibold w-full flex justify-center items-center">Club Filters</p>
                 </div>
@@ -166,7 +163,7 @@ export const ClubsFilterModal: React.FC<ClubsFilterModalProps> = ({ isOpen, clos
                       style={{ width: "fit-content", paddingLeft: 0, paddingRight: 0 }}
                       onClick={clearFilter}
                     >
-                      Clear Selection
+                      Clear Filters
                     </Button>
                   </div>
                   <div className="w-full flex justify-end">

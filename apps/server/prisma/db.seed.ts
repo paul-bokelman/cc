@@ -52,7 +52,8 @@ async function main() {
     await prisma.school.deleteMany({ where: { name: choice } });
     await prisma.school.create({ data: { name: choice } });
 
-    const clubs = await getSchoolClubs(choice);
+    const clubs =
+      choice === "staging" || choice === "testing" ? await getTestClubs(choice) : await getSchoolClubs(choice);
 
     for (const club of clubs) {
       const exists = await prisma.club.findUnique({ where: { slug: club.slug } });
