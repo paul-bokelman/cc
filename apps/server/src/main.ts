@@ -26,6 +26,8 @@ declare global {
   }))();
 
 client.on("connect", () => console.log("Redis client connected"));
+client.on("error", (e) => console.error(e)); // should notify admin
+client.on("end", () => console.log("Redis client disconnected"));
 
 export const app: Express = express();
 
