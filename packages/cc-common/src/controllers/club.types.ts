@@ -90,16 +90,16 @@ export const newClubSchema = z.object({
       .min(1, "You must select at least 1 tag")
       .max(3, "You can only select up to 3 tags"),
 
-    meetingFrequency: z.string().optional(),
-    meetingTime: z.string().optional(),
-    meetingDays: z.string().optional(),
-    meetingLocation: z.string().optional(),
+    meetingFrequency: z.string().max(10, "Meeting frequency cannot exceed 10 characters").optional(),
+    meetingTime: z.string().max(18, "Meeting time cannot exceed 18 characters").optional(),
+    meetingDays: z.string().max(48, "Meeting days cannot exceed 48 characters").optional(),
+    meetingLocation: z.string().max(15, "Meeting location cannot exceed 15 characters").optional(),
 
     contactEmail: z.string().email(),
     // check nonempty?
-    instagram: z.string().optional().nullable(),
-    facebook: z.string().optional().nullable(),
-    twitter: z.string().optional().nullable(),
+    instagram: z.string().max(30, "Instagram handle cannot exceed 30 characters").optional().nullable(),
+    facebook: z.string().max(50, "Facebook handle cannot exceed 50 characters").optional().nullable(),
+    twitter: z.string().max(15, "Twitter handle cannot exceed 15 characters").optional().nullable(),
     website: z
       .string()
       .url()
@@ -108,18 +108,35 @@ export const newClubSchema = z.object({
       .nullable()
       .transform((e) => (e === "" ? null : e)),
 
-    advisor: z.string().min(3, "Name must be at least 3 characters").pipe(nonempty),
-    president: z.string().min(3, "Name must be at least 3 characters").pipe(nonempty),
+    advisor: z
+      .string()
+      .min(3, "Name must be at least 3 characters")
+      .max(35, "Name cannot exceed 35 characters") // may be an issue...
+      .pipe(nonempty),
+    president: z
+      .string()
+      .min(3, "Name must be at least 3 characters")
+      .max(35, "Name cannot exceed 35 characters")
+      .pipe(nonempty),
     vicePresident: z
-      .union([z.string().length(0), z.string().min(3, "Name must be at least 3 characters")])
+      .union([
+        z.string().length(0),
+        z.string().min(3, "Name must be at least 3 characters").max(35, "Name cannot exceed 35 characters"),
+      ])
       .optional()
       .transform((e) => (e === "" ? null : e)),
     secretary: z
-      .union([z.string().length(0), z.string().min(3, "Name must be at least 3 characters")])
+      .union([
+        z.string().length(0),
+        z.string().min(3, "Name must be at least 3 characters").max(35, "Name cannot exceed 35 characters"),
+      ])
       .optional()
       .transform((e) => (e === "" ? null : e)),
     treasurer: z
-      .union([z.string().length(0), z.string().min(3, "Name must be at least 3 characters")])
+      .union([
+        z.string().length(0),
+        z.string().min(3, "Name must be at least 3 characters").max(35, "Name cannot exceed 35 characters"),
+      ])
       .optional()
       .transform((e) => (e === "" ? null : e)),
   }),
@@ -156,15 +173,15 @@ export const editClubSchema = z.object({
       // .min(1, "You must select at least 1 tag")
       .optional(),
 
-    meetingFrequency: z.string().optional(),
-    meetingTime: z.string().optional(),
-    meetingDays: z.string().optional(), // should be array of days
-    meetingLocation: z.string().optional(),
+    meetingFrequency: z.string().max(10, "Meeting frequency cannot exceed 10 characters").optional(),
+    meetingTime: z.string().max(18, "Meeting time cannot exceed 18 characters").optional(),
+    meetingDays: z.string().max(48, "Meeting days cannot exceed 48 characters").optional(),
+    meetingLocation: z.string().max(15, "Meeting location cannot exceed 15 characters").optional(),
 
     contactEmail: z.string().email().optional(),
-    instagram: z.string().optional().nullable(),
-    facebook: z.string().optional().nullable(),
-    twitter: z.string().optional().nullable(),
+    instagram: z.string().max(30).optional().nullable(),
+    facebook: z.string().max(50).optional().nullable(),
+    twitter: z.string().max(15).optional().nullable(),
     website: z
       .string()
       .url()
@@ -173,18 +190,37 @@ export const editClubSchema = z.object({
       .nullable()
       .transform((e) => (e === "" ? null : e)),
 
-    advisor: z.string().min(3, "Name must be at least 3 characters").pipe(nonempty).optional(),
-    president: z.string().min(3, "Name must be at least 3 characters").pipe(nonempty).optional(),
+    advisor: z
+      .string()
+      .min(3, "Name must be at least 3 characters")
+      .max(35, "Name cannot exceed 35 characters")
+      .pipe(nonempty)
+      .optional(),
+    president: z
+      .string()
+      .min(3, "Name must be at least 3 characters")
+      .max(35, "Name cannot exceed 35 characters")
+      .pipe(nonempty)
+      .optional(),
     vicePresident: z
-      .union([z.string().length(0), z.string().min(3, "Name must be at least 3 characters")])
+      .union([
+        z.string().length(0),
+        z.string().min(3, "Name must be at least 3 characters").max(35, "Name cannot exceed 35 characters"),
+      ])
       .optional()
       .transform((e) => (e === "" ? null : e)),
     secretary: z
-      .union([z.string().length(0), z.string().min(3, "Name must be at least 3 characters")])
+      .union([
+        z.string().length(0),
+        z.string().min(3, "Name must be at least 3 characters").max(35, "Name cannot exceed 35 characters"),
+      ])
       .optional()
       .transform((e) => (e === "" ? null : e)),
     treasurer: z
-      .union([z.string().length(0), z.string().min(3, "Name must be at least 3 characters")])
+      .union([
+        z.string().length(0),
+        z.string().min(3, "Name must be at least 3 characters").max(35, "Name cannot exceed 35 characters"),
+      ])
       .optional()
       .transform((e) => (e === "" ? null : e)),
   }),
