@@ -91,40 +91,43 @@ const DashboardClubCard: React.FC<DashboardClubCardProps> = (club) => {
   ];
 
   return (
-    <div className="flex w-full flex-col gap-2 rounded-md border border-black-20 p-4">
-      <h2 className="text-lg font-semibold">{club.name}</h2>
-      <div className="flex w-full items-center gap-10">
-        {Object.entries(leadership).map(([role, name]) => (
-          <div key={name} className="flex flex-col gap-1">
-            <span className="text-xs italic text-black-50">{role}</span>
-            <span className="text-black-70">{name}</span>
-          </div>
-        ))}
+    <div className="flex w-full flex-col gap-2 rounded-md border border-black-20 p-4 justify-between">
+      <div className="flex flex-col gap-2">
+        <h2 className="text-lg font-semibold">{club.name}</h2>
+        <div className="flex w-full items-center gap-10">
+          {Object.entries(leadership).map(([role, name]) => (
+            <div key={name} className="flex flex-col gap-1 w-full overflow-x-scroll">
+              <span className="text-xs italic text-black-50">{role}</span>
+              <span className="text-black-70">{name}</span>
+            </div>
+          ))}
+        </div>
+        <div className="mt-1 flex items-center gap-4">
+          {additionalInformation.map((info) => (
+            <div key={info.value} className="flex items-center gap-1">
+              {info.icon && <info.icon className="text-lg text-black" />}
+              <span className="text-xs capitalize text-black-60">{info.value}</span>
+            </div>
+          ))}
+        </div>
       </div>
 
-      <div className="mt-2 flex items-center gap-4">
-        {additionalInformation.map((info) => (
-          <div key={info.value} className="flex items-center gap-1">
-            {info.icon && <info.icon className="text-lg text-black" />}
-            <span className="text-xs capitalize text-black-60">{info.value}</span>
+      <div className="mt-3 flex flex-col gap-4">
+        <div className="h-[1px] w-full bg-black-20 items-end" />
+        <div className="flex items-center w-full justify-between">
+          <Pill type="status" status={club.status} />
+          <div className="flex items-center gap-2">
+            <Link href={`/clubs/${club.slug}`}>
+              <Button variant="secondary" size="small">
+                View Page
+              </Button>
+            </Link>
+            <Link href={`/admin/clubs/${club.id}`}>
+              <Button variant="primary" size="small">
+                Manage
+              </Button>
+            </Link>
           </div>
-        ))}
-      </div>
-
-      <div className="mt-3 mb-2 h-[1px] w-full bg-black-20" />
-      <div className="flex items-center w-full justify-between">
-        <Pill type="status" status={club.status} />
-        <div className="flex items-center gap-2">
-          <Link href={`/clubs/${club.slug}`}>
-            <Button variant="secondary" size="small">
-              View Page
-            </Button>
-          </Link>
-          <Link href={`/admin/clubs/${club.id}`}>
-            <Button variant="primary" size="small">
-              Manage
-            </Button>
-          </Link>
         </div>
       </div>
     </div>

@@ -24,7 +24,7 @@ export const ClubCard: React.FC<ClubCardProps> = (club) => {
           )}
         </div>
         {/* truncating to 140 characters (should find another solution) */}
-        <p className="text-base lg:text-sm text-black-60">
+        <p className="text-base lg:text-sm text-black-60 w-full overflow-x-scroll">
           {!club.description
             ? "No description provided."
             : club.description.length > 140

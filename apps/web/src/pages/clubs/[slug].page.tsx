@@ -213,7 +213,7 @@ const Club: NextPageWithConfig = () => {
               <div key={name} className="flex">
                 <div className="flex flex-col gap-1">
                   <span className="text-xs italic text-black-50 capitalize">{role}</span>
-                  <span className="text-black-70">{name ?? "Not assigned"}</span>
+                  <span className="text-black-70 overflow-x-scroll w-40 lg:w-40 md:w-24">{name ?? "Not assigned"}</span>
                 </div>
               </div>
             ))}
