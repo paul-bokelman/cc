@@ -120,22 +120,22 @@ export const newClubSchema = z.object({
       .pipe(nonempty),
     vicePresident: z
       .union([
-        z.string().length(0),
         z.string().min(3, "Name must be at least 3 characters").max(35, "Name cannot exceed 35 characters"),
+        z.string().length(0),
       ])
       .optional()
       .transform((e) => (e === "" ? null : e)),
     secretary: z
       .union([
-        z.string().length(0),
         z.string().min(3, "Name must be at least 3 characters").max(35, "Name cannot exceed 35 characters"),
+        z.string().length(0),
       ])
       .optional()
       .transform((e) => (e === "" ? null : e)),
     treasurer: z
       .union([
-        z.string().length(0),
         z.string().min(3, "Name must be at least 3 characters").max(35, "Name cannot exceed 35 characters"),
+        z.string().length(0),
       ])
       .optional()
       .transform((e) => (e === "" ? null : e)),
@@ -179,9 +179,9 @@ export const editClubSchema = z.object({
     meetingLocation: z.string().max(15, "Meeting location cannot exceed 15 characters").optional(),
 
     contactEmail: z.string().email().optional(),
-    instagram: z.string().max(30).optional().nullable(),
-    facebook: z.string().max(50).optional().nullable(),
-    twitter: z.string().max(15).optional().nullable(),
+    instagram: z.string().max(30, "Instagram handle cannot exceed 30 characters").optional().nullable(),
+    facebook: z.string().max(50, "Facebook handle cannot exceed 50 characters").optional().nullable(),
+    twitter: z.string().max(15, "Twitter handle cannot exceed 15 characters").optional().nullable(),
     website: z
       .string()
       .url()
@@ -204,22 +204,22 @@ export const editClubSchema = z.object({
       .optional(),
     vicePresident: z
       .union([
-        z.string().length(0),
         z.string().min(3, "Name must be at least 3 characters").max(35, "Name cannot exceed 35 characters"),
+        z.string().length(0),
       ])
       .optional()
       .transform((e) => (e === "" ? null : e)),
     secretary: z
       .union([
-        z.string().length(0),
         z.string().min(3, "Name must be at least 3 characters").max(35, "Name cannot exceed 35 characters"),
+        z.string().length(0),
       ])
       .optional()
       .transform((e) => (e === "" ? null : e)),
     treasurer: z
       .union([
-        z.string().length(0),
         z.string().min(3, "Name must be at least 3 characters").max(35, "Name cannot exceed 35 characters"),
+        z.string().length(0),
       ])
       .optional()
       .transform((e) => (e === "" ? null : e)),
