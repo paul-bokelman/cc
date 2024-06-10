@@ -1,0 +1,5 @@
+build = turbo run build --filter=web
+install = npm install --prefix=../.. && cd ../server && npm run db:generate && cd ../web
+root = apps/web
+domains = www, beckman, staging
+different env vars
