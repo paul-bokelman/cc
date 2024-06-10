@@ -44,3 +44,4 @@ yarn-error.log*
 apps/server/.vscode/settings.json
 apps/server/prisma/data/schools/schools.json
 apps/server/prisma/data/schools/beckman/beckman-unify-csv.py
+VERCEL_BUILD.txt
