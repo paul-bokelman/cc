@@ -7,3 +7,4 @@ export * from "./controllers/auth.types";
 export * from "./controllers/user.types";
 export * from "./controllers/admin.types";
 export * from "./controllers/tag.types";
+export * from "./controllers/general.types";

@@ -8,6 +8,14 @@ datasource db {
     url      = env("DB_URL")
 }
 
+model Inquiry {
+    id        String   @id @default(cuid())
+    name      String
+    email     String
+    message   String
+    createdAt DateTime @default(now())
+}
+
 model School {
     id   String @id @default(cuid())
     name String @unique

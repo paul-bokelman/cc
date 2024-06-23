@@ -4,3 +4,4 @@ export * from "./admin.queries";
 export * from "./user.queries";
 export * from "./auth.queries";
 export * from "./tag.queries";
+export * from "./general.queries";

@@ -5,7 +5,7 @@
 const nextConfig = {
   transpilePackages: ["cc-common"],
   reactStrictMode: true,
-  pageExtensions: ["page.tsx", "page.ts", "page.jsx", "page.js"],
+  pageExtensions: ["page.tsx", "page.ts", "page.jsx", "page.js", "api.ts"],
   images: { remotePatterns: [{ protocol: "https", hostname: "**" }] },
   i18n: { locales: ["en"], defaultLocale: "en" },
   rewrites: async () => [

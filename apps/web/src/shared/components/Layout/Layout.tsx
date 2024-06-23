@@ -6,10 +6,7 @@ export enum View {
   DASHBOARD = "dashboard",
   NONE = "none",
 }
-export type Layouts =
-  | StandardLayout
-  | DashboardLayout
-  | { view: View.NONE | "none" };
+export type Layouts = StandardLayout | DashboardLayout | { view: View.NONE | "none" };
 
 export type Layout = { layout: Layouts };
 

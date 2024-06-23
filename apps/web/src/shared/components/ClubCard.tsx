@@ -1,16 +1,22 @@
 import type { GetClubs } from "cc-common";
+import cn from "classnames";
 import { Button, Pill } from "~/shared/components";
 import Link from "next/link";
 import { TbUserCheck, TbFileText, TbUserX, TbTag, TbAlertTriangle } from "react-icons/tb";
 import { Tag } from "~/shared/components";
 
-export type ClubCardProps = GetClubs["payload"]["clubs"][number];
+export type ClubCardProps = GetClubs["payload"]["clubs"][number] & { notInteractive?: boolean };
 
 export const ClubCard: React.FC<ClubCardProps> = (club) => {
   return (
-    <div className="flex min-w-0 w-full lg:max-w-md flex-col gap-2 rounded-md border border-black-20 p-4 h-full justify-between shadow-sm">
+    <div
+      className={cn(
+        "flex min-w-0 w-full lg:max-w-md flex-col gap-2 rounded-md border border-black-20 p-4 h-full justify-between shadow-sm pointer",
+        { "pointer-events-none": club.notInteractive }
+      )}
+    >
       <div className="flex flex-col gap-2">
-        <Link href={`/clubs/${club.slug}`}>
+        <Link href={`/clubs/${club.slug}`} tabIndex={club.notInteractive ? -1 : undefined}>
           <h2 className="text-xl lg:text-lg font-semibold hover:underline cursor-pointer">{club.name}</h2>
         </Link>
         <div className="flex items-center gap-1 overflow-scroll">
@@ -48,8 +54,8 @@ export const ClubCard: React.FC<ClubCardProps> = (club) => {
             {club.availability === "APPLICATION" ? <TbFileText className="text-xl text-black-60" /> : null}
             {club.availability === "CLOSED" ? <TbUserX className="text-xl text-black-60" /> : null}
           </div>
-          <Link href={`/clubs/${club.slug}`}>
-            <Button size="small" variant="secondary">
+          <Link href={`/clubs/${club.slug}`} tabIndex={club.notInteractive ? -1 : undefined}>
+            <Button size="small" variant="secondary" tabIndex={club.notInteractive ? -1 : undefined}>
               Learn More
             </Button>
           </Link>

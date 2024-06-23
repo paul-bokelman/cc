@@ -6,10 +6,9 @@ import { QueryClientProvider } from "react-query";
 import { Toaster } from "react-hot-toast";
 import NProgress from "nprogress";
 import { queryClient } from "~/lib/queries";
-import { subdomains } from "~/lib/utils";
 import { AuthProvider, ClubCompassLogo } from "~/shared/components";
 import { Layout } from "~/shared/components";
-import { parseSubdomain, appendSubdomain } from "~/lib/utils";
+import { parseSubdomain } from "~/lib/utils";
 import "../styles/global.css";
 
 NProgress.configure({ easing: "ease", speed: 500 });
@@ -36,29 +35,6 @@ const ClubCompass = ({ Component, pageProps: { session, ...pageProps } }: Extend
         <ClubCompassLogo className="animate-pulse text-5xl" />
       </div>
     );
-
-  if (validSubdomain === false) {
-    return (
-      <div className="w-screen h-screen flex flex-col gap-2 items-center justify-center">
-        <div className="text-4xl font-bold text-gray-800">Under construction (v1.0)</div>
-        <div className="">Main site currently not supported. Supported locations: </div>
-        <div className="flex items-center gap-2">
-          {subdomains.map((sd) => (
-            <div key={sd}>
-              <span
-                onClick={() => {
-                  window.location.href = appendSubdomain(sd, process.env.NEXT_PUBLIC_CLIENT_URL as string);
-                }}
-                className="font-semibold text-blue-70 hover:underline cursor-pointer"
-              >
-                {sd}
-              </span>
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  }
 
   return (
     <QueryClientProvider client={queryClient}>

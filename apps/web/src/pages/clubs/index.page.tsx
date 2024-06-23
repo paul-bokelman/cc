@@ -1,6 +1,6 @@
 import type { NextPageWithConfig } from "~/shared/types";
 import type { GetClubs } from "cc-common";
-import { useEffect, useState } from "react";
+import * as React from "react";
 import { useRouter } from "next/router";
 import { TbChevronDown, TbFilter, TbSearchOff, TbMoodConfuzed, TbSearch } from "react-icons/tb";
 import {
@@ -21,9 +21,9 @@ const Clubs: NextPageWithConfig = () => {
   const { width } = useWindowSize();
   const { query, append: appendToQuery, parse: parseQ } = useQ<GetClubs["query"]>();
 
-  const [activeSortIndex, setActiveSortIndex] = useState<number>(0);
-  const [showFilterModal, setShowFilterModal] = useState<boolean>(false);
-  const [showSearchModal, setShowSearchModal] = useState<boolean>(false);
+  const [activeSortIndex, setActiveSortIndex] = React.useState<number>(0);
+  const [showFilterModal, setShowFilterModal] = React.useState<boolean>(false);
+  const [showSearchModal, setShowSearchModal] = React.useState<boolean>(false);
 
   const isMobile = width && width < 640;
 
@@ -47,7 +47,7 @@ const Clubs: NextPageWithConfig = () => {
     appendToQuery({ sort: sortMenuItems[i].value });
   };
 
-  useEffect(() => {
+  React.useEffect(() => {
     setActiveSortIndex(query.sort ? sortMenuItems.findIndex((item) => item.value === query.sort) : 0);
   }, []);
 
